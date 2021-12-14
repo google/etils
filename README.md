@@ -19,10 +19,10 @@ jax,...)
 
 Documentation:
 
-* `etils.epath`: pathlib-like API for `gs://`, `s3://`,...
-* `etils.etree`: Tree utils for `tf.nest`, `jax.tree_utils`, DeepMind `tree`.
-* `etils.ecolab`: Colab utils.
-* `etils.array_types`: Typing annotations for jax, numpy,... arrays
-* `etils.epy`: Collection of generic python utils.
+* [`etils.epath`](https://github.com/google/etils/tree/main/etils/epath): pathlib-like API for `gs://`, `s3://`,...
+* [`etils.etree`](https://github.com/google/etils/tree/main/etils/etree): Tree utils for `tf.nest`, `jax.tree_utils`, DeepMind `tree`.
+* [`etils.ecolab`](https://github.com/google/etils/tree/main/etils/ecolab): Colab utils.
+* [`etils.array_types`](https://github.com/google/etils/tree/main/etils/array_types): Typing annotations for jax, numpy,... arrays
+* [`etils.epy`](https://github.com/google/etils/tree/main/etils/epy): Collection of generic python utils.
 
 *This is not an official Google product.*
