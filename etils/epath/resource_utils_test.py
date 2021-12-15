@@ -17,19 +17,6 @@
 from etils import epath
 
 
-# copybara: strip_begin
-def test_resource_g3():
-  path = epath.g3_path() / 'third_party/py/etils/epath/'
-  assert path.exists()
-  assert path.is_dir()
-  assert 'README.md' in set(p.name for p in path.iterdir())
-
-  path = path / 'README.md'
-  assert path.exists()
-  assert path.read_text()
-
-
-# copybara: strip_end
 def test_resource():
   path = epath.resource_path('etils.epath')
   assert path.exists()

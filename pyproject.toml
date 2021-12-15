@@ -1,0 +1,65 @@
+[tool.poetry]
+name = "etils"
+version = "0.1.0"
+description = "Collection of common python utils"
+authors = ["Etils team <etils@google.com>"]
+license = "Apache-2.0"
+homepage = "https://github.com/google/etils"
+readme = "README.md"
+repository = "https://github.com/google/etils"
+keywords = ["utils", "jax", "tensorflow", "tf"]
+classifiers = [
+    # Note: Python and license automatically added
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+# All etils deps are optional, as submodules can be installed individually.
+# TODO(etils): Currently, poetry doesn't work when group are used with extras
+# https://github.com/python-poetry/poetry/issues/4891
+absl-py = {version="*", optional=true}
+importlib_resources = {version="*", optional=true}
+jax = {version="*", optional=true}
+jupyter = {version="*", optional=true}
+matplotlib = {version="*", optional=true}
+numpy = {version=">=1.17", optional=true}
+tf-nightly = {version="*", optional=true}
+tqdm = {version="*", optional=true}
+tree = {version="*", optional=true}
+zipp = {version="*", optional=true}
+
+[tool.poetry.extras]
+# TODO(etils): Ideally poetry should support cross-extra dependencies
+# https://github.com/python-poetry/poetry/issues/2878
+array_types = ["numpy"]
+ecolab = ["jupyter", "matplotlib", "numpy"]
+epath = ["importlib_resources", "tf-nightly", "zipp"]  # + epy
+epy = []
+etqdm = ["absl-py", "tqdm"]  # + epy
+etree_dm = ["tree"] # + etqdm
+etree_tf = ["tf-nightly"] # + etqdm
+etree_jax = ["jax"] # + etqdm
+# TODO(etils): Should have a better way of installing all extra:
+# https://github.com/python-poetry/poetry/issues/3413
+all = [
+    "absl-py",
+    "importlib_resources",
+    "jax",
+    "jupyter",
+    "matplotlib",
+    "numpy",
+    "tf-nightly",
+    "tqdm",
+    "tree",
+    "zipp",
+]
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=3.4"
+pytest-xdist = "*"
+
+[build-system]
+requires = ["poetry-core>=1.2a2"]
+build-backend = "poetry.core.masonry.api"
