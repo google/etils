@@ -21,7 +21,7 @@ python = "^3.7"
 # https://github.com/python-poetry/poetry/issues/4891
 absl-py = {version="*", optional=true}
 importlib_resources = {version="*", optional=true}
-jax = {version="*", optional=true}
+jax = {version="*", optional=true, extras=["cpu"]}
 jupyter = {version="*", optional=true}
 matplotlib = {version="*", optional=true}
 numpy = {version=">=1.17", optional=true}
