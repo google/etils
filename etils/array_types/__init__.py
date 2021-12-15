@@ -19,12 +19,15 @@ from etils.array_types.typing import ArrayLike
 import numpy as np
 
 Array = ArrayAliasMeta(shape=None, dtype=None)
+FloatArray = ArrayAliasMeta(shape=None, dtype=None)
+IntArray = ArrayAliasMeta(shape=None, dtype=None)
+StrArray = ArrayAliasMeta(shape=None, dtype=np.dtype('O'))
+
 f32 = ArrayAliasMeta(shape=None, dtype=np.float32)
 ui8 = ArrayAliasMeta(shape=None, dtype=np.uint8)
 ui32 = ArrayAliasMeta(shape=None, dtype=np.uint32)
 i32 = ArrayAliasMeta(shape=None, dtype=np.int32)
 bool_ = ArrayAliasMeta(shape=None, dtype=np.bool_)
-StrArray = ArrayAliasMeta(shape=None, dtype=np.dtype('O'))
 
 # Random number generator jax key
 PRNGKey = ui32[2]
