@@ -16,7 +16,6 @@
 
 from etils.epath.abstract_path import Path
 from etils.epath.register import register_path_cls
-from etils.epath.resource_utils import g3_path
 from etils.epath.resource_utils import resource_path
 from etils.epath.resource_utils import to_write_path
 from etils.epath.typing import PathLike

@@ -20,14 +20,14 @@ python = "^3.7"
 # TODO(etils): Currently, poetry doesn't work when group are used with extras
 # https://github.com/python-poetry/poetry/issues/4891
 absl-py = {version="*", optional=true}
+dm-tree = {version="*", optional=true}
 importlib_resources = {version="*", optional=true}
-jax = {version="*", optional=true}
+jax = {version="*", extras=["cpu"], optional=true}
 jupyter = {version="*", optional=true}
 matplotlib = {version="*", optional=true}
 numpy = {version=">=1.17", optional=true}
 tf-nightly = {version="*", optional=true}
 tqdm = {version="*", optional=true}
-tree = {version="*", optional=true}
 zipp = {version="*", optional=true}
 
 [tool.poetry.extras]
@@ -38,13 +38,14 @@ ecolab = ["jupyter", "matplotlib", "numpy"]
 epath = ["importlib_resources", "tf-nightly", "zipp"]  # + epy
 epy = []
 etqdm = ["absl-py", "tqdm"]  # + epy
-etree_dm = ["tree"] # + etqdm
+etree_dm = ["dm-tree"] # + [epy, etqdm]
 etree_tf = ["tf-nightly"] # + etqdm
 etree_jax = ["jax"] # + etqdm
 # TODO(etils): Should have a better way of installing all extra:
 # https://github.com/python-poetry/poetry/issues/3413
 all = [
     "absl-py",
+    "dm-tree",
     "importlib_resources",
     "jax",
     "jupyter",
@@ -52,13 +53,13 @@ all = [
     "numpy",
     "tf-nightly",
     "tqdm",
-    "tree",
     "zipp",
 ]
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=3.4"
 pytest-xdist = "*"
+tfds-nightly = "*"  # TODO(etils): Remove deps
 
 [build-system]
 requires = ["poetry-core>=1.2a2"]

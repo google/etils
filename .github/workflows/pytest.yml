@@ -1,0 +1,26 @@
+name: Unittests
+
+on: push
+
+jobs:
+  pytest-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
+
+    - uses: actions/checkout@v2
+
+    # Install deps
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - run: python -m pip install poetry --pre
+    - run: poetry install -E all
+
+    # Run tests
+    - name: Run core tests
+      run: poetry run pytest -vv -n auto

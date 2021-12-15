@@ -18,10 +18,9 @@ import concurrent.futures
 import functools
 from typing import Any, Callable, Iterable, Iterator, Optional, TypeVar
 
+from etils import etqdm
 from etils.etree import backend as backend_lib
 from etils.etree.typing import Tree
-# TODO(epot): Wrap tqdm in a tqdm util
-import tqdm
 
 _T = Any  # TODO(pytype): Replace by `TypeVar`
 _Tin = Any  # Could make this TypeVar if typing support variadic
@@ -64,7 +63,7 @@ class TreeAPI:
 
       itr = concurrent.futures.as_completed(leaves)
       if progress_bar:
-        itr = tqdm.tqdm(itr, total=len(leaves))
+        itr = etqdm.tqdm(itr, total=len(leaves))
 
       for f in itr:  # Propagate exception to main thread.
         if f.exception():

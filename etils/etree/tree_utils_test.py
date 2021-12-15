@@ -21,12 +21,6 @@ import numpy as np
 import pytest
 
 
-# Big libraries are lazylly imported
-assert 'tensorflow' not in sys.modules
-assert 'jax' not in sys.modules
-assert 'tree' not in sys.modules
-
-
 @pytest.fixture(
     params=[  # Run all tests 3 times (one for each backends)
         etree_lib.jax,
