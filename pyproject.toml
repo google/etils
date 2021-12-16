@@ -35,6 +35,7 @@ zipp = {version="*", optional=true}
 # https://github.com/python-poetry/poetry/issues/2878
 array_types = ["numpy"]
 ecolab = ["jupyter", "matplotlib", "numpy"]
+enp = ["numpy"]  # + array_types
 epath = ["importlib_resources", "tf-nightly", "zipp"]  # + epy
 epy = []
 etqdm = ["absl-py", "tqdm"]  # + epy
