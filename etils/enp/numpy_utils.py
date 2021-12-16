@@ -21,6 +21,70 @@ from etils.array_types import Array
 import numpy as np
 
 
+class _LazyImporter:
+  """Lazy import module.
+
+  This allow to use `enp` with numpy only without requiring TF nor Jax.
+
+  """
+
+  @property
+  def has_jax(self) -> bool:
+    return 'jax' in sys.modules
+
+  @property
+  def has_tf(self) -> bool:
+    return 'tensorflow' in sys.modules
+
+  @property
+  def jax(self):
+    import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    return jax
+
+  @property
+  def jnp(self):
+    import jax.numpy as jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    return jnp
+
+  @property
+  def tf(self):
+    import tensorflow  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    return tensorflow
+
+  @property
+  def tnp(self):
+    import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    return tnp
+
+
+_lazy = _LazyImporter()
+
+
+def get_np_module(array: Array):  # Ideally should use `-> Literal[np]:``
+  """Returns the numpy module associated with the given array.
+
+  Args:
+    array: Either tf, jax or numpy array.
+
+  Returns:
+    The numpy module.
+  """
+  # This is inspired from NEP 37 but without the `__array_module__` magic:
+  # https://numpy.org/neps/nep-0037-array-module.html
+  # Note there is also an implementation of NEP 37 from the author, but look
+  # overly complicated and not available at google.
+  # https://github.com/seberg/numpy-dispatch
+  if isinstance(array, np.ndarray):
+    return np
+  elif _lazy.has_jax and isinstance(array, _lazy.jnp.ndarray):
+    return _lazy.jnp
+  elif _lazy.has_tf and isinstance(array, _lazy.tnp.ndarray):
+    return _lazy.tnp
+  else:
+    raise TypeError(
+        f'Cannot infer the numpy module from array: {type(array).__name__}')
+
+
 def is_dtype_str(dtype) -> bool:
   """Returns True if the dtype is `str`."""
   if type(dtype) is object:  # tf.string.as_numpy_dtype is object  # pylint: disable=unidiomatic-typecheck
@@ -52,12 +116,7 @@ def is_array(x: Any) -> bool:
   """Returns `True` if array is np or `jnp` array."""
   if isinstance(x, np.ndarray):
     return True
-  elif 'jax' in sys.modules and _is_jax_array(x):
+  elif _lazy.has_jax and isinstance(x, _lazy.jnp.ndarray):
     return True
   else:
     return False
-
-
-def _is_jax_array(x):
-  import jax.numpy as jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-  return isinstance(x, jnp.ndarray)

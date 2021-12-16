@@ -28,6 +28,7 @@ matplotlib = {version="*", optional=true}
 numpy = {version=">=1.17", optional=true}
 tf-nightly = {version="*", optional=true}
 tqdm = {version="*", optional=true}
+typing-extensions = {version="*", optional=true}
 zipp = {version="*", optional=true}
 
 [tool.poetry.extras]
@@ -54,6 +55,7 @@ all = [
     "numpy",
     "tf-nightly",
     "tqdm",
+    "typing-extensions",
     "zipp",
 ]
 

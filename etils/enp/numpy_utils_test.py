@@ -18,6 +18,30 @@ from etils import enp
 import jax.numpy as jnp
 import numpy as np
 import pytest
+import tensorflow as tf
+import tensorflow.experimental.numpy as tnp
+
+
+@pytest.fixture(scope='module', autouse=True)
+def setup_tf():
+  tnp.experimental_enable_numpy_behavior()
+
+
+def fn(x):
+  xnp = enp.get_np_module(x)
+  y = xnp.sum(x) + x.mean()
+  return x + y
+
+
+def test_get_array_module_tf():
+  y = fn(tf.constant([123]))
+  assert isinstance(y, tnp.ndarray)
+
+
+@pytest.mark.parametrize('np_module', [np, jnp, tnp])
+def test_get_array_module(np_module):
+  y = fn(np_module.array([123]))
+  assert isinstance(y, np_module.ndarray)
 
 
 @pytest.mark.parametrize('np_module', [np, jnp])
