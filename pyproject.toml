@@ -65,5 +65,5 @@ pytest-xdist = "*"
 tfds-nightly = "*"  # TODO(etils): Remove deps
 
 [build-system]
-requires = ["poetry-core>=1.2a2"]
+requires = ["poetry-core>=1.1.0a6"]
 build-backend = "poetry.core.masonry.api"
