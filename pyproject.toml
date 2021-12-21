@@ -1,69 +1,92 @@
-[tool.poetry]
+[project]
 name = "etils"
-version = "0.1.0"
+version = "0.2.0"
 description = "Collection of common python utils"
-authors = ["Etils team <etils@google.com>"]
-license = "Apache-2.0"
-homepage = "https://github.com/google/etils"
 readme = "README.md"
-repository = "https://github.com/google/etils"
-keywords = ["utils", "jax", "tensorflow", "tf"]
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [{name = "Conchylicultor", email="etils@google.com"}]
 classifiers = [
-    # Note: Python and license automatically added
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: Apache Software License",
+    # Note: Python and license automatically added by some tools
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+keywords = [
+    "utils", "jax", "tensorflow", "tf", "machine learning", "deep learning"
+]
+# No default dependencies (submodules deps are optional and should be
+# installed individually)
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.7"
+[project.urls]
+homepage = "https://github.com/google/etils"
+repository = "https://github.com/google/etils"
+# Other: `documentation`, `changelog`
 
-# All etils deps are optional, as submodules can be installed individually.
-# TODO(etils): Currently, poetry doesn't work when group are used with extras
-# https://github.com/python-poetry/poetry/issues/4891
-absl-py = {version="*", optional=true}
-dm-tree = {version="*", optional=true}
-importlib_resources = {version="*", optional=true}
-jax = {version="*", extras=["cpu"], optional=true}
-jupyter = {version="*", optional=true}
-matplotlib = {version="*", optional=true}
-numpy = {version=">=1.17", optional=true}
-tf-nightly = {version="*", optional=true}
-tqdm = {version="*", optional=true}
-typing-extensions = {version="*", optional=true}
-zipp = {version="*", optional=true}
-
-[tool.poetry.extras]
-# TODO(etils): Ideally poetry should support cross-extra dependencies
-# https://github.com/python-poetry/poetry/issues/2878
-array_types = ["numpy"]
-ecolab = ["jupyter", "matplotlib", "numpy"]
-enp = ["numpy"]  # + array_types
-epath = ["importlib_resources", "tf-nightly", "zipp"]  # + epy
-epy = []
-etqdm = ["absl-py", "tqdm"]  # + epy
-etree_dm = ["dm-tree"] # + [epy, etqdm]
-etree_tf = ["tf-nightly"] # + etqdm
-etree_jax = ["jax"] # + etqdm
-# TODO(etils): Should have a better way of installing all extra:
-# https://github.com/python-poetry/poetry/issues/3413
-all = [
-    "absl-py",
-    "dm-tree",
-    "importlib_resources",
-    "jax",
+[project.optional-dependencies]
+array-types = [
+    "numpy",
+]
+ecolab = [
     "jupyter",
     "matplotlib",
     "numpy",
+]
+enp = [
+    "numpy",
+    "etils[array-types]"
+]
+epath = [
+    "importlib_resources",
     "tf-nightly",
-    "tqdm",
-    "typing-extensions",
     "zipp",
+    "etils[epy]"
+]
+epy = []
+etqdm = [
+    "absl-py",
+    "tqdm",
+    "etils[epy]"
+]
+etree = [
+    "etils[epy]",
+    "etils[etqdm]",
+]
+etree-dm = [
+    "dm-tree",
+    "etils[etree]",
+]
+etree-jax = [
+    "jax[cpu]",
+    "etils[etree]",
+]
+etree-tf = [
+    "tf-nightly",
+    "etils[etree]",
+]
+all = [
+    "etils[array-types]",
+    "etils[ecolab]",
+    "etils[enp]",
+    "etils[epath]",
+    "etils[epy]",
+    "etils[etqdm]",
+    "etils[etree]",
+    "etils[etree-dm]",
+    "etils[etree-jax]",
+    "etils[etree-tf]",
 ]
 
-[tool.poetry.group.dev.dependencies]
-pytest = ">=3.4"
-pytest-xdist = "*"
-tfds-nightly = "*"  # TODO(etils): Remove deps
+dev = [
+    "pytest",
+    "pytest-xdist",
+    "tfds-nightly",  # TODO(etils): Remove deps
+]
 
 [build-system]
-requires = ["poetry-core>=1.1.0a6"]
-build-backend = "poetry.core.masonry.api"
+requires = ["flit_core >=3.5,<4"]
+build-backend = "flit_core.buildapi"
