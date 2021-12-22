@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Abcdeep API."""
+"""Etils API."""
+
+# TODO(etils): Setup automated monthly releases
+__version__ = '0.2.0'
 
 # Do NOT add anything to this file. This is left empty on purpose.
 # Users should import subprojects directly.

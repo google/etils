@@ -1,6 +1,5 @@
 [project]
 name = "etils"
-version = "0.2.0"
 description = "Collection of common python utils"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -21,6 +20,9 @@ keywords = [
 # No default dependencies (submodules deps are optional and should be
 # installed individually)
 dependencies = []
+
+# This is set automatically by flit using `etils.__version__`
+dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/google/etils"
