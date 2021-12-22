@@ -20,6 +20,7 @@ jobs:
         python-version: 3.7
     - run: pip --version
     - run: pip install -e .[all,dev]
+    - run: pip freeze
 
     # Run tests
     - name: Run core tests
