@@ -81,7 +81,7 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
   """Returns `importlib.resources.files`."""
   path = importlib_resources.files(package)  # pytype: disable=module-attr
   if isinstance(path, pathlib.Path):
-    # TODO(tfds): To ensure compatibility with zipfile.Path, we should ensure
+    # TODO(etils): To ensure compatibility with zipfile.Path, we should ensure
     # that the returned `pathlib.Path` isn't missused. More specifically:
     # * `os.fspath` should only be called on files (not directories)
     # * `str(path)` should be forbidden (only `__format__` allowed).
