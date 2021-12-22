@@ -14,8 +14,8 @@
 
 """Etils API."""
 
-# TODO(etils): Setup automated monthly releases
-__version__ = '0.2.0'
+# TODO(etils): Setup automated releases (on `push` everytime this is increased)
+__version__ = '0.3.0'
 
 # Do NOT add anything to this file. This is left empty on purpose.
 # Users should import subprojects directly.

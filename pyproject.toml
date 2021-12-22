@@ -40,19 +40,23 @@ ecolab = [
 ]
 enp = [
     "numpy",
-    "etils[array-types]"
+    "etils[array-types]",
 ]
-epath = [
+epath_no_tf = [  # Users might want to choose between tf / tf-nightly
     "importlib_resources",
     "tf-nightly",
     "zipp",
-    "etils[epy]"
+    "etils[epy]",
+]
+epath = [
+    "etils[epath_no_tf]",
+    "tf-nightly",
 ]
 epy = []
 etqdm = [
     "absl-py",
     "tqdm",
-    "etils[epy]"
+    "etils[epy]",
 ]
 etree = [
     "etils[epy]",
