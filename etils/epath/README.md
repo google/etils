@@ -8,7 +8,7 @@ Resource API:
 
 *   `resource_path(module_name: str | ModuleType) -> Path`: Resource path
     (read-only).
-*   `write_path(path: Path) -> Path`: Convert read-only resource path into
+*   `to_write_path(path: Path) -> Path`: Convert read-only resource path into
     writable path.
 
 Typing API:
