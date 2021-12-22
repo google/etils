@@ -1,6 +1,7 @@
 name: Unittests
 
-on: push
+# Allow to trigger the workflow manually (e.g. when deps changes)
+on: [push, workflow_dispatch]
 
 jobs:
   pytest-job:
