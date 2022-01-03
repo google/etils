@@ -34,6 +34,10 @@ class CustomWithStrError(CustomError):
     return f'custom error: {self.custom_args}, {self.custom_kwargs}'
 
 
+def test_false():
+  assert False
+
+
 def test_reraise():
   # No args
   with pytest.raises(ValueError, match='Caught: '):
