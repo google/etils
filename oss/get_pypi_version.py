@@ -29,7 +29,6 @@ def parse_arguments() -> argparse.Namespace:
   parser = argparse.ArgumentParser()
   parser.add_argument(
       "pkg_name",
-      required=True,
       help="Package to search.",
   )
   parser.add_argument(

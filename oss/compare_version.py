@@ -16,7 +16,7 @@
 
 Outputs:
 
-* `should_release`: Whether local_version > pypi_version ("true" or "false")
+* `should-release`: Whether local_version > pypi_version ("true" or "false")
 
 """
 

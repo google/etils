@@ -29,8 +29,9 @@ jobs:
 
   # Auto-publish when version is increased
   publish-job:
-    # prevents action from running on forks
-    # Only trigger auto-publish on main branch
+    # Only try to publish if:
+    # * Repo is etils (prevents running from forks)
+    # * Branch is `main`
     if: |
       github.repository == 'google/etils' &&
       github.ref == 'refs/heads/main'
@@ -46,6 +47,8 @@ jobs:
       with:
         python-version: 3.7
 
+    - run: pip install packaging
+
     # Extract current local `__version__`
     # Output: `local-version.outputs.version`
     - id: local-version
@@ -56,7 +59,7 @@ jobs:
     # Extract current `pip version`
     # Output: `pip-version.outputs.version`
     - id: pip-version
-      run: python oss/get_python_version.py etils --github-action-output-name=version
+      run: python oss/get_pypi_version.py etils --github_action_output_name=version
 
     # Check if local `__version__` < pip version
     # Output: `compare-version.outputs.should-release`
@@ -67,7 +70,7 @@ jobs:
           --pypi_version=${{ steps.pip-version.outputs.version }}
 
     # Publish the package (if local `__version__` < pip version)
-    - uses: conchylicultor/pypi-build-publish@v1
-      if: ${{ steps.compare-version.outputs.should-release }} == "true"
+    - if: ${{ steps.compare-version.outputs.should-release }} == "true"
+      uses: conchylicultor/pypi-build-publish@v1
       with:
         pypi-token: ${{ secrets.PYPI_API_TOKEN }}
