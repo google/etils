@@ -20,16 +20,12 @@ jobs:
       with:
         ref: ${{ github.event.inputs.git-ref }}
 
-    # Install deps
+    # Setup Python
     - uses: actions/setup-python@v2
       with:
         python-version: 3.7
 
     # Publish the package
-    - run: pip install build twine
-    - run: python -m build
-    - run: twine check dist/*
-    - run: twine upload dist/*
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+    - uses: conchylicultor/pypi-build-publish@v1
+      with:
+        pypi-token: ${{ secrets.PYPI_API_TOKEN }}
