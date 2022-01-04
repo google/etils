@@ -1,0 +1,73 @@
+name: Unittests & Auto-publish
+
+# Allow to trigger the workflow manually (e.g. when deps changes)
+on: [push, workflow_dispatch]
+
+jobs:
+  pytest-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
+
+    - uses: actions/checkout@v2
+
+    # Install deps
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - run: pip --version
+    - run: pip install -e .[all,dev]
+    - run: pip freeze
+
+    # Run tests
+    - name: Run core tests
+      run: pytest -vv -n auto
+
+  # Auto-publish when version is increased
+  publish-job:
+    # prevents action from running on forks
+    # Only trigger auto-publish on main branch
+    if: |
+      github.repository == 'google/etils' &&
+      github.ref == 'refs/heads/main'
+    needs: pytest-job  # Only publish after tests are successful
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # Setup Python
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+
+    # Extract current local `__version__`
+    # Output: `local-version.outputs.version`
+    - id: local-version
+      run: |
+        VERSION=$(python -c "import etils ; print(etils.__version__)")
+        echo ::set-output name=version::${VERSION}
+
+    # Extract current `pip version`
+    # Output: `pip-version.outputs.version`
+    - id: pip-version
+      run: python oss/get_python_version.py etils --github-action-output-name=version
+
+    # Check if local `__version__` < pip version
+    # Output: `compare-version.outputs.should-release`
+    - id: compare-version
+      run: |
+        python oss/compare_version.py \
+          --local_version=${{ steps.local-version.outputs.version }} \
+          --pypi_version=${{ steps.pip-version.outputs.version }}
+
+    # Publish the package (if local `__version__` < pip version)
+    - uses: conchylicultor/pypi-build-publish@v1
+      if: ${{ steps.compare-version.outputs.should-release }} == "true"
+      with:
+        pypi-token: ${{ secrets.PYPI_API_TOKEN }}
