@@ -1,6 +1,6 @@
 # Etils
 
-[![Unittests](https://github.com/google/etils/actions/workflows/pytest.yml/badge.svg)](https://github.com/google/etils/actions/workflows/pytest.yml)
+[![Unittests](https://github.com/google/etils/actions/workflows/pytest_and_autopublish.yml/badge.svg)](https://github.com/google/etils/actions/workflows/pytest_and_autopublish.yml)
 [![PyPI version](https://badge.fury.io/py/etils.svg)](https://badge.fury.io/py/etils)
 
 etils (eclectic utils) is an open-source collection of utils for python.
