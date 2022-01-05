@@ -71,7 +71,7 @@ path.suffix
 
 ### Convert `Path` -> `str`
 
-Some libraries are not compatibles with pathlib. If the library cannot be fixed
+Some libraries are not compatible with pathlib. If the library cannot be fixed
 to be [PEP 519](https://www.python.org/dev/peps/pep-0519/) compliant, you can
 convert pathlib object to `str` with `os.fspath`, like:
 
