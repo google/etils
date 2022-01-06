@@ -60,7 +60,7 @@ class ResourcePath(zipfile.Path):
     Returns:
       the extracted path string.
     """
-    raise NotImplementedError('zipapp not supported. Please send us a PR.')
+    return str(self)
 
   if sys.version_info < (3, 10):
 
