@@ -42,14 +42,13 @@ enp = [
     "numpy",
     "etils[array-types]",
 ]
-epath_no_tf = [  # Users might want to choose between tf / tf-nightly
+epath-no-tf = [  # Users might want to choose between tf / tf-nightly
     "importlib_resources",
-    "tf-nightly",
     "zipp",
     "etils[epy]",
 ]
 epath = [
-    "etils[epath_no_tf]",
+    "etils[epath-no-tf]",
     "tf-nightly",
 ]
 epy = []
