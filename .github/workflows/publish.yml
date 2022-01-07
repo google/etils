@@ -26,6 +26,6 @@ jobs:
         python-version: 3.7
 
     # Publish the package
-    - uses: conchylicultor/pypi-build-publish@v1
+    - uses: etils-actions/pypi-build-publish@v1
       with:
         pypi-token: ${{ secrets.PYPI_API_TOKEN }}

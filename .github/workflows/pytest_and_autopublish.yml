@@ -33,8 +33,8 @@ jobs:
     # * Repo is etils (prevents running from forks)
     # * Branch is `main`
     if: |
-      github.repository == 'google/etils' &&
-      github.ref == 'refs/heads/main'
+      github.repository == 'google/etils'
+      && github.ref == 'refs/heads/main'
     needs: pytest-job  # Only publish after tests are successful
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -70,7 +70,7 @@ jobs:
           --pypi_version=${{ steps.pip-version.outputs.version }}
 
     # Publish the package (if local `__version__` < pip version)
-    - if: ${{ steps.compare-version.outputs.should-release }} == "true"
-      uses: conchylicultor/pypi-build-publish@v1
+    - if: steps.compare-version.outputs.should-release == 'true'
+      uses: etils-actions/pypi-build-publish@v1
       with:
         pypi-token: ${{ secrets.PYPI_API_TOKEN }}
