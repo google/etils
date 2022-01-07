@@ -14,8 +14,8 @@
 
 """Etils API."""
 
-# TODO(etils): Setup automated releases (on `push` everytime this is increased)
-__version__ = '0.3.2'
+# A new PyPI release will be pushed everytime `__version__` is increased
+__version__ = '0.3.3'
 
 # Do NOT add anything to this file. This is left empty on purpose.
 # Users should import subprojects directly.
