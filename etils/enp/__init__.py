@@ -23,3 +23,4 @@ from etils.enp.numpy_utils import get_np_module
 from etils.enp.numpy_utils import is_array
 from etils.enp.numpy_utils import is_array_str
 from etils.enp.numpy_utils import is_dtype_str
+from etils.enp.numpy_utils import normalize_bytes2str

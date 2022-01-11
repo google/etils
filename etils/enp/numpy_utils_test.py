@@ -59,3 +59,23 @@ def test_array_str():
   assert enp.is_array_str(b'abc')
   assert enp.is_array_str(x)
   assert enp.is_dtype_str(x.dtype)
+
+
+def test_normalize_bytes2str():
+  assert np.array_equal(
+      enp.normalize_bytes2str(np.array(['abc', 'def'])),
+      np.array(['abc', 'def']),
+  )
+  assert np.array_equal(
+      enp.normalize_bytes2str(np.array([b'abc', b'def'])),
+      np.array(['abc', 'def']),
+  )
+  assert np.array_equal(
+      enp.normalize_bytes2str(np.array([123, 456])),
+      np.array([123, 456]),
+  )
+  assert enp.normalize_bytes2str('abc') == 'abc'
+  assert enp.normalize_bytes2str(b'abc') == 'abc'
+  assert enp.normalize_bytes2str(123) == 123
+
+  assert isinstance(enp.normalize_bytes2str(jnp.array([1, 2, 3])), jnp.ndarray)

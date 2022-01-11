@@ -2,6 +2,8 @@
 
 ## vNext
 
+* Add `enp.normalize_bytes2str`
+
 ## v0.3.3
 
 * Add text utils:

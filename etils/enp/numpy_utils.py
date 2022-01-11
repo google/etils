@@ -92,7 +92,7 @@ def is_dtype_str(dtype) -> bool:
   return np.dtype(dtype).kind in {'O', 'S', 'U'}
 
 
-def is_array_str(x: Array) -> bool:
+def is_array_str(x: Any) -> bool:
   """Returns True if the given array is a `str` array.
 
   Note: Also returns True for scalar `str`, `bytes` values. For compatibility
@@ -107,9 +107,10 @@ def is_array_str(x: Array) -> bool:
   # `Tensor(shape=(), dtype=tf.string).numpy()` returns `bytes`.
   if isinstance(x, (bytes, str)):
     return True
-  elif not is_array(x):
-    raise TypeError(f'Cannot check `str` on non-array {type(x)}: {x!r}')
-  return is_dtype_str(x.dtype)
+  elif is_array(x):
+    return is_dtype_str(x.dtype)
+  else:
+    return False
 
 
 def is_array(x: Any) -> bool:
@@ -120,3 +121,29 @@ def is_array(x: Any) -> bool:
     return True
   else:
     return False
+
+
+@np.vectorize
+def _to_str_array(x):
+  """Decodes bytes -> str array."""
+  # tf.string tensors are returned as bytes, so need to convert them back to str
+  return x.decode('utf8') if isinstance(x, bytes) else x
+
+
+def normalize_bytes2str(x: Any) -> Any:
+  """Normalize `bytes` array to `str` (UTF-8).
+
+  Example of usage:
+
+  ```python
+  for ex in tfds.as_numpy(ds):  # tf.data returns `tf.string` as `bytes`
+    ex = tf.nest.map_structure(enp.normalize_bytes2str, ex)
+  ```
+
+  Args:
+    x: Any array
+
+  Returns:
+    x: `bytes` array are decoded as `str`
+  """
+  return _to_str_array(x) if is_array_str(x) else x
