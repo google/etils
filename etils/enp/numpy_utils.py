@@ -15,10 +15,13 @@
 """Numpy utils."""
 
 import sys
-from typing import Any
+import typing
+from typing import Any, TypeVar
 
 from etils.array_types import Array
 import numpy as np
+
+_T = TypeVar('_T')
 
 
 class _LazyImporter:
@@ -87,9 +90,8 @@ def get_np_module(array: Array):  # Ideally should use `-> Literal[np]:``
 
 def is_dtype_str(dtype) -> bool:
   """Returns True if the dtype is `str`."""
-  if type(dtype) is object:  # tf.string.as_numpy_dtype is object  # pylint: disable=unidiomatic-typecheck
-    return True
-  return np.dtype(dtype).kind in {'O', 'S', 'U'}
+  # tf.string.as_numpy_dtype is object
+  return np.dtype(dtype).type in {np.object_, np.str_, np.bytes_}
 
 
 def is_array_str(x: Any) -> bool:
@@ -130,7 +132,19 @@ def _to_str_array(x):
   return x.decode('utf8') if isinstance(x, bytes) else x
 
 
-def normalize_bytes2str(x: Any) -> Any:
+@typing.overload
+def normalize_bytes2str(x: bytes) -> str:
+  ...
+
+
+@typing.overload
+def normalize_bytes2str(x: _T) -> _T:
+  ...
+
+
+# Ideally could also add `BytesArray -> StrArray`, but both `bytes` and `str`
+# are `StrArray`
+def normalize_bytes2str(x):
   """Normalize `bytes` array to `str` (UTF-8).
 
   Example of usage:
@@ -146,4 +160,13 @@ def normalize_bytes2str(x: Any) -> Any:
   Returns:
     x: `bytes` array are decoded as `str`
   """
-  return _to_str_array(x) if is_array_str(x) else x
+  if isinstance(x, str):
+    return x
+  if isinstance(x, bytes):
+    return x.decode('utf8')
+  elif is_array_str(x):
+    # Note: `np.char.decode` is likely faster but don't work on `object` nor
+    # bytes arrays.
+    return _to_str_array(x)
+  else:
+    return x

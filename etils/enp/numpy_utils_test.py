@@ -52,30 +52,67 @@ def test_not_array_str(np_module):
   assert not enp.is_dtype_str(x.dtype)
 
 
-def test_array_str():
-  x = np.array(['abc'])
-  assert enp.is_array(x)
+_STR_DTYPES = [
+    np.dtype('<U3'),
+    np.dtype('<S3'),
+    np.str_,
+    np.bytes_,
+    str,
+    bytes,
+    object,
+]
+
+_STR_ARRAYS = [
+    np.array(['abc', 'def']),
+    np.array([b'abc', b'def']),
+    np.array(['abc', 'def'], dtype=object),
+    np.array([b'abc', b'def'], dtype=object),
+]
+
+
+@pytest.mark.parametrize('array', _STR_ARRAYS)
+def test_array_str(array):
+  assert enp.is_array(array)
+  assert enp.is_array_str(array)
+  assert enp.is_dtype_str(array.dtype)
+
+
+def test_array_str_scalar():
   assert enp.is_array_str('abc')
   assert enp.is_array_str(b'abc')
-  assert enp.is_array_str(x)
-  assert enp.is_dtype_str(x.dtype)
 
 
-def test_normalize_bytes2str():
+@pytest.mark.parametrize('dtype', _STR_DTYPES)
+def test_is_dtype_str(dtype):
+  assert enp.is_dtype_str(dtype)
+
+
+@pytest.mark.parametrize('dtype', [
+    np.dtype(int),
+    np.int64,
+    int,
+])
+def test_is_not_dtype_str(dtype):
+  assert not enp.is_dtype_str(dtype)
+
+
+@pytest.mark.parametrize('array', _STR_ARRAYS)
+def test_normalize_bytes2str(array):
   assert np.array_equal(
-      enp.normalize_bytes2str(np.array(['abc', 'def'])),
+      enp.normalize_bytes2str(array),
       np.array(['abc', 'def']),
   )
-  assert np.array_equal(
-      enp.normalize_bytes2str(np.array([b'abc', b'def'])),
-      np.array(['abc', 'def']),
-  )
+
+
+def test_normalize_bytes2str_static():
+  assert enp.normalize_bytes2str('abc') == 'abc'
+  assert enp.normalize_bytes2str(b'abc') == 'abc'
+  assert isinstance(enp.normalize_bytes2str('abc'), str)
+  assert isinstance(enp.normalize_bytes2str(b'abc'), str)
+  assert enp.normalize_bytes2str(123) == 123
+
   assert np.array_equal(
       enp.normalize_bytes2str(np.array([123, 456])),
       np.array([123, 456]),
   )
-  assert enp.normalize_bytes2str('abc') == 'abc'
-  assert enp.normalize_bytes2str(b'abc') == 'abc'
-  assert enp.normalize_bytes2str(123) == 123
-
   assert isinstance(enp.normalize_bytes2str(jnp.array([1, 2, 3])), jnp.ndarray)
