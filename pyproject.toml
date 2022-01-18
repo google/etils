@@ -38,6 +38,9 @@ ecolab = [
     "matplotlib",
     "numpy",
 ]
+edc = [
+    "etils[epy]",
+]
 enp = [
     "numpy",
     "etils[array-types]",
@@ -76,6 +79,7 @@ etree-tf = [
 all = [
     "etils[array-types]",
     "etils[ecolab]",
+    "etils[edc]",
     "etils[enp]",
     "etils[epath]",
     "etils[epy]",

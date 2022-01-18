@@ -27,6 +27,7 @@ jax,...)
 * [`etils.enp`](https://github.com/google/etils/tree/main/etils/enp): Numpy utils.
 * [`etils.ecolab`](https://github.com/google/etils/tree/main/etils/ecolab): Colab utils.
 * [`etils.array_types`](https://github.com/google/etils/tree/main/etils/array_types): Typing annotations for jax, numpy,... arrays
+* [`etils.edc`](https://github.com/google/etils/tree/main/etils/edc): Dataclasses utils.
 * [`etils.epy`](https://github.com/google/etils/tree/main/etils/epy): Collection of generic python utils.
 
 ## Installation

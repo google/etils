@@ -2,6 +2,7 @@
 
 ## vNext
 
+* Add `edc`: Dataclasses utils
 * Add `enp.normalize_bytes2str`
 
 ## v0.3.3
