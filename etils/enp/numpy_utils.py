@@ -59,8 +59,11 @@ class _LazyImporter:
     import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
     return tnp
 
+  def is_tf(self, x: Array) -> bool:
+    return self.has_tf and isinstance(x, self.tf.Tensor)
 
-_lazy = _LazyImporter()
+
+lazy = _LazyImporter()
 
 
 def get_np_module(array: Array):  # Ideally should use `-> Literal[np]:``
@@ -79,10 +82,10 @@ def get_np_module(array: Array):  # Ideally should use `-> Literal[np]:``
   # https://github.com/seberg/numpy-dispatch
   if isinstance(array, np.ndarray):
     return np
-  elif _lazy.has_jax and isinstance(array, _lazy.jnp.ndarray):
-    return _lazy.jnp
-  elif _lazy.has_tf and isinstance(array, _lazy.tnp.ndarray):
-    return _lazy.tnp
+  elif lazy.has_jax and isinstance(array, lazy.jnp.ndarray):
+    return lazy.jnp
+  elif lazy.has_tf and isinstance(array, lazy.tnp.ndarray):
+    return lazy.tnp
   else:
     raise TypeError(
         f'Cannot infer the numpy module from array: {type(array).__name__}')
@@ -119,7 +122,7 @@ def is_array(x: Any) -> bool:
   """Returns `True` if array is np or `jnp` array."""
   if isinstance(x, np.ndarray):
     return True
-  elif _lazy.has_jax and isinstance(x, _lazy.jnp.ndarray):
+  elif lazy.has_jax and isinstance(x, lazy.jnp.ndarray):
     return True
   else:
     return False

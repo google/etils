@@ -15,6 +15,7 @@
 """Tests for numpy_utils."""
 
 from etils import enp
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -38,15 +39,29 @@ def test_get_array_module_tf():
   assert isinstance(y, tnp.ndarray)
 
 
-@pytest.mark.parametrize('np_module', [np, jnp, tnp])
-def test_get_array_module(np_module):
-  y = fn(np_module.array([123]))
-  assert isinstance(y, np_module.ndarray)
+def test_lazy():
+  lazy = enp.numpy_utils.lazy
+
+  assert lazy.has_tf
+  assert lazy.has_jax
+
+  assert lazy.tf is tf
+  assert lazy.jax is jax
+  assert lazy.jnp is jnp
+
+  assert lazy.is_tf(tf.constant([123]))
+  assert not lazy.is_tf(np.array([123]))
 
 
-@pytest.mark.parametrize('np_module', [np, jnp])
-def test_not_array_str(np_module):
-  x = np_module.array([123])
+@pytest.mark.parametrize('xnp', [np, jnp, tnp])
+def test_get_array_module(xnp):
+  y = fn(xnp.array([123]))
+  assert isinstance(y, xnp.ndarray)
+
+
+@pytest.mark.parametrize('xnp', [np, jnp])
+def test_not_array_str(xnp):
+  x = xnp.array([123])
   assert enp.is_array(x)
   assert not enp.is_array_str(x)
   assert not enp.is_dtype_str(x.dtype)
