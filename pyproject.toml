@@ -93,6 +93,7 @@ all = [
 dev = [
     "pytest",
     "pytest-xdist",
+    "chex",
     "tfds-nightly",  # TODO(etils): Remove deps
 ]
 

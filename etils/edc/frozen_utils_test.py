@@ -1,4 +1,4 @@
-# Copyright 2021 The etils Authors.
+# Copyright 2022 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import dataclasses
 from typing import Any
 
+import chex
 from etils import edc
 import pytest
 
@@ -42,6 +43,13 @@ class B:
 @dataclasses.dataclass(frozen=True)
 class C(A):
   pass
+
+
+# Test with chex dataclass
+@edc.dataclass(allow_unfrozen=True)
+@chex.dataclass(frozen=True)
+class E:
+  x: Any = None
 
 
 def test_unfrozen_call_twice():
@@ -150,6 +158,41 @@ def test_unfrozen_inheritance():
   assert x.x.x.x.x is val
   assert x == C(x=B(x=A(x=A(x=A(), y=A(y=456)))))
   assert x_origin == C(x=B(x=A(x=123)))
+
+
+def test_unfrozen_same_object():
+  a = A(x=1, y=2)
+  x_origin = A(x=a, y=a)
+
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x.x.x = 10
+  x = x.frozen()
+
+  # Limitation: Even if `a.x` was modified, only the member which was accessed
+  # was modified (x_origin.x but not `x_origin.y`), even if they where the
+  # same instance before unfrozen.
+  assert x == A(x=A(x=10, y=2), y=A(x=1, y=2))
+  assert x_origin == A(x=A(x=1, y=2), y=A(x=1, y=2))
+
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x.x.x = 10
+  x.y.y = 20
+  x = x.frozen()
+  # Here, the 2 members are tracked, so we can correctly update them
+  assert x.x is x.y
+  assert x == A(x=A(x=10, y=20), y=A(x=10, y=20))
+  assert x_origin == A(x=A(x=1, y=2), y=A(x=1, y=2))
+
+
+def test_unfrozen_chex():
+  x_origin = E(x=E(x=A(y=E(x=123))))
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x.x.x.y.x = 456
+  x = x.frozen()
+  assert isinstance(x, E)
+  assert x.x.x.y.x == 456
+  assert x == E(x=E(x=A(y=E(x=456))))
+  assert x_origin == E(x=E(x=A(y=E(x=123))))
 
 
 # TODO(epot): Support circles

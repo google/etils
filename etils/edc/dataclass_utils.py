@@ -1,4 +1,4 @@
-# Copyright 2021 The etils Authors.
+# Copyright 2022 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,6 +77,23 @@ def dataclass(
     original dataclass but proxy objects which track the mutations. As such,
     those object are not compatible with `isinstance()`, `jax.tree_map`,...
   * Only the top-level dataclass need to be `allow_unfrozen=True`
+  * Avoid using `unfrozen` if 2 attributes of the dataclass point to the
+    same nested dataclass. Updates on one attribute might not be reflected on
+    the other.
+
+    ```python
+    y = Y(y=123)
+    x = X(x0=y, x1=y)  # Same instance assigned twice in `x0` and `x1`
+    x = x.unfrozen()
+    x.x0.y = 456  # Changes in `x0` not reflected in `x1`
+    x = x.frozen()
+
+    assert x == X(x0=Y(y=456), x1=Y(y=123))
+    ```
+
+    This is because only attributes which are accessed are tracked, so `etils`
+    do not know the object exist somewhere else in the attribute tree.
+
   * After `.frozen()` has been called, any of the temporary sub-attribute
     become invalid:
 
