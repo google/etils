@@ -188,11 +188,15 @@ class _MutableProxyImpl(Generic[_T]):
 
   @epy.cached_property  # pytype: disable=invalid-annotation
   def resolved(self) -> _T:
+    """Recursivelly call `.replace` on instances which were mutated."""
     # Cached property, so that the same object is only resolved once
-    new_vals = {
-        k: v.resolved if isinstance(v, _MutableProxyImpl) else v
-        for k, v in self.attrs.items()
-    }
+    new_vals = {}
+    for k, v in self.attrs.items():
+      if isinstance(v, _MutableProxyImpl):
+        if v.obj is v.resolved:  # Skip attributes which were not mutated
+          continue
+        v = v.resolved
+      new_vals[k] = v
     if not new_vals:  # Object wasn't mutated
       return self.obj
     return dataclasses.replace(self.obj, **new_vals)

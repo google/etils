@@ -195,6 +195,36 @@ def test_unfrozen_chex():
   assert x_origin == E(x=E(x=A(y=E(x=123))))
 
 
+def test_unfrozen_no_updates():
+  x_origin = A(x=A(x=A(x=123)), y=A(y=A(y=456)))
+
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  assert x.x.x.x == 123  # Access read-only does not trigger `.replace`
+  assert x.y.y.y == 456
+  x = x.frozen()
+
+  assert x_origin.x.x.x is x.x.x.x
+  assert x_origin.x.x is x.x.x
+  assert x_origin.x is x.x
+  assert x_origin is x
+  assert x_origin.y.y.y is x.y.y.y
+  assert x_origin.y.y is x.y.y
+  assert x_origin.y is x.y
+
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x.x.x.x = 678
+  assert x.y.y.y == 456
+  x = x.frozen()
+
+  # x is modifed, but not y
+  assert x_origin.x.x.x is not x.x.x.x
+  assert x_origin.x.x is not x.x
+  assert x_origin is not x
+  assert x_origin.y.y.y is x.y.y.y
+  assert x_origin.y.y is x.y.y
+  assert x_origin.y is x.y
+
+
 # TODO(epot): Support circles
 @pytest.mark.xfail
 def test_unfrozen_cicle():
