@@ -29,6 +29,7 @@ def _collapse_std(
     redirect_fn,
 ) -> Iterator[None]:
   """Base colapsible implementation."""
+  name = html.escape(name)
   f = io.StringIO()
   with redirect_fn(f):
     yield
