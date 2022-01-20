@@ -16,13 +16,15 @@
 
 from __future__ import annotations
 
+import dataclasses
 import functools
 import typing
-from typing import Callable, TypeVar
+from typing import Any, Callable, TypeVar
 
 from etils.edc import frozen_utils
 
 _Cls = TypeVar('_Cls')
+_T = TypeVar('_T')
 
 
 @typing.overload
@@ -46,6 +48,7 @@ def dataclass(
 def dataclass(
     cls=None,
     *,
+    replace=True,  # pylint: disable=redefined-outer-name
     allow_unfrozen=False,
 ):
   """Augment a dataclass with additional features.
@@ -108,6 +111,7 @@ def dataclass(
 
   Args:
     cls: The dataclass to decorate
+    replace: If True, add a `.replace(` alias of `dataclasses.replace`.
     allow_unfrozen: If True, add `.frozen`, `.unfrozen` methods.
 
   Returns:
@@ -120,7 +124,22 @@ def dataclass(
         allow_unfrozen=allow_unfrozen,
     )
 
+  if replace:
+    cls = add_replace(cls)
+
   if allow_unfrozen:
     cls = frozen_utils.add_unfrozen(cls)
 
   return cls
+
+
+def add_replace(cls: _Cls) -> _Cls:
+  """Add a `.replace` method to the class, if not already present."""
+  if not hasattr(cls, 'replace'):
+    cls.replace = replace
+  return cls
+
+
+def replace(self: _T, **kwargs: Any) -> _T:
+  """Similar to `dataclasses.replace`."""
+  return dataclasses.replace(self, **kwargs)

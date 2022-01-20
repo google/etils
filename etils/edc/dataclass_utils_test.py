@@ -12,25 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python utils."""
+"""Tests for dataclass_utils."""
 
-import enum
+import dataclasses
+from typing import Any
+
+from etils import edc
 
 
-# TODO(py3.11): Replace by `enum.StrEnum`, but keeping `Enum.__repr__`
-class StrEnum(str, enum.Enum):
-  """Like `Enum`, but `enum.auto()` assigns `str` rather than `int`.
+@edc.dataclass
+@dataclasses.dataclass(frozen=True)
+class A:
+  x: Any = None
+  y: Any = None
 
-  ```python
-  class MyEnum(epy.StrEnum):
-    SOME_ATTR = enum.auto()
-    OTHER_ATTR = enum.auto()
 
-  assert MyEnum('some_attr') is MyEnum.SOME_ATTR
-  assert MyEnum.SOME_ATTR == 'some_attr'
-  ```
+@edc.dataclass
+@dataclasses.dataclass(frozen=True)
+class B:
+  x: Any = None
+  y: Any = None
 
-  """
+  def replace(self) -> int:  # Custom replace function
+    return 123
 
-  def _generate_next_value_(name, start, count, last_values):  # pylint: disable=no-self-argument
-    return name.lower()
+
+def test_replace():
+  obj = object()
+  x = A(y=obj)
+  y = x.replace(x=123)  # pytype: disable=attribute-error
+  assert x == A(y=obj)
+  assert y == A(x=123, y=obj)
+  assert x.y is y.y
+
+  assert B().replace() == 123
