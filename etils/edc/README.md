@@ -24,7 +24,7 @@ old_a = A(x=A(x=A()))
 a = old_a.unfrozen()
 a.x.x.x = 123
 a.x.y = 'abc'
-a = a.frozen()
+a = a.frozen()  # `frozen()` recursively call `dataclasses.replace`
 
 # Only the `unfrozen` object is mutated. Not the original one.
 assert a == A(x=A(x=A(x = 123), y='abc'))
