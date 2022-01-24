@@ -18,6 +18,7 @@ import dataclasses
 from typing import Any
 
 from etils import edc
+from etils import epy
 
 
 @edc.dataclass
@@ -46,3 +47,71 @@ def test_replace():
   assert x.y is y.y
 
   assert B().replace() == 123
+
+
+@edc.dataclass
+@dataclasses.dataclass
+class R:
+  x: Any = None
+  y: Any = None
+
+
+@edc.dataclass
+@dataclasses.dataclass
+class R1(R):
+  z: Any = None
+
+
+class R11(R1):  # Is not dataclass but `__name__` should be correct
+  pass
+
+
+@edc.dataclass
+@dataclasses.dataclass
+class R2(R):
+  z: Any = None
+
+  def __repr__(self):
+    return 'R2 repr'
+
+
+@edc.dataclass
+@dataclasses.dataclass
+class R0Field():
+  pass
+
+
+@edc.dataclass
+@dataclasses.dataclass
+class R1Field():
+  x: Any = None
+
+
+def test_repr():
+  assert repr(R(123, R11(y='abc'))) == epy.dedent("""
+  R(
+      x=123,
+      y=R11(
+          x=None,
+          y='abc',
+          z=None,
+      ),
+  )
+  """)
+
+  # Curstom __repr__
+  assert repr(R2()) == 'R2 repr'
+
+  # When 1 or 0 field, print in a single line
+  assert repr(R0Field()) == 'R0Field()'
+  assert repr(R1Field()) == 'R1Field(x=None)'
+
+  # Recursive
+  x = R()
+  x.x = x
+  assert repr(x) == epy.dedent("""
+  R(
+      x=...,
+      y=None,
+  )
+  """)

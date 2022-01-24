@@ -4,6 +4,24 @@
 features.
 
 * `replace`: Add a `.replace(` member (alias of `dataclasses.dataclass`)
+* `repr`: Make the class `__repr__` returns a pretty-printed `str`
+
+  ```python
+  @edc.dataclass(repr=True)
+  @dataclasses.dataclass
+  class A:
+    x: Any = None
+    y: Any = None
+
+  assert repr(A(123, A(y=456))) == """A(
+      x=123,
+      y=A(
+          x=None,
+          y=456,
+      ),
+  )"""
+  ```
+
 * `allow_unfrozen`: Allow to mutate deeply-nested dataclasses by adding `unfrozen()` / `frozen()`
   methods.
 

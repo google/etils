@@ -18,9 +18,11 @@ from __future__ import annotations
 
 import dataclasses
 import functools
+import reprlib
 import typing
 from typing import Any, Callable, TypeVar
 
+from etils import epy
 from etils.edc import frozen_utils
 
 _Cls = TypeVar('_Cls')
@@ -49,6 +51,7 @@ def dataclass(
     cls=None,
     *,
     replace=True,  # pylint: disable=redefined-outer-name
+    repr=True,  # pylint: disable=redefined-builtin
     allow_unfrozen=False,
 ):
   """Augment a dataclass with additional features.
@@ -111,8 +114,10 @@ def dataclass(
 
   Args:
     cls: The dataclass to decorate
-    replace: If True, add a `.replace(` alias of `dataclasses.replace`.
-    allow_unfrozen: If True, add `.frozen`, `.unfrozen` methods.
+    replace: If `True`, add a `.replace(` alias of `dataclasses.replace`.
+    repr: If `True`, the class `__repr__` will return a pretty-printed `str`
+      (one attribute per line)
+    allow_unfrozen: If `True`, add `.frozen`, `.unfrozen` methods.
 
   Returns:
     Decorated class
@@ -123,6 +128,9 @@ def dataclass(
         dataclass,
         allow_unfrozen=allow_unfrozen,
     )
+
+  if repr:
+    cls = add_repr(cls)
 
   if replace:
     cls = add_replace(cls)
@@ -135,7 +143,8 @@ def dataclass(
 
 def add_replace(cls: _Cls) -> _Cls:
   """Add a `.replace` method to the class, if not already present."""
-  if not hasattr(cls, 'replace'):
+  # Use `cls.__dict__` and not `hasattr` to ignore parent classes
+  if 'replace' not in cls.__dict__:
     cls.replace = replace
   return cls
 
@@ -143,3 +152,33 @@ def add_replace(cls: _Cls) -> _Cls:
 def replace(self: _T, **kwargs: Any) -> _T:
   """Similar to `dataclasses.replace`."""
   return dataclasses.replace(self, **kwargs)
+
+
+def add_repr(cls: _Cls) -> _Cls:
+  """Add a `.__repr__` method to the class, if not already present."""
+  if (
+      # Use `cls.__dict__` and not `hasattr` to ignore parent classes
+      '__repr__' not in cls.__dict__
+      # `__repr__` exists but is the default dataclass implementation
+      or cls.__repr__.__qualname__ == '__create_fn__.<locals>.__repr__'):
+    cls.__repr__ = __repr__
+  return cls
+
+
+@reprlib.recursive_repr()
+def __repr__(self) -> str:  # pylint: disable=invalid-name
+  """Pretty-print `repr`."""
+  all_fields = dataclasses.fields(self)
+  collapse = len(all_fields) <= 1
+
+  trailing = '' if collapse else ','
+
+  lines = epy.Lines()
+  lines += f'{self.__class__.__name__}('
+  with lines.indent():
+    for field in all_fields:
+      if not field.repr:
+        continue
+      lines += f'{field.name}={getattr(self, field.name)!r}{trailing}'
+  lines += ')'
+  return lines.join(collapse=collapse)
