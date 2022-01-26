@@ -15,6 +15,4 @@
 """Colab public API."""
 
 from etils.ecolab.array_as_img import display_array_as_img
-from etils.ecolab.colab_utils import collapse_stdall
-from etils.ecolab.colab_utils import collapse_stderr
-from etils.ecolab.colab_utils import collapse_stdout
+from etils.ecolab.colab_utils import collapse

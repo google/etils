@@ -20,14 +20,6 @@ from etils import ecolab
 
 
 def test_capture_stdout():
-  with ecolab.collapse_stdout():
-    print('Abcd')
-    print('Abcd', file=sys.stderr)
-
-  with ecolab.collapse_stderr():
-    print('Abcd')
-    print('Abcd', file=sys.stderr)
-
-  with ecolab.collapse_stdall():
+  with ecolab.collapse():
     print('Abcd')
     print('Abcd', file=sys.stderr)

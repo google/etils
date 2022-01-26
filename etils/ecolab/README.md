@@ -22,7 +22,7 @@ file). To avoid polluting the logs, you can hide the logs inside a collapsible
 block (collapsed by default).
 
 ```python
-with ecolab.collapse_stdall('Json content:'):  # Capture both stderr/stdout
+with ecolab.collapse('Json content:'):  # Capture both stderr/stdout
   print(json_path.read_text())
 ```
 

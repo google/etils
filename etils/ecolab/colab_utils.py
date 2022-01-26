@@ -42,34 +42,6 @@ def _collapse_std(
 
 
 @contextlib.contextmanager
-def collapse_stdout(name: str = 'stdout') -> Iterator[None]:
-  """Capture stdout and display it in a collapsible block.
-
-  Args:
-    name: Name of the collapsible section.
-
-  Yields:
-    None
-  """
-  with _collapse_std(name=name, redirect_fn=contextlib.redirect_stdout):
-    yield
-
-
-@contextlib.contextmanager
-def collapse_stderr(name: str = 'stderr') -> Iterator[None]:
-  """Capture stderr and display it in a collapsible block.
-
-  Args:
-    name: Name of the collapsible section.
-
-  Yields:
-    None
-  """
-  with _collapse_std(name=name, redirect_fn=contextlib.redirect_stderr):
-    yield
-
-
-@contextlib.contextmanager
 def _redirect_stdall(new_target: io.StringIO) -> Iterator[None]:
   with contextlib.redirect_stderr(new_target):
     with contextlib.redirect_stdout(new_target):
@@ -77,7 +49,7 @@ def _redirect_stdall(new_target: io.StringIO) -> Iterator[None]:
 
 
 @contextlib.contextmanager
-def collapse_stdall(name: str = 'stdout/stderr') -> Iterator[None]:
+def collapse(name: str = '') -> Iterator[None]:
   """Capture stderr/stdout and display it in a collapsible block.
 
   Args:
