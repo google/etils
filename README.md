@@ -1,4 +1,4 @@
-# Etils
+# Etils (test)
 
 [![Unittests](https://github.com/google/etils/actions/workflows/pytest_and_autopublish.yml/badge.svg)](https://github.com/google/etils/actions/workflows/pytest_and_autopublish.yml)
 [![PyPI version](https://badge.fury.io/py/etils.svg)](https://badge.fury.io/py/etils)
