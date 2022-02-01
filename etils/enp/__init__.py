@@ -19,6 +19,7 @@ both numpy and jax.numpy.
 
 """
 
+from etils.enp.array_spec import ArraySpec
 from etils.enp.interp_utils import interp
 from etils.enp.numpy_utils import get_np_module
 from etils.enp.numpy_utils import is_array

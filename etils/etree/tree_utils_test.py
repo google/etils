@@ -14,11 +14,18 @@
 
 """Tests for tree_utils."""
 
+import dataclasses
 import sys
 
+from etils import enp
 from etils import etree as etree_lib
 import numpy as np
 import pytest
+
+# pylint: disable=g-bad-import-order,g-import-not-at-top
+import jax.numpy as jnp
+import tensorflow as tf
+# pylint: enable=g-bad-import-order,g-import-not-at-top
 
 
 @pytest.fixture(
@@ -31,7 +38,7 @@ def etree_api(request):
   yield request.param
 
 
-def test_tree_parallel_map(etree_api):  # pylint: disable=redefined-outer-name
+def test_tree_parallel_map(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
   assert etree_api.parallel_map(lambda x: x * 10, {
       'a': [1, 2, 3],
       'b': [4, 5]
@@ -41,7 +48,7 @@ def test_tree_parallel_map(etree_api):  # pylint: disable=redefined-outer-name
   }
 
 
-def test_tree_parallel_map_reraise(etree_api):  # pylint: disable=redefined-outer-name
+def test_tree_parallel_map_reraise(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
 
   def fn(x):
     raise ValueError('Bad value')
@@ -57,3 +64,48 @@ def test_tree_unzip(etree_api):  # pylint: disable=redefined-outer-name
           'a': np.array([1, 2, 3]),
           'b': np.array([10, 20, 30]),
       })) == unflatten
+
+
+@dataclasses.dataclass
+class Obj:
+  pass
+
+
+def test_spec_like(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
+  obj = Obj()
+
+  values = [
+      # tf
+      tf.TensorSpec((None,), dtype=tf.int32),
+      # jax
+      jnp.zeros((6,), dtype=np.int32),
+      # np
+      {
+          'a': np.ones((7,), dtype=np.float32),
+      },
+      enp.array_spec._get_none_spec(),
+      np.array(['abc', 'def']),
+      # Other values are pass-through
+      None,
+      123,
+      'abc',
+      obj,
+  ]
+
+  specs = etree_api.spec_like(values)
+  assert specs == [
+      enp.ArraySpec((None,), dtype=np.int32),
+      enp.ArraySpec((6,), dtype=np.int32),
+      {
+          'a': enp.ArraySpec((7,), dtype=np.float32)
+      },
+      None,
+      enp.ArraySpec((2,), dtype=str),
+      None,
+      123,
+      'abc',
+      obj,
+  ]
+
+  out = "[i32[_], i32[6], {'a': f32[7]}, None, str[2], None, 123, 'abc', Obj()]"
+  assert repr(specs) == out

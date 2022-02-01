@@ -33,12 +33,12 @@ DTYPE_NP_TO_COMPACT_STR: Dict[Optional[np.dtype], str] = {
     np.dtype('float32'): 'f32',
     np.dtype('float64'): 'f64',
     np.dtype('bool_'): 'bool_',
-    np.dtype('O'): 'O',
+    np.dtype('O'): 'str',
     None: 'Array',
 }
 
 _EllipsisType = type(Ellipsis)  # TODO(py3.10): Use types.EllipsisType
-_ShapeItem = Union[ShapeSpec, int, _EllipsisType]
+_ShapeItem = Union[ShapeSpec, int, _EllipsisType, None]
 _ShapeSpecInput = Union[_ShapeItem, Tuple[_ShapeItem, ...]]
 
 
@@ -81,6 +81,8 @@ class ArrayAliasMeta(type):
     super().__init__(cls, cls.__name__, (cls,), {})  # pytype: disable=wrong-arg-count
 
   def __getitem__(cls, shape: _ShapeSpecInput) -> 'ArrayAliasMeta':
+    if shape is None:  # Normalize 'Array[None]'
+      shape = (shape,)
     return ArrayAliasMeta(shape=shape, dtype=cls.dtype)
 
   def __eq__(cls, other: 'ArrayAliasMeta') -> bool:
@@ -99,12 +101,15 @@ class ArrayAliasMeta(type):
 
 
 def _normalize_shape_item(item: _ShapeItem) -> ShapeSpec:
+  """Returns the `str` representation associated with the shape element."""
   if isinstance(item, str):
     return item
   elif isinstance(item, int):
     return str(item)
   elif isinstance(item, _EllipsisType):
     return '...'
+  elif item is None:
+    return '_'
   else:
     raise TypeError(f'Invalid shape type {type(item)} of: {item}')
 

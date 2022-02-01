@@ -18,7 +18,9 @@ import concurrent.futures
 import functools
 from typing import Any, Callable, Iterable, Iterator, Optional, TypeVar
 
+from etils import enp
 from etils import etqdm
+from etils.array_types import Array
 from etils.etree import backend as backend_lib
 from etils.etree.typing import Tree
 
@@ -91,3 +93,40 @@ class TreeAPI:
     leaves, treedef = self.backend.flatten(tree)
     for leaf_elems in zip(*leaves):  # TODO(py3.10): check=True
       yield self.backend.unflatten(treedef, leaf_elems)
+
+  def spec_like(
+      self,
+      tree: Tree[Array],
+      *,
+      ignore_other: bool = True,
+  ) -> Tree[enp.ArraySpec]:
+    """Inspect a tree of array, works with any array type.
+
+    Example:
+
+    ```python
+    model = MyModel()
+    variables = model.init(jax.random.PRNGKey(0), x)
+
+    # Inspect the `variables` tree structures
+    print(etree.spec_like(variables))
+    ```
+
+    Args:
+      tree: The tree of array
+      ignore_other: If `True`, non-array are forwarded as-is.
+
+    Returns:
+      The tree of `enp.ArraySpec`.
+    """
+
+    def _to_spec_array(array):
+      if not enp.ArraySpec.is_array(array):
+        if ignore_other:
+          return array
+        else:
+          raise TypeError(f'Unknown array type: {array!r}')
+      else:
+        return enp.ArraySpec.from_array(array)
+
+    return self.backend.map(_to_spec_array, tree)

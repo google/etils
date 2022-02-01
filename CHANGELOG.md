@@ -3,6 +3,8 @@
 ## vNext
 
 * `edc`: Dataclasses utils
+* `etree`:
+  * `etree.spec_like`: Inspect a nested structure
 * `enp`:
   * `enp.interp`: Scale arrays
   * `enp.normalize_bytes2str`: Normalize `str` arrays

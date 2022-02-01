@@ -31,3 +31,32 @@ Example:
 ```python
 etree.unzip({'a': np.array([1, 2, 3])}) == [{'a': 1}, {'a': 2}, {'a': 3}]
 ```
+
+### spec_like
+
+Extract the shape/dtype of a tree of array. Used for inspecting:
+
+```python
+model = MyModel()
+variables = model.init(jax.random.PRNGKey(0), x)
+
+# Inspect the `variables` tree structures
+print(etree.spec_like(variables))
+```
+
+Output the shape/dtype of all elements:
+
+```python
+FrozenDict({
+    params: {
+        Conv_0: {
+            kernel: f32[1 1 3 32],
+            bias: f32[32],
+        },
+        Conv_1: {
+            kernel: f32[1 1 32 32],
+            bias: f32[32],
+        },
+[...]
+```
+This works with np, jax, tf arrays.

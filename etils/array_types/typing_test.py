@@ -63,6 +63,12 @@ def test_array_eq():
   assert f32['1 2 3'] == f32[1, 2, 3]
   assert f32[...] == f32['...']
 
+  assert f32[None] == f32['_']
+  assert f32[None, 3] == f32['_ 3']
+  assert f32[None, None] == f32['_ _']
+  assert f32[..., None, 3] == f32['... _ 3']
+  assert f32['... _', 3] == f32['... _ 3']
+
   assert f32['h w'] != f32['h c']
   assert f32['h w'] != Array['h w']
   assert f32['h w'] != ui8['h w']
