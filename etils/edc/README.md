@@ -3,6 +3,8 @@
 `@edc.dataclass(**options)` augment dataclasses with additional
 features.
 
+* `kw_only`: (False by default) Make the `__init__` only accept keyword
+  arguments
 * `replace`: Add a `.replace(` member (alias of `dataclasses.dataclass`)
 * `repr`: Make the class `__repr__` returns a pretty-printed `str`
 

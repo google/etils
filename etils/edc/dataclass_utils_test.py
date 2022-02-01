@@ -19,6 +19,23 @@ from typing import Any
 
 from etils import edc
 from etils import epy
+import pytest
+
+
+def test_kw_only():
+
+  @edc.dataclass(kw_only=True)
+  @dataclasses.dataclass(frozen=True)
+  class KwOnly:
+    x: Any
+    y: Any
+
+  a = KwOnly(x=1, y=2)
+  assert a.x == 1
+  assert a.y == 2
+
+  with pytest.raises(TypeError, match='contructor is keyword-only.'):
+    _ = KwOnly(1, 2)
 
 
 @edc.dataclass

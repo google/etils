@@ -33,6 +33,9 @@ _T = TypeVar('_T')
 def dataclass(
     cls: None = ...,
     *,
+    kw_only: bool = ...,
+    replace: bool = ...,  # pylint: disable=redefined-outer-name
+    repr: bool = ...,  # pylint: disable=redefined-builtin
     allow_unfrozen: bool = ...,
 ) -> Callable[[_Cls], _Cls]:
   ...
@@ -42,6 +45,9 @@ def dataclass(
 def dataclass(
     cls: _Cls,
     *,
+    kw_only: bool = ...,
+    replace: bool = ...,  # pylint: disable=redefined-outer-name
+    repr: bool = ...,  # pylint: disable=redefined-builtin
     allow_unfrozen: bool = ...,
 ) -> _Cls:
   ...
@@ -50,6 +56,7 @@ def dataclass(
 def dataclass(
     cls=None,
     *,
+    kw_only=False,
     replace=True,  # pylint: disable=redefined-outer-name
     repr=True,  # pylint: disable=redefined-builtin
     allow_unfrozen=False,
@@ -114,6 +121,7 @@ def dataclass(
 
   Args:
     cls: The dataclass to decorate
+    kw_only: If True, make the dataclass `__init__` keyword-only.
     replace: If `True`, add a `.replace(` alias of `dataclasses.replace`.
     repr: If `True`, the class `__repr__` will return a pretty-printed `str`
       (one attribute per line)
@@ -126,14 +134,20 @@ def dataclass(
   if cls is None:
     return functools.partial(
         dataclass,
+        kw_only=kw_only,
+        replace=replace,
+        repr=repr,
         allow_unfrozen=allow_unfrozen,
     )
 
+  if kw_only:
+    cls = _make_kw_only(cls)
+
   if repr:
-    cls = add_repr(cls)
+    cls = _add_repr(cls)
 
   if replace:
-    cls = add_replace(cls)
+    cls = _add_replace(cls)
 
   if allow_unfrozen:
     cls = frozen_utils.add_unfrozen(cls)
@@ -141,7 +155,29 @@ def dataclass(
   return cls
 
 
-def add_replace(cls: _Cls) -> _Cls:
+def _make_kw_only(cls: _Cls) -> _Cls:
+  """Replace the `__init__` by a keyword-only version."""
+  # Use `cls.__dict__` and not `hasattr` to ignore parent classes
+  if '__init__' not in cls.__dict__:
+    return cls  # Do not mutate the class if __init__ isn't present
+
+  old_init = cls.__init__
+
+  # Despite `@functools.wraps`, the function has to be called `__init__` (
+  # see: https://stackoverflow.com/q/29919804/4172685)
+  @functools.wraps(old_init)
+  def __init__(self, *args, **kwargs):  # pylint: disable=invalid-name
+    if args:
+      raise TypeError(f'{self.__class__.__name__} contructor is keyword-only. '
+                      f'Got {len(args)} positional arguments.')
+    return old_init(self, **kwargs)
+
+  cls.__init__ = __init__
+
+  return cls
+
+
+def _add_replace(cls: _Cls) -> _Cls:
   """Add a `.replace` method to the class, if not already present."""
   # Use `cls.__dict__` and not `hasattr` to ignore parent classes
   if 'replace' not in cls.__dict__:
@@ -154,7 +190,7 @@ def replace(self: _T, **kwargs: Any) -> _T:
   return dataclasses.replace(self, **kwargs)
 
 
-def add_repr(cls: _Cls) -> _Cls:
+def _add_repr(cls: _Cls) -> _Cls:
   """Add a `.__repr__` method to the class, if not already present."""
   if (
       # Use `cls.__dict__` and not `hasattr` to ignore parent classes
