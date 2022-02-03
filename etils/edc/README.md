@@ -1,7 +1,31 @@
 ## Dataclass utils
 
+### Dataclasses validation
+
+`edc.field` is like `dataclasses.field`, but allow to validate and normalize
+dataclasses input fields.
+
+```python
+@dataclasses.dataclass
+class A:
+  path: epath.Path = edc.field(validate=epath.Path)
+  x: int = edc.field(validate=int)
+  y: int = edc.field(validate=lambda x: -x, default=5)
+
+
+a = A(
+   path='/some/path'  # Inputs auto-normalized `str` -> `epath.Path`
+   x='123',
+)
+assert isinstance(a.path, epath.Path)
+assert a.x == 123
+assert a.y == -5
+```
+
+### Augment dataclasses
+
 `@edc.dataclass(**options)` augment dataclasses with additional
-features.
+features. It works with both `dataclasses.dataclass` and `chex.dataclass`.
 
 * `kw_only`: (False by default) Make the `__init__` only accept keyword
   arguments

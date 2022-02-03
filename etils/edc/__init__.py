@@ -15,3 +15,4 @@
 """Dataclasses utils."""
 
 from etils.edc.dataclass_utils import dataclass
+from etils.edc.field_utils import field
