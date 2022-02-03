@@ -2,6 +2,8 @@
 
 ## vNext
 
+## v0.4.0
+
 * `edc`: Dataclasses utils
 * `etree`:
   * `etree.spec_like`: Inspect a nested structure
