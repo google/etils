@@ -186,8 +186,10 @@ class _MutableProxyImpl(Generic[_T]):
 
     return self.resolved
 
-  @epy.cached_property  # pytype: disable=invalid-annotation
+  # pytype: disable=invalid-annotation
+  @epy.cached_property
   def resolved(self) -> _T:
+  # pytype: enable=invalid-annotation
     """Recursivelly call `.replace` on instances which were mutated."""
     # Cached property, so that the same object is only resolved once
     new_vals = {}
