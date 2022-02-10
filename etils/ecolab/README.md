@@ -1,5 +1,26 @@
 ## Colab utils
 
+### Lazy common imports
+
+Running:
+
+```python
+from etils.ecolab.common import *
+```
+
+Will lazilly import in the namespace many common Python packages (jax, tfds,
+numpy,...). This has 0 overhead cost as modules are only imported during first
+usage.
+
+Colab auto-complete & cie will work as expected. Note that just entering the
+module name in a cell might trigger an import on the background (Colab inspect
+the names to display metadata, like the link to source code & cie).
+
+The list of imported packages can be seen in:
+[common.py](https://github.com/google/etils/blob/main/etils/ecolab/common.py).
+
+Note: This should only be used in Colab.
+
 ### Display arrays/tensors as images
 
 By running:

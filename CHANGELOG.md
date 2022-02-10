@@ -2,6 +2,9 @@
 
 ## vNext
 
+* `ecolab`: Add `from etils.ecolab.common import *` to lazy-import common
+  Python modules
+
 ## v0.4.0
 
 * `edc`: Dataclasses utils
