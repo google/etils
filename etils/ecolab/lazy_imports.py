@@ -17,7 +17,7 @@
 Usage:
 
 ```python
-from etils.ecolab.common import *
+from etils.ecolab.lazy_imports import *
 ```
 
 """
@@ -66,17 +66,33 @@ class LazyModule(types.ModuleType):
     return getattr(m, name)
 
 
+_STANDARD_MODULE_NAMES = [
+    'collections',
+    'contextlib',
+    'dataclasses',
+    'enum',
+    'functools',
+    'gzip',
+    'inspect',
+    'itertools',
+    'os',
+    'pathlib',
+    'pprint',
+    'json',
+    'string',
+    'sys',
+    'textwrap',
+    'time',
+    # With `__future__.annotations`, no need to import Any & co
+    'typing',
+    'types',
+    'warnings',
+]
+
+
 MODULE_NAMES = dict(
     # ====== Python standard lib ======
-    collections='collections',
-    dataclasses='dataclasses',
-    inspect='inspect',
-    os='os',
-    pathlib='pathlib',
-    sys='sys',
-    # With `__future__.annotations`, no need to import Any & co
-    typing='typing',
-    types='types',
+    **{n: n for n in _STANDARD_MODULE_NAMES},
     # ====== Etils ======
     array_types='etils.array_types',
     ecolab='etils.ecolab',
@@ -87,11 +103,20 @@ MODULE_NAMES = dict(
     etqdm='etils.etqdm',
     etree='etils.etree',  # TODO(epot): etree='etils.etree.jax',
     # ====== Common third party ======
+    chex='chex',
+    einops='einops',
+    flax='flax',
+    nn='flax.linen',
     gin='gin',
+    # Even though `import ipywidgets as widgets` is the common alias, widget
+    # is likely too ambiguous.
+    ipywidgets='ipywidgets',
     jax='jax',
     jnp='jax.numpy',
+    plt='matplotlib.pyplot',
     media='mediapy',
     np='numpy',
+    pd='pandas',
     # TODO(epot): TF uses some magic C++ module types with slot not
     # compatible with `LazyModule` (`TFModuleWrapper`)
     # tf='tensorflow',

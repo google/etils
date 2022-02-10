@@ -5,21 +5,28 @@
 Running:
 
 ```python
-from etils.ecolab.common import *
+from etils.ecolab.lazy_imports import *
 ```
 
 Will lazilly import in the namespace many common Python packages (jax, tfds,
 numpy,...). This has 0 overhead cost as modules are only imported during first
 usage.
 
-Colab auto-complete & cie will work as expected. Note that just entering the
-module name in a cell might trigger an import on the background (Colab inspect
-the names to display metadata, like the link to source code & cie).
+Some notes:
+
+*   Colab auto-complete & cie will work as expected.
+*   Just typing the module name in a cell can trigger an import on the
+    background (Colab inspect the names to display metadata, like the link to
+    source code & cie).
+*   It is recommended to run this before any other import statement so that
+    `import *` doesn't overwrite your imports (in case of name collision).
+*   If you `adhoc_import` modules already lazy-imported, make sure to call
+    `colab_import.reload_package`
+*   This should only be used in Colab.
 
 The list of imported packages can be seen in:
-[common.py](https://github.com/google/etils/blob/main/etils/ecolab/common.py).
+[lazy_imports.py](https://github.com/google/etils/blob/main/etils/ecolab/lazy_imports.py).
 
-Note: This should only be used in Colab.
 
 ### Display arrays/tensors as images
 

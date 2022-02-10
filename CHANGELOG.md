@@ -2,7 +2,7 @@
 
 ## vNext
 
-* `ecolab`: Add `from etils.ecolab.common import *` to lazy-import common
+* `ecolab`: Add `from etils.ecolab.lazy_imports import *` to lazy-import common
   Python modules
 
 ## v0.4.0
