@@ -2,6 +2,8 @@
 
 ## vNext
 
+* `enp`: Expose `enp.lazy` to the public API to help design code compatible
+  with `jax`, `np`, `tf`
 * `ecolab`: Add `from etils.ecolab.lazy_imports import *` to lazy-import common
   Python modules
 
