@@ -52,6 +52,20 @@ def test_lazy():
   assert lazy.is_tf(tf.constant([123]))
   assert not lazy.is_tf(np.array([123]))
 
+  assert lazy.is_jax(jnp.array([123]))
+  assert not lazy.is_jax(np.array([123]))
+
+  assert lazy.get_xnp(jnp.array([123])) is jnp
+  assert lazy.get_xnp(tf.constant([123])) is tnp
+  assert lazy.get_xnp(np.array([123])) is np
+  assert lazy.get_xnp([123], strict=False) is np
+
+  with pytest.raises(TypeError, match='Cannot infer the numpy'):
+    lazy.get_xnp([123])
+
+  with pytest.raises(TypeError, match='Cannot infer the numpy'):
+    lazy.get_xnp(None, strict=False)
+
 
 @pytest.mark.parametrize('xnp', [np, jnp, tnp])
 def test_get_array_module(xnp):
