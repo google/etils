@@ -12,18 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Numpy API.
+"""Tests for lazy_imports."""
 
-When possible, utils are meant to work with
-both numpy and jax.numpy.
+import sys
 
-"""
 
-from etils.enp.array_spec import ArraySpec
-from etils.enp.interp_utils import interp
-from etils.enp.numpy_utils import get_np_module
-from etils.enp.numpy_utils import is_array
-from etils.enp.numpy_utils import is_array_str
-from etils.enp.numpy_utils import is_dtype_str
-from etils.enp.numpy_utils import lazy
-from etils.enp.numpy_utils import normalize_bytes2str
+def test_lazy_imports():
+  from etils.ecolab.lazy_imports import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+  assert jax.tree_map(lambda x: x + 1, [0, 1]) == [1, 2]
+  assert 'jax' in sys.modules

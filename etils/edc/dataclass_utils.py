@@ -25,7 +25,8 @@ from typing import Any, Callable, TypeVar
 from etils import epy
 from etils.edc import frozen_utils
 
-_Cls = TypeVar('_Cls')
+_Cls = Any
+_ClsT = TypeVar('_ClsT')
 _T = TypeVar('_T')
 
 
@@ -37,19 +38,19 @@ def dataclass(
     replace: bool = ...,  # pylint: disable=redefined-outer-name
     repr: bool = ...,  # pylint: disable=redefined-builtin
     allow_unfrozen: bool = ...,
-) -> Callable[[_Cls], _Cls]:
+) -> Callable[[_ClsT], _ClsT]:
   ...
 
 
 @typing.overload
 def dataclass(
-    cls: _Cls,
+    cls: _ClsT,
     *,
     kw_only: bool = ...,
     replace: bool = ...,  # pylint: disable=redefined-outer-name
     repr: bool = ...,  # pylint: disable=redefined-builtin
     allow_unfrozen: bool = ...,
-) -> _Cls:
+) -> _ClsT:
   ...
 
 
@@ -144,7 +145,7 @@ def dataclass(
     cls = _make_kw_only(cls)
 
   if repr:
-    cls = _add_repr(cls)
+    cls = add_repr(cls)
 
   if replace:
     cls = _add_replace(cls)
@@ -155,7 +156,7 @@ def dataclass(
   return cls
 
 
-def _make_kw_only(cls: _Cls) -> _Cls:
+def _make_kw_only(cls: _ClsT) -> _ClsT:
   """Replace the `__init__` by a keyword-only version."""
   # Use `cls.__dict__` and not `hasattr` to ignore parent classes
   if '__init__' not in cls.__dict__:
@@ -177,7 +178,7 @@ def _make_kw_only(cls: _Cls) -> _Cls:
   return cls
 
 
-def _add_replace(cls: _Cls) -> _Cls:
+def _add_replace(cls: _ClsT) -> _ClsT:
   """Add a `.replace` method to the class, if not already present."""
   # Use `cls.__dict__` and not `hasattr` to ignore parent classes
   if 'replace' not in cls.__dict__:
@@ -190,13 +191,18 @@ def replace(self: _T, **kwargs: Any) -> _T:
   return dataclasses.replace(self, **kwargs)
 
 
-def _add_repr(cls: _Cls) -> _Cls:
-  """Add a `.__repr__` method to the class, if not already present."""
-  if (
+def has_default_repr(cls: _Cls) -> bool:
+  return (
       # Use `cls.__dict__` and not `hasattr` to ignore parent classes
       '__repr__' not in cls.__dict__
       # `__repr__` exists but is the default dataclass implementation
-      or cls.__repr__.__qualname__ == '__create_fn__.<locals>.__repr__'):
+      or cls.__repr__.__qualname__ == '__create_fn__.<locals>.__repr__'
+  )
+
+
+def add_repr(cls: _ClsT) -> _ClsT:
+  """Add a `.__repr__` method to the class, if not already present."""
+  if has_default_repr(cls):
     cls.__repr__ = __repr__
   return cls
 
