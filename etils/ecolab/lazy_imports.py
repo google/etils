@@ -45,7 +45,7 @@ _ATTR_NAMES = set()
 @dataclasses.dataclass(eq=False)
 class LazyModule(types.ModuleType):
   """Lazy module which auto-loads on first attribute call."""
-  __module_name: str  # pylint: disable=invalid-name
+  _module_name: str  # pylint: disable=invalid-name
 
   def __post_init__(self):
     # We set `__file__` to None, to avoid `colab_import.reload_package(etils)`
@@ -54,16 +54,29 @@ class LazyModule(types.ModuleType):
 
   def __getattr__(self, name: str) -> Any:
     _ATTR_NAMES.add(name)
-    if '_LazyModule__module_name' not in self.__dict__:
-      raise AttributeError
+    if '_module_name' not in self.__dict__:
+      raise AttributeError(f'Unexpected attribute access from {name}')
+
+    import contextlib  # pylint: disable=g-import-not-at-top
+    adhoc_cm = contextlib.suppress()
+
     # First time, load the module
-    m = importlib.import_module(self.__module_name)
+    with adhoc_cm:
+      m = importlib.import_module(self._module_name)
     # Replace `self` by module (so auto-complete works on colab)
     self.__dict__.clear()
     self.__dict__.update(m.__dict__)
     self.__class__ = type(m)
     # Future call will bypass `__getattr__` entirely (as the class has changed)
     return getattr(m, name)
+
+
+# Modules here will be imported from head
+_PACKAGE_RESTRICT = [
+    'etils',
+    'sunds',
+    'jax3d.visu3d',
+]
 
 
 _STANDARD_MODULE_NAMES = [
@@ -94,6 +107,7 @@ MODULE_NAMES = dict(
     # ====== Python standard lib ======
     **{n: n for n in _STANDARD_MODULE_NAMES},
     # ====== Etils ======
+    etils='etils',
     array_types='etils.array_types',
     ecolab='etils.ecolab',
     edc='etils.edc',
@@ -112,7 +126,9 @@ MODULE_NAMES = dict(
     # is likely too ambiguous.
     ipywidgets='ipywidgets',
     jax='jax',
+    v3d='jax3d.visu3d',
     jnp='jax.numpy',
+    matplotlib='matplotlib',
     plt='matplotlib.pyplot',
     media='mediapy',
     np='numpy',
@@ -126,6 +142,7 @@ MODULE_NAMES = dict(
     tree='tree',
     px='plotly.express',
     go='plotly.graph_objects',
+    sunds='sunds',
 )
 
 _LAZY_MODULES = {k: LazyModule(v) for k, v in MODULE_NAMES.items()}
