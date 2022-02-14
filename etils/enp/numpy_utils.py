@@ -22,12 +22,14 @@ from etils.array_types import Array
 import numpy as np
 
 _T = TypeVar('_T')
+NpModule = Any  # Ideally should use `-> Literal[np]:``
 
 
 class _LazyImporter:
   """Lazy import module.
 
-  This allow to use `enp` with numpy only without requiring TF nor Jax.
+  Help to write code seamlessly working with np, Jax and TF.
+  Because libs are lazily imported, TF and Jax are always optional dependencies.
 
   """
 
@@ -59,36 +61,60 @@ class _LazyImporter:
     import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
     return tnp
 
+  def is_np(self, x: Array) -> bool:
+    return isinstance(x, np.ndarray)
+
   def is_tf(self, x: Array) -> bool:
-    return self.has_tf and isinstance(x, self.tf.Tensor)
+    return self.has_tf and isinstance(x, self.tnp.ndarray)
+
+  def is_jax(self, x: Array) -> bool:
+    return self.has_jax and isinstance(x, self.jnp.ndarray)
+
+  def is_array(self, x: Array) -> bool:
+    return self.is_np(x) or self.is_jax(x) or self.is_tf(x)
+
+  def get_xnp(self, x: Array, *, strict: bool = True) -> NpModule:
+    """Returns the numpy module associated with the given array.
+
+    Args:
+      x: Either tf, jax or numpy array.
+      strict: If `False`, default to `np.array` if the array can't be infered (
+        to support array-like: list, tuple,...)
+
+    Returns:
+      The numpy module.
+    """
+    # This is inspired from NEP 37 but without the `__array_module__` magic:
+    # https://numpy.org/neps/nep-0037-array-module.html
+    # Note there is also an implementation of NEP 37 from the author, but look
+    # overly complicated and not available at google.
+    # https://github.com/seberg/numpy-dispatch
+    if self.is_jax(x):
+      return self.jnp
+    elif self.is_tf(x):
+      return self.tnp
+    elif self.is_np(x) or (not strict and x is not None):
+      return np
+    else:
+      raise TypeError(
+          f'Cannot infer the numpy module from array: {type(x).__name__}')
 
 
 lazy = _LazyImporter()
 
 
-def get_np_module(array: Array):  # Ideally should use `-> Literal[np]:``
+def get_np_module(array: Array, *, strict: bool = True) -> NpModule:
   """Returns the numpy module associated with the given array.
 
   Args:
     array: Either tf, jax or numpy array.
+    strict: If `False`, default to `np.array` if the array can't be infered (
+      to support array-like: list, tuple,...)
 
   Returns:
     The numpy module.
   """
-  # This is inspired from NEP 37 but without the `__array_module__` magic:
-  # https://numpy.org/neps/nep-0037-array-module.html
-  # Note there is also an implementation of NEP 37 from the author, but look
-  # overly complicated and not available at google.
-  # https://github.com/seberg/numpy-dispatch
-  if isinstance(array, np.ndarray):
-    return np
-  elif lazy.has_jax and isinstance(array, lazy.jnp.ndarray):
-    return lazy.jnp
-  elif lazy.has_tf and isinstance(array, lazy.tnp.ndarray):
-    return lazy.tnp
-  else:
-    raise TypeError(
-        f'Cannot infer the numpy module from array: {type(array).__name__}')
+  return lazy.get_xnp(array, strict=strict)
 
 
 def is_dtype_str(dtype) -> bool:
