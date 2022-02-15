@@ -20,4 +20,4 @@ _T = TypeVar('_T')
 
 # TODO(b/202712189): Add `Any` to the `Union`
 # Tree can be arbitrary `chex.dataclass`, jax structure,... so has to be Any
-Tree = Union[_T, List['Tree'], Tuple['Tree', ...], Dict[str, 'Tree']]  # pytype: disable=not-supported-yet
+Tree = Union[_T, List['Tree'], Tuple['Tree', ...], Dict[str, 'Tree']]
