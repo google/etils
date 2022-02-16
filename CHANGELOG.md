@@ -6,6 +6,7 @@
   with `jax`, `np`, `tf`
 * `ecolab`: Add `from etils.ecolab.lazy_imports import *` to lazy-import common
   Python modules
+* `etree`: Add `assert_same_structure` on the backend
 
 ## v0.4.0
 

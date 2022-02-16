@@ -73,6 +73,14 @@ class Backend(abc.ABC):
   def unflatten(self, structure: _TreeDef, flat_sequence: list[_T]) -> Tree[_T]:
     raise NotImplementedError
 
+  @abc.abstractmethod
+  def assert_same_structure(
+      self,
+      struct0: Tree[Any],
+      struct1: Tree[Any],
+  ) -> None:
+    raise NotImplementedError
+
 
 class Jax(Backend):
   """`jax.tree_util` backend."""
@@ -91,6 +99,18 @@ class Jax(Backend):
   def unflatten(self, structure, flat_sequence):
     return structure.unflatten(flat_sequence)
 
+  def assert_same_structure(
+      self,
+      tree0: Tree[Any],
+      tree1: Tree[Any],
+  ):
+    treedef0 = self.module.tree_structure(tree0)
+    treedef1 = self.module.tree_structure(tree1)
+    if treedef0 != treedef1:
+      raise ValueError(
+          "The two structures don't have the same nested structure.\n"
+          f"Left: {treedef0}\nRight: {treedef1}")
+
 
 class DmTree(Backend):
   """`tree` backend."""
@@ -108,6 +128,13 @@ class DmTree(Backend):
   def unflatten(self, structure, flat_sequence):
     return self.module.unflatten_as(structure, flat_sequence)
 
+  def assert_same_structure(
+      self,
+      tree0: Tree[Any],
+      tree1: Tree[Any],
+  ):
+    self.module.assert_same_structure(tree0, tree1)
+
 
 class Nest(Backend):
   """`tf.nest` backend."""
@@ -124,3 +151,10 @@ class Nest(Backend):
 
   def unflatten(self, structure, flat_sequence):
     return self.module.pack_sequence_as(structure, flat_sequence)
+
+  def assert_same_structure(
+      self,
+      tree0: Tree[Any],
+      tree1: Tree[Any],
+  ):
+    self.module.assert_same_structure(tree0, tree1)

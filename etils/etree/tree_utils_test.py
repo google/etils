@@ -109,3 +109,28 @@ def test_spec_like(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=
 
   out = "[i32[_], i32[6], {'a': f32[7]}, None, str[2], None, 123, 'abc', Obj()]"
   assert repr(specs) == out
+
+
+def test_tree_assert_same_structure(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
+  etree_api.backend.assert_same_structure(
+      {
+          'x': [1, 2, 3],
+          'y': [],
+      },
+      {
+          'x': [10, 20, 30],
+          'y': [],
+      },
+  )
+
+  with pytest.raises(ValueError, match='The two structures don'):
+    etree_api.backend.assert_same_structure(
+        {
+            'x': [1, 2, 3],
+            'y': [],
+        },
+        {
+            'x': [10, 20, 30],
+            'y2': [],
+        },
+    )
