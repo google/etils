@@ -15,21 +15,14 @@
 """Tests for jax3d.utils.geo_utils."""
 
 from etils import enp
-import jax.numpy as jnp
-import numpy as np
-import pytest
-import tensorflow.experimental.numpy as tnp
 
 
-@pytest.fixture(scope='module', autouse=True)
-def set_tnp():
-  """Enable numpy behavior."""
-  # This is required to have TF follow the same casting rules as numpy
-  tnp.experimental_enable_numpy_behavior(prefer_float32=True)
+# Activate the fixture
+set_tnp = enp.testing.set_tnp
 
 
-@pytest.mark.parametrize('xnp', [np, jnp, tnp])
-def test_interp_scalar(xnp):
+@enp.testing.parametrize_xnp()
+def test_interp_scalar(xnp: enp.NpModule):
 
   vals = xnp.array([
       [-1, -1],
@@ -90,7 +83,7 @@ def test_interp_scalar(xnp):
   )
 
 
-@pytest.mark.parametrize('xnp', [np, jnp, tnp])
+@enp.testing.parametrize_xnp()
 def test_interp_coords(xnp):
 
   coords = xnp.array([

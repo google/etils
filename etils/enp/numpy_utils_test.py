@@ -23,20 +23,14 @@ import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 
 
-@pytest.fixture(scope='module', autouse=True)
-def setup_tf():
-  tnp.experimental_enable_numpy_behavior()
+# Activate the fixture
+set_tnp = enp.testing.set_tnp
 
 
 def fn(x):
   xnp = enp.get_np_module(x)
   y = xnp.sum(x) + x.mean()
   return x + y
-
-
-def test_get_array_module_tf():
-  y = fn(tf.constant([123]))
-  assert isinstance(y, tnp.ndarray)
 
 
 def test_lazy():
@@ -73,10 +67,15 @@ def test_lazy():
     lazy.get_xnp(None, strict=False)
 
 
-@pytest.mark.parametrize('xnp', [np, jnp, tnp])
+@enp.testing.parametrize_xnp()
 def test_get_array_module(xnp):
   y = fn(xnp.array([123]))
   assert isinstance(y, xnp.ndarray)
+
+
+def test_get_array_module_tf():
+  y = fn(tf.constant([123]))
+  assert isinstance(y, tnp.ndarray)
 
 
 @pytest.mark.parametrize('xnp', [np, jnp])
