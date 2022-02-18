@@ -32,3 +32,11 @@ def norm(
     return lazy.tf.norm(x, axis=axis, keepdims=keepdims)
   xnp = lazy.get_xnp(x)
   return xnp.linalg.norm(x, axis=axis, keepdims=keepdims)
+
+
+def inv(x: FloatArray['*d']) -> FloatArray['*d']:
+  """Like `np.linalg.inv` but auto-support jnp, tnp, np."""
+  if lazy.is_tf(x):  # TF Compatibility
+    return lazy.tf.linalg.inv(x)
+  else:
+    return lazy.get_xnp(x).linalg.inv(x)
