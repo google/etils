@@ -76,10 +76,12 @@ _PACKAGE_RESTRICT = [
     'etils',
     'sunds',
     'jax3d.visu3d',
+    'mediapy',  # The brain frameworks kernel don't have mediapy
 ]
 
 
 _STANDARD_MODULE_NAMES = [
+    'base64',
     'collections',
     'contextlib',
     'dataclasses',
@@ -87,7 +89,9 @@ _STANDARD_MODULE_NAMES = [
     'functools',
     'gzip',
     'inspect',
+    'io',
     'itertools',
+    'math',
     'os',
     'pathlib',
     'pprint',
@@ -96,6 +100,7 @@ _STANDARD_MODULE_NAMES = [
     'sys',
     'textwrap',
     'time',
+    'traceback',
     # With `__future__.annotations`, no need to import Any & co
     'typing',
     'types',

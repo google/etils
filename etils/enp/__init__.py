@@ -31,6 +31,7 @@ from etils.enp.numpy_utils import is_dtype_str
 from etils.enp.numpy_utils import lazy
 from etils.enp.numpy_utils import normalize_bytes2str
 from etils.enp.numpy_utils import NpModule
+from etils.enp.numpy_utils import tau
 
 # Inside tests, can use `enp.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import

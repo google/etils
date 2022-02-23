@@ -24,6 +24,9 @@ import numpy as np
 _T = TypeVar('_T')
 NpModule = Any  # Ideally should use `-> Literal[np]:``
 
+# Mirror math.tau (PEP 628). See https://tauday.com/
+tau = 2 * np.pi
+
 
 class _LazyImporter:
   """Lazy import module.
