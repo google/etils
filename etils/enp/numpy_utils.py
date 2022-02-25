@@ -64,6 +64,10 @@ class _LazyImporter:
     import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
     return tnp
 
+  @property
+  def np(self):
+    return np
+
   def is_np(self, x: Array) -> bool:
     return isinstance(x, np.ndarray)
 

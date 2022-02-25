@@ -4,8 +4,11 @@
 
 * `enp`: Expose `enp.lazy` to the public API to help design code compatible
   with `jax`, `np`, `tf`
-* `ecolab`: Add `from etils.ecolab.lazy_imports import *` to lazy-import common
+* `ecolab`:
+  * Add `from etils.ecolab.lazy_imports import *` to lazy-import common
   Python modules
+  * Rename `ecolab.display_array_as_img` -> `ecolab.auto_plot_array`
+  * `ecolab.auto_plot_array` now supports multi-images & video.
 * `etree`: Add `assert_same_structure` on the backend
 
 ## v0.4.0

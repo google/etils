@@ -42,6 +42,7 @@ def test_lazy():
   assert lazy.tf is tf
   assert lazy.jax is jax
   assert lazy.jnp is jnp
+  assert lazy.np is np
 
   assert lazy.is_array(np.array([123]))
   assert lazy.is_np(np.array([123]))

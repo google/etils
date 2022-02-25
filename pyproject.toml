@@ -35,8 +35,9 @@ array-types = [
 ]
 ecolab = [
     "jupyter",
-    "matplotlib",
     "numpy",
+    "mediapy",
+    "etils[enp]",
 ]
 edc = [
     "etils[epy]",

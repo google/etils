@@ -22,15 +22,15 @@ from etils.ecolab import array_as_img
 
 """
 
-import base64
-import io
-import sys
+from __future__ import annotations
+
 import traceback
 from typing import Any, Optional, Tuple
 
+from etils import enp
 import IPython
 import IPython.display
-import numpy as np
+import mediapy as media
 
 
 Array = Any
@@ -43,12 +43,12 @@ def show(*objs, **kwargs) -> None:
   return IPython.display.display(*objs, **kwargs)
 
 
-def display_array_as_img() -> None:
+def auto_plot_array() -> None:
   """If called, 2d/3d imgage arrays will be plotted as images in colab/jupyter.
 
   Usage:
 
-  >>> jax3d.utils.display_array_as_img()
+  >>> ecolab.auto_plot_array()
   >>> np.zeros((28, 28, 3))  # Displayed as image
 
   """
@@ -60,9 +60,10 @@ def display_array_as_img() -> None:
   print('Display big np/tf/jax arrays as image for nicer IPython display')
   formatter = ipython.display_formatter.formatters['text/html']
 
+  # TODO(epot): How to support lazy-imports without catching everything ?
   # Try registering jax
   try:
-    from jax import numpy as jnp  # pytype: disable=import-error  # pylint: disable=g-import-not-at-top
+    jnp = enp.lazy.jnp
   except ImportError:
     pass
   else:
@@ -73,67 +74,80 @@ def display_array_as_img() -> None:
 
   # Try registering TF
   try:
-    import tensorflow as tf  # pytype: disable=import-error  # pylint: disable=g-import-not-at-top
+    tf = enp.lazy.tf
   except ImportError:
     pass
   else:
     formatter.for_type(tf.Tensor, _array_repr_html)
 
   # Register np
-  formatter.for_type(np.ndarray, _array_repr_html)
+  formatter.for_type(enp.lazy.np.ndarray, _array_repr_html)
 
 
 def _array_repr_html(array: Array) -> Optional[str]:
   """Returns the HTML `<img/>` repr, or `None` if array is not an image."""
   try:
-    img = _get_image(array)
-    if img is not None:
-      return _html_img_repr(img)
-    else:
-      return None
+    return _array_repr_html_inner(array)
   except Exception:
     # IPython display silence exceptions, so display it here
     traceback.print_exc()
     raise
 
 
-def _html_img_repr(img: Array) -> str:
-  """Generates the image and returns the HTML `<img />`."""
-  from matplotlib.backends import backend_agg  # pytype: disable=import-error  # pylint: disable=g-import-not-at-top
-  import matplotlib.pyplot as plt  # pytype: disable=import-error  # pylint: disable=g-import-not-at-top
-  fig = plt.Figure()
-  backend_agg.FigureCanvasAgg(fig)
-  plt_image = fig.gca().imshow(img)
-  fig.colorbar(plt_image)
-  buffer = io.BytesIO()
-  fig.savefig(buffer)
-  bytes_value = buffer.getvalue()
+def _array_repr_html_inner(img: Array) -> Optional[str]:
+  """Display the normalized img, or `None` if the input is not an image."""
+  if not enp.lazy.is_array(img):  # Not an array
+    return None
 
-  # Alternativelly could try using `IPython.display.Image`
-  img_str = base64.b64encode(bytes_value).decode('ascii')  # pytype: disable=bad-return-type
-  return f'<img src="data:image/png;base64,{img_str}" alt="Img" />'
-
-
-def _get_image(img: Array) -> Optional[Array]:
-  """Returns the normalized img, or `None` if the input is not an image."""
   # Normalize tf.Tensor into np.array
-  if 'tensorflow' in sys.modules:
-    import tensorflow as tf  # pytype: disable=import-error    # pylint: disable=g-import-not-at-top
-    if isinstance(img, tf.Tensor):
-      img = img.numpy()
+  if enp.lazy.is_tf(img):
+    img = img.numpy()
 
-  # Image should have reasonable dimensions
-  if (len(img.shape) not in {2, 3} or img.shape[0] < _MIN_IMG_SHAPE[0] or
-      img.shape[1] < _MIN_IMG_SHAPE[1]):
+  shape = img.shape
+  ndim = len(shape)
+
+  # Infer the array type (image or video ?)
+  if ndim == 2:
+    img_shape = shape
+    num_channel = 1
+    num_frames = 1
+  elif ndim == 3:
+    img_shape = shape[:2]
+    num_channel = shape[-1]
+    num_frames = 1
+  elif ndim == 4:
+    img_shape = shape[1:3]
+    num_channel = shape[-1]
+    num_frames = shape[0]
+  else:
     return None
 
-  if len(img.shape) == 2:
-    return img
-
-  assert len(img.shape) == 3
-  if img.shape[-1] == 1:
-    return img.squeeze(-1)
-  elif img.shape[-1] == 3:
-    return img
-  else:  # More than 3 channels, too big to be displayed
+  # Filter non-images
+  if 0 in shape:  # Empty image
     return None
+  if _smaller_than(img_shape, _MIN_IMG_SHAPE):
+    return None
+  if num_channel not in {1, 3, 4}:
+    return None
+
+  if num_frames == 1:
+    out = media.show_image(img, return_html=True)
+  elif num_frames < 15:
+    out = media.show_images(img, return_html=True)
+  else:
+    # TODO(epot): media.show_video does not support single channel video
+    if num_channel != 3:
+      return None
+    # Dynamically compute the frame-rate, capped at 25 FPS
+    fps = min(num_frames // 5, 25.)
+    out = media.show_video(
+        img,
+        fps=fps,
+        return_html=True,
+    )
+  return out
+
+
+def _smaller_than(shape: tuple[int, ...], min_shape: tuple[int, ...]) -> bool:
+  """Returns True if one of the dim of `shape` is smaller than `min_shape`."""
+  return any(dim < min_dim for dim, min_dim in zip(shape, min_shape))

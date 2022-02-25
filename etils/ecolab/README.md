@@ -33,7 +33,7 @@ The list of imported packages can be seen in:
 By running:
 
 ```python
-ecolab.display_array_as_img()
+ecolab.auto_plot_array()
 ```
 
 All `(h, w[, c])` jax/numpy/TF arrays bigger than `(10, 10)` will be displayed
