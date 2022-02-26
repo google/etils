@@ -38,7 +38,7 @@ def set_tnp() -> None:
   lazy.tnp.experimental_enable_numpy_behavior(prefer_float32=True)
 
 
-def parametrize_xnp(with_none: bool = False) -> Callable[[_FnT], _FnT]:
+def parametrize_xnp(*, with_none: bool = False) -> Callable[[_FnT], _FnT]:
   """Parametrize over the numpy modules."""
   np_modules = [np, lazy.jnp, lazy.tnp]
   if with_none:
