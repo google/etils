@@ -41,7 +41,9 @@ def set_tnp() -> None:
 def parametrize_xnp(*, with_none: bool = False) -> Callable[[_FnT], _FnT]:
   """Parametrize over the numpy modules."""
   np_modules = [np, lazy.jnp, lazy.tnp]
+  np_names = ['np', 'jax', 'tf']
   if with_none:
     # Allow to test without numpy module: `x = [1, 2]` vs `x = np.array([1, 2]`
     np_modules.append(None)
-  return pytest.mark.parametrize('xnp', np_modules)
+    np_names.append('no_np')
+  return pytest.mark.parametrize('xnp', np_modules, ids=np_names)
