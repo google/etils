@@ -76,7 +76,9 @@ _PACKAGE_RESTRICT = [
     'etils',
     'sunds',
     'jax3d.visu3d',
-    'mediapy',  # The brain frameworks kernel don't have mediapy
+    # Modules not available in the brain frameworks kernel.
+    'imageio',
+    'mediapy',
 ]
 
 
@@ -127,6 +129,7 @@ MODULE_NAMES = dict(
     flax='flax',
     nn='flax.linen',
     gin='gin',
+    imageio='imageio',
     # Even though `import ipywidgets as widgets` is the common alias, widget
     # is likely too ambiguous.
     ipywidgets='ipywidgets',
