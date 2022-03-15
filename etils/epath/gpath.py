@@ -50,7 +50,8 @@ class _GPath(abstract_path.Path):
   def __new__(cls: Type[_P], *parts: PathLike) -> _P:
     full_path = '/'.join(os.fspath(p) for p in parts)
     if full_path.startswith(URI_PREFIXES):
-      prefix = full_path[:5]
+      prefix, _ = full_path.split('://', maxsplit=1)
+      prefix = f'{prefix}://'
       new_prefix = _URI_MAP_ROOT[prefix]
       return super().__new__(cls, full_path.replace(prefix, new_prefix, 1))
     else:
