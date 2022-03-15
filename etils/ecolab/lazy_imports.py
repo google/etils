@@ -75,7 +75,7 @@ class LazyModule(types.ModuleType):
 _PACKAGE_RESTRICT = [
     'etils',
     'sunds',
-    'jax3d.visu3d',
+    'visu3d',
     # Modules not available in the brain frameworks kernel.
     'imageio',
     'mediapy',
@@ -134,7 +134,6 @@ MODULE_NAMES = dict(
     # is likely too ambiguous.
     ipywidgets='ipywidgets',
     jax='jax',
-    v3d='jax3d.visu3d',
     jnp='jax.numpy',
     matplotlib='matplotlib',
     plt='matplotlib.pyplot',
@@ -151,6 +150,7 @@ MODULE_NAMES = dict(
     px='plotly.express',
     go='plotly.graph_objects',
     sunds='sunds',
+    v3d='visu3d',
 )
 
 _LAZY_MODULES = {k: LazyModule(v) for k, v in MODULE_NAMES.items()}
