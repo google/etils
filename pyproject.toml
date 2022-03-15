@@ -55,7 +55,9 @@ epath = [
     "etils[epath-no-tf]",
     "tf-nightly",
 ]
-epy = []
+epy = [
+    "typing_extensions",
+]
 etqdm = [
     "absl-py",
     "tqdm",
