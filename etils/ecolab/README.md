@@ -24,7 +24,14 @@ Some notes:
     `colab_import.reload_package`
 *   This should only be used in Colab.
 
-The list of imported packages can be seen in:
+To get the list of available modules:
+
+```python
+ecolab.lazy_imports.__all__  # List of all modules aliases
+ecolab.lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
+```
+
+Code at:
 [lazy_imports.py](https://github.com/google/etils/blob/main/etils/ecolab/lazy_imports.py).
 
 

@@ -20,55 +20,143 @@ Usage:
 from etils.ecolab.lazy_imports import *
 ```
 
-"""
+To get the list of available modules:
 
-# TODO(epot): Issues:
-# * TF compatibility
-# * Add tests
-#   Pytest explore `dir(common_test)` to collect the test and is checking
-#   for various attributes (e.g., like `_pytestfixturefunction`) which has
-#   the side effect of triggering all imports
+```python
+ecolab.lazy_imports.__all__  # List of modules aliases
+ecolab.lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
+```
+
+"""
 
 from __future__ import annotations
 
-import dataclasses
-import importlib
-import types
-from typing import Any
-
-# Track attribute names which trigger the import
-# Helpful to debug.
-# In `Colab`, colab call '.getdoc' on the background, which trigger import.
-_ATTR_NAMES = set()
+# Import as alias to avoid closure issues when updating the global()
+import dataclasses as dataclasses_
+import importlib as importlib_
+import traceback as traceback_
+import types as types_
+from typing import Any, Optional
 
 
-@dataclasses.dataclass(eq=False)
-class LazyModule(types.ModuleType):
+# Attributes which will be updated after the module is loaded.
+_MODULE_ATTR_NAMES = [
+    '__builtins__',
+    '__cached__',
+    '__doc__',
+    '__file__',
+    '__loader__',
+    '__name__',
+    '__package__',
+    '__path__',
+    '__spec__',
+]
+
+
+@dataclasses_.dataclass(eq=False)
+class LazyModuleState:
+  """State of the lazy module.
+
+  We store the state in a separate object to:
+
+  1) Reduce the risk of collision
+  2) Avoid infinite recursion error when typo on a attribute
+  3) `@property`, `epy.cached_property` fail when the class is changed
+
+  """
+  module_name: str  # pylint: disable=invalid-name
+  host: LazyModule = dataclasses_.field(repr=False)
+  _module: Optional[types_.ModuleType] = None
+  # Track the trace which trigger the import
+  # Helpful to debug.
+  # E.g. `Colab` call '.getdoc' on the background, which trigger import.
+  trace_repr: Optional[str] = dataclasses_.field(default=None, repr=False)
+
+  @property
+  def module(self) -> types_.ModuleType:
+    """Returns the module."""
+    if not self.module_loaded:  # Load on first call
+      # Keep track of attributes which triggered import
+      # Used to track ipython internals (e.g. `<module>.get_traits` gets called
+      # internally when ipython inspect the object)
+      # So writing `<module>.` trigger module loading & auto-completion even if
+      # the module was never used before.
+      self.trace_repr = ''.join(traceback_.format_stack())
+
+      self._module = _load_module(self.module_name)
+      # Update the module.__doc__, module.__file__,...
+      self._mutate_host()
+    return self._module
+
+  @property
+  def module_loaded(self) -> bool:
+    return self._module is not None
+
+  def _mutate_host(self) -> None:
+    """When the module is first loaded, update `__doc__`, `__file__`,..."""
+    assert self.module_loaded
+    missing = object()
+    for attr_name in _MODULE_ATTR_NAMES:
+      attr_value = getattr(self.module, attr_name, missing)
+      if attr_value is not missing:
+        setattr(self.host, attr_name, attr_value)
+
+
+# Class name has to be `module` for Colab compatibility (colab harcode class
+# name instead of checking the instance)
+class module(types_.ModuleType):  # pylint: disable=invalid-name
   """Lazy module which auto-loads on first attribute call."""
-  _module_name: str  # pylint: disable=invalid-name
 
-  def __post_init__(self):
+  def __init__(self, module_name: str):
     # We set `__file__` to None, to avoid `colab_import.reload_package(etils)`
     # to trigger a full reload of all modules here.
     self.__file__ = None
 
+    self._etils_state = LazyModuleState(module_name, host=self)
+
   def __getattr__(self, name: str) -> Any:
-    _ATTR_NAMES.add(name)
-    if '_module_name' not in self.__dict__:
-      raise AttributeError(f'Unexpected attribute access from {name}')
+    if not self._etils_state.module_loaded and name in {
+        'getdoc',
+        '__wrapped__',
+    }:
+      # IPython dynamically inspect the object when hovering the symbol:
+      # This can trigger a slow import which then disable rich annotations:
+      # So raising attribute error avoid lazy-loading the module.
+      # There might be a more long term fix but this should cover the most
+      # common cases.
+      raise AttributeError
+    return getattr(self._etils_state.module, name)
 
-    import contextlib  # pylint: disable=g-import-not-at-top
-    adhoc_cm = contextlib.suppress()
+  def __dir__(self) -> list[str]:  # Used for Colab auto-completion
+    return dir(self._etils_state.module)
 
-    # First time, load the module
-    with adhoc_cm:
-      m = importlib.import_module(self._module_name)
-    # Replace `self` by module (so auto-complete works on colab)
-    self.__dict__.clear()
-    self.__dict__.update(m.__dict__)
-    self.__class__ = type(m)
-    # Future call will bypass `__getattr__` entirely (as the class has changed)
-    return getattr(m, name)
+  def __repr__(self) -> str:
+    if not self._etils_state.module_loaded:
+      return f'LazyModule({self._etils_state.module_name!r})'
+    else:
+      module_ = self._etils_state.module
+      if hasattr(module_, '__file__'):
+        file = module_.__file__
+      else:
+        file = '(built-in)'
+      return f'<lazy_module {module_.__name__!r} from {file!r}>'
+
+
+# Create alias to avoid confusion
+LazyModule = module
+del module
+
+
+# TODO(epot): Rather than hardcoding which modules are adhoc-imported, this
+# could be a argument.
+def _load_module(module_name: str) -> types_.ModuleType:
+  """Load the module, eventually using adhoc-import."""
+  import contextlib  # pylint: disable=g-import-not-at-top
+  adhoc_cm = contextlib.suppress()
+
+  # First time, load the module
+  with adhoc_cm:
+    return importlib_.import_module(module_name)
 
 
 # Modules here will be imported from head
@@ -83,34 +171,55 @@ _PACKAGE_RESTRICT = [
 
 
 _STANDARD_MODULE_NAMES = [
+    'abc',
+    'argparse',
+    'asyncio',
     'base64',
     'collections',
+    # 'concurrent.futures',
     'contextlib',
+    'contextvars',
+    'csv',
     'dataclasses',
+    'datetime',
     'enum',
     'functools',
+    'gc',
     'gzip',
+    'html',
     'inspect',
     'io',
+    'importlib',
     'itertools',
+    'json',
     'math',
+    'multiprocessing',
     'os',
     'pathlib',
+    'pdb',
+    'pickle',
     'pprint',
-    'json',
+    'queue',
+    'random',
+    're',
     'string',
+    'subprocess',
     'sys',
     'textwrap',
+    'threading',
     'time',
+    'timeit',
     'traceback',
     # With `__future__.annotations`, no need to import Any & co
     'typing',
     'types',
     'warnings',
+    'weakref',
+    'zipfile',
 ]
 
 
-MODULE_NAMES = dict(
+_MODULE_NAMES = dict(
     # ====== Python standard lib ======
     **{n: n for n in _STANDARD_MODULE_NAMES},
     # ====== Etils ======
@@ -140,21 +249,26 @@ MODULE_NAMES = dict(
     media='mediapy',
     np='numpy',
     pd='pandas',
-    # TODO(epot): TF uses some magic C++ module types with slot not
-    # compatible with `LazyModule` (`TFModuleWrapper`)
-    # tf='tensorflow',
-    # tnp='tensorflow.experimental.numpy',
+    tf='tensorflow',
+    tnp='tensorflow.experimental.numpy',
     tfds='tensorflow_datasets',
     tqdm='tqdm',
     tree='tree',
+    typing_extensions='typing_extensions',
     px='plotly.express',
     go='plotly.graph_objects',
     sunds='sunds',
     v3d='visu3d',
 )
 
-_LAZY_MODULES = {k: LazyModule(v) for k, v in MODULE_NAMES.items()}
+# Sort the lazy modules per their <module_name>
+# Note that this fail with python 3.7, but works with 3.8+
+_MODULE_NAMES = dict(sorted(_MODULE_NAMES.items(), key=lambda x: x[1]))
 
-globals().update(_LAZY_MODULES)
+LAZY_MODULES: dict[str, LazyModule] = {
+    k: LazyModule(v) for k, v in _MODULE_NAMES.items()
+}
 
-__all__ = list(MODULE_NAMES)
+globals().update(LAZY_MODULES)
+
+__all__ = sorted(_MODULE_NAMES)  # Sorted per alias
