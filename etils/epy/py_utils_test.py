@@ -17,6 +17,7 @@
 import enum
 
 from etils import epy
+import pytest
 
 
 def test_str_enum():
@@ -27,3 +28,28 @@ def test_str_enum():
 
   assert MyEnum('my_attr') is MyEnum.MY_ATTR
   assert MyEnum.MY_ATTR == 'my_attr'
+
+
+def test_zip_dict():
+  d0 = {'a': 1, 'b': 2}
+  d1 = {'a': 10, 'b': 20}
+  assert list(epy.zip_dict(d0, d1)) == [
+      ('a', (1, 10)),
+      ('b', (2, 20)),
+  ]
+
+  # Order is preserved
+  d0 = {'b': 1, 'a': 2}
+  d1 = {'b': 10, 'a': 20}
+  assert list(epy.zip_dict(d0, d1)) == [
+      ('b', (1, 10)),
+      ('a', (2, 20)),
+  ]
+
+  d0 = {'a': 1}
+  d1 = {'a': 10, 'b': 20}
+  with pytest.raises(KeyError):
+    list(epy.zip_dict(d0, d1))
+
+  with pytest.raises(KeyError):
+    list(epy.zip_dict(d1, d0))

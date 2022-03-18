@@ -22,7 +22,11 @@ from etils.array_types import Array
 import numpy as np
 
 _T = TypeVar('_T')
-NpModule = Any  # Ideally should use `-> Literal[np]:``
+
+# TODO(pytype): Ideally should use `-> Literal[np]:` but Python does not
+# support this: https://github.com/python/typing/issues/1039
+# Thankfully, pytype correctly auto-infer `np` when returned by `get_xnp`
+NpModule = Any
 
 # Mirror math.tau (PEP 628). See https://tauday.com/
 tau = 2 * np.pi
@@ -80,7 +84,7 @@ class _LazyImporter:
   def is_array(self, x: Array) -> bool:
     return self.is_np(x) or self.is_jax(x) or self.is_tf(x)
 
-  def get_xnp(self, x: Array, *, strict: bool = True) -> NpModule:
+  def get_xnp(self, x: Array, *, strict: bool = True):  # -> NpModule:
     """Returns the numpy module associated with the given array.
 
     Args:
@@ -110,7 +114,7 @@ class _LazyImporter:
 lazy = _LazyImporter()
 
 
-def get_np_module(array: Array, *, strict: bool = True) -> NpModule:
+def get_np_module(array: Array, *, strict: bool = True):  # -> NpModule:
   """Returns the numpy module associated with the given array.
 
   Args:
