@@ -10,6 +10,7 @@
   * Rename `ecolab.display_array_as_img` -> `ecolab.auto_plot_array`
   * `ecolab.auto_plot_array` now supports multi-images & video.
 * `etree`: Add `assert_same_structure` on the backend
+* `epy`: Add `epy.zip_dict`
 
 ## v0.4.0
 

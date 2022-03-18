@@ -14,7 +14,16 @@
 
 """Python utils."""
 
+from __future__ import annotations
+
 import enum
+import itertools
+from typing import Iterator, TypeVar
+
+from typing_extensions import Unpack, TypeVarTuple  # pytype: disable=not-supported-yet  # pylint: disable=g-multiple-import
+
+_KeyT = TypeVar('_KeyT')
+_ValuesT = TypeVarTuple('_ValuesT')
 
 
 # TODO(py3.11): Replace by `enum.StrEnum`, but keeping `Enum.__repr__`
@@ -34,3 +43,22 @@ class StrEnum(str, enum.Enum):
 
   def _generate_next_value_(name, start, count, last_values):  # pylint: disable=no-self-argument
     return name.lower()
+
+
+# pyformat: disable
+def zip_dict(  # pytype: disable=invalid-annotation
+    *dicts: Unpack[dict[_KeyT, _ValuesT]],
+) -> Iterator[_KeyT, tuple[Unpack[_ValuesT]]]:
+  """Iterate over items of dictionaries grouped by their keys."""
+  # pyformat: enable
+  # Set does not keep order like dict, so only use set to compare keys
+  all_keys = set(itertools.chain(*dicts))
+  d0 = dicts[0]
+
+  print(all_keys, d0)
+  if len(all_keys) != len(d0):
+    raise KeyError(f'Missing keys: {all_keys ^ set(d0)}')
+
+  for key in d0:  # set merge all keys
+    # Will raise KeyError if the dict don't have the same keys
+    yield key, tuple(d[key] for d in dicts)

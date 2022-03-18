@@ -17,6 +17,7 @@
 from etils.epy.backports import cached_property
 from etils.epy.env_utils import is_notebook
 from etils.epy.py_utils import StrEnum
+from etils.epy.py_utils import zip_dict
 from etils.epy.reraise_utils import maybe_reraise
 from etils.epy.reraise_utils import reraise
 from etils.epy.text_utils import dedent
