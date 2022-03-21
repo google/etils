@@ -255,6 +255,7 @@ _MODULE_NAMES = dict(
     tqdm='tqdm',
     tree='tree',
     typing_extensions='typing_extensions',
+    plotly='plotly',
     px='plotly.express',
     go='plotly.graph_objects',
     sunds='sunds',

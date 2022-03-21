@@ -110,11 +110,9 @@ def _array_repr_html_inner(img: Array) -> Optional[str]:
   if ndim == 2:
     img_shape = shape
     num_channel = 1
-    num_frames = 1
   elif ndim == 3:
     img_shape = shape[:2]
     num_channel = shape[-1]
-    num_frames = 1
   elif ndim == 4:
     img_shape = shape[1:3]
     num_channel = shape[-1]
@@ -130,7 +128,7 @@ def _array_repr_html_inner(img: Array) -> Optional[str]:
   if num_channel not in {1, 3, 4}:
     return None
 
-  if num_frames == 1:
+  if ndim < 4:
     out = media.show_image(img, return_html=True)
   elif num_frames < 15:
     out = media.show_images(img, return_html=True)

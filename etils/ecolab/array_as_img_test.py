@@ -42,6 +42,7 @@ def test_display_array_as_image():
     (4, 28, 28, 1),
     (4, 28, 28, 3),
     (4, 28, 28, 4),
+    (1, 28, 28, 3),
 ])
 @enp.testing.parametrize_xnp()
 def test_array_repr_html_valid(
