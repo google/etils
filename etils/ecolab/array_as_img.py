@@ -24,6 +24,7 @@ from etils.ecolab import array_as_img
 
 from __future__ import annotations
 
+import functools
 import traceback
 from typing import Any, Optional, Tuple
 
@@ -43,7 +44,7 @@ def show(*objs, **kwargs) -> None:
   return IPython.display.display(*objs, **kwargs)
 
 
-def auto_plot_array() -> None:
+def auto_plot_array(*, video_min_num_frames: int = 15) -> None:
   """If called, 2d/3d imgage arrays will be plotted as images in colab/jupyter.
 
   Usage:
@@ -51,10 +52,19 @@ def auto_plot_array() -> None:
   >>> ecolab.auto_plot_array()
   >>> np.zeros((28, 28, 3))  # Displayed as image
 
+  Args:
+    video_min_num_frames: Video `(num_frames, h, w, c)` with less than
+      this number of frames will be displayed as individual images
   """
+
   ipython = IPython.get_ipython()
   if ipython is None:
     return  # Non-notebook environement
+
+  array_repr_html_fn = functools.partial(
+      _array_repr_html,
+      video_min_num_frames=video_min_num_frames,
+  )
 
   # Register the new representation fo np, tf and jax array
   print('Display big np/tf/jax arrays as image for nicer IPython display')
@@ -70,7 +80,7 @@ def auto_plot_array() -> None:
     # The array type is not exposed in the public API (registering jnp.ndarray
     # does not works), so dynamically extracting the type
     jax_array_cls = type(jnp.zeros(shape=()))  # DeviceArrayBase
-    formatter.for_type(jax_array_cls, _array_repr_html)
+    formatter.for_type(jax_array_cls, array_repr_html_fn)
 
   # Try registering TF
   try:
@@ -78,23 +88,30 @@ def auto_plot_array() -> None:
   except ImportError:
     pass
   else:
-    formatter.for_type(tf.Tensor, _array_repr_html)
+    formatter.for_type(tf.Tensor, array_repr_html_fn)
 
   # Register np
-  formatter.for_type(enp.lazy.np.ndarray, _array_repr_html)
+  formatter.for_type(enp.lazy.np.ndarray, array_repr_html_fn)
 
 
-def _array_repr_html(array: Array) -> Optional[str]:
+def _array_repr_html(
+    array: Array,
+    **kwargs: Any,
+) -> Optional[str]:
   """Returns the HTML `<img/>` repr, or `None` if array is not an image."""
   try:
-    return _array_repr_html_inner(array)
+    return _array_repr_html_inner(array, **kwargs)
   except Exception:
     # IPython display silence exceptions, so display it here
     traceback.print_exc()
     raise
 
 
-def _array_repr_html_inner(img: Array) -> Optional[str]:
+def _array_repr_html_inner(
+    img: Array,
+    *,
+    video_min_num_frames: int,
+) -> Optional[str]:
   """Display the normalized img, or `None` if the input is not an image."""
   if not enp.lazy.is_array(img):  # Not an array
     return None
@@ -130,7 +147,7 @@ def _array_repr_html_inner(img: Array) -> Optional[str]:
 
   if ndim < 4:
     out = media.show_image(img, return_html=True)
-  elif num_frames < 15:
+  elif num_frames < video_min_num_frames:
     out = media.show_images(img, return_html=True)
   else:
     # TODO(epot): media.show_video does not support single channel video

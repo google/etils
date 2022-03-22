@@ -50,7 +50,10 @@ def test_array_repr_html_valid(
     valid_shape: tuple[int, ...],
 ):
   # 2D images are displayed as images
-  assert '<img' in array_as_img._array_repr_html(xnp.zeros(valid_shape))
+  assert '<img' in array_as_img._array_repr_html(
+      xnp.zeros(valid_shape),
+      video_min_num_frames=15,
+  )
 
 
 @pytest.mark.parametrize('valid_shape', [
@@ -61,8 +64,11 @@ def test_array_repr_video_html_valid(
     xnp: enp.NpModule,
     valid_shape: tuple[int, ...],
 ):
-  # 2D images are displayed as images
-  assert '<video' in array_as_img._array_repr_html(xnp.zeros(valid_shape))
+  # 2D images are displayed as video
+  assert '<video' in array_as_img._array_repr_html(
+      xnp.zeros(valid_shape),
+      video_min_num_frames=15,
+  )
 
 
 @pytest.mark.parametrize(
@@ -84,4 +90,7 @@ def test_array_repr_html_invalid(
     xnp: enp.NpModule,
     invalid_shape: tuple[int, ...],
 ):
-  assert array_as_img._array_repr_html(xnp.zeros(invalid_shape)) is None
+  assert array_as_img._array_repr_html(
+      xnp.zeros(invalid_shape),
+      video_min_num_frames=15,
+  ) is None
