@@ -2,8 +2,16 @@
 
 ## vNext
 
-* `enp`: Expose `enp.lazy` to the public API to help design code compatible
+## v0.5.0
+
+* `enp`:
+  * Expose `enp.lazy` to the public API to help design code compatible
   with `jax`, `np`, `tf`
+  * Add `enp.compat` for ops compatibles with both TF, Jax, Np
+  * Add `enp.tau` [constant](https://tauday.com/)
+  * Add `enp.testing.parametrize_xnp` fixture to test a function with both
+    `jax`, `tf`, `np`
+  * Add `enp.testing.set_tnp` fixture to activate tf numpy mode.
 * `ecolab`:
   * Add `from etils.ecolab.lazy_imports import *` to lazy-import common
   Python modules
