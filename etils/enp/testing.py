@@ -14,7 +14,7 @@
 
 """Test utils."""
 
-from typing import Callable, TypeVar
+from typing import Callable, Iterable, Optional, TypeVar
 
 from etils.enp import numpy_utils
 import numpy as np
@@ -38,12 +38,38 @@ def set_tnp() -> None:
   lazy.tnp.experimental_enable_numpy_behavior(prefer_float32=True)
 
 
-def parametrize_xnp(*, with_none: bool = False) -> Callable[[_FnT], _FnT]:
-  """Parametrize over the numpy modules."""
-  np_modules = [np, lazy.jnp, lazy.tnp]
-  np_names = ['np', 'jax', 'tf']
+def parametrize_xnp(
+    *,
+    with_none: bool = False,
+    restrict: Optional[Iterable[str]] = None,
+) -> Callable[[_FnT], _FnT]:
+  """Parametrize over the numpy modules.
+
+  Args:
+    with_none: If `True`, also yield `None` among the values (to test `list`)
+    restrict: If given, only test the given module (e.g. `restrict=['jnp']`)
+
+  Returns:
+    The fixture to apply to the `def test_xyz()` function
+  """
+  name_to_modules = {
+      'np': np,
+      'jnp': lazy.jnp,
+      'tnp': lazy.tnp,
+  }
+
+  # Filter modules not requested
+  name_to_keep = set(restrict or name_to_modules)
+  name_to_modules = {
+      k: v for k, v in name_to_modules.items() if k in name_to_keep
+  }
+
   if with_none:
     # Allow to test without numpy module: `x = [1, 2]` vs `x = np.array([1, 2]`
-    np_modules.append(None)
-    np_names.append('no_np')
-  return pytest.mark.parametrize('xnp', np_modules, ids=np_names)
+    name_to_modules['no_np'] = None
+
+  return pytest.mark.parametrize(
+      'xnp',
+      list(name_to_modules.values()),
+      ids=list(name_to_modules.keys()),
+  )
