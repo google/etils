@@ -222,6 +222,7 @@ _STANDARD_MODULE_NAMES = [
 _MODULE_NAMES = dict(
     # ====== Python standard lib ======
     **{n: n for n in _STANDARD_MODULE_NAMES},
+    mock='unittest.mock',
     # ====== Etils ======
     etils='etils',
     array_types='etils.array_types',
