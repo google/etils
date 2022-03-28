@@ -2,6 +2,9 @@
 
 ## vNext
 
+* `ecolab`:
+  * Add `with ecolab.adhoc():`contextmanager for dynamic code import.
+
 ## v0.5.0
 
 * `enp`:

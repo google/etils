@@ -210,9 +210,9 @@ _STANDARD_MODULE_NAMES = [
     'time',
     'timeit',
     'traceback',
-    # With `__future__.annotations`, no need to import Any & co
-    'typing',
+    'typing',  # Note: With `__future__.annotations`, no need to import Any & co
     'types',
+    'uuid',
     'warnings',
     'weakref',
     'zipfile',
