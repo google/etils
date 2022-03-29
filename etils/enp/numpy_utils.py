@@ -73,7 +73,7 @@ class _LazyImporter:
     return np
 
   def is_np(self, x: Array) -> bool:
-    return isinstance(x, np.ndarray)
+    return isinstance(x, (np.ndarray, np.generic))
 
   def is_tf(self, x: Array) -> bool:
     return self.has_tf and isinstance(x, self.tnp.ndarray)
@@ -104,7 +104,10 @@ class _LazyImporter:
       return self.jnp
     elif self.is_tf(x):
       return self.tnp
-    elif self.is_np(x) or (not strict and x is not None):
+    elif self.is_np(x):
+      return np
+    elif not strict and isinstance(x, (int, bool, float, list, tuple)):
+      # `strict=False` support `[0, 0, 0]`, `0`,...
       return np
     else:
       raise TypeError(
