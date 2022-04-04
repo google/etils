@@ -26,8 +26,14 @@ def test_str_enum():
     MY_OTHER_ATTR = enum.auto()
     MY_ATTR = enum.auto()
 
+  assert MyEnum.MY_ATTR is MyEnum.MY_ATTR
   assert MyEnum('my_attr') is MyEnum.MY_ATTR
+  assert MyEnum('MY_ATTR') is MyEnum.MY_ATTR
+  assert MyEnum.MY_ATTR == MyEnum.MY_ATTR
   assert MyEnum.MY_ATTR == 'my_attr'
+  assert MyEnum.MY_ATTR == 'MY_ATTR'
+
+  assert hash(MyEnum.MY_ATTR) == hash('my_attr')
 
 
 def test_zip_dict():

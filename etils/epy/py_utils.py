@@ -30,7 +30,6 @@ _KeyT = TypeVar('_KeyT')
 _ValuesT = Any  # TypeVarTuple('_ValuesT')
 
 
-# TODO(py3.11): Replace by `enum.StrEnum`, but keeping `Enum.__repr__`
 class StrEnum(str, enum.Enum):
   """Like `Enum`, but `enum.auto()` assigns `str` rather than `int`.
 
@@ -43,10 +42,28 @@ class StrEnum(str, enum.Enum):
   assert MyEnum.SOME_ATTR == 'some_attr'
   ```
 
+  `StrEnum` is case insensitive.
+
   """
 
-  def _generate_next_value_(name, start, count, last_values):  # pylint: disable=no-self-argument
+  # `issubclass(StrEnum, str)`, so can annotate `str` instead of `str | StrEnum`
+
+  def _generate_next_value_(name, start, count, last_values) -> str:  # pylint: disable=no-self-argument
     return name.lower()
+
+  @classmethod
+  def _missing_(cls, value: str) -> StrEnum:
+    if isinstance(value, str):
+      return cls(value.lower())
+    return super()._missing_(value)
+
+  def __eq__(self, other: str) -> bool:
+    return super().__eq__(other.lower())
+
+  def __hash__(self) -> int:  # pylint: disable=useless-super-delegation
+    # Somehow `hash` is not defined automatically (maybe because of
+    # the `__eq__`, so define it explicitly.
+    return super().__hash__()
 
 
 # pyformat: disable
