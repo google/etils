@@ -14,7 +14,7 @@ def _normalize_image(img: ui8['h w c']) -> f32['h w c']:
 ```
 
 This indicates the reader that the function takes a 3d uint8 array and return a
-3d float32 with the shame shape values.
+3d float32 with the same shape values.
 
 Note: Those typing annotations are purely aesthetics but are not detected by
 static type checking tools. They are only helpful as documentation.
