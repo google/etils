@@ -176,6 +176,7 @@ _STANDARD_MODULE_NAMES = [
     'asyncio',
     'base64',
     'collections',
+    'colorsys',
     # 'concurrent.futures',
     'contextlib',
     'contextvars',
