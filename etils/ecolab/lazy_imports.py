@@ -159,12 +159,11 @@ def _load_module(module_name: str) -> types_.ModuleType:
     return importlib_.import_module(module_name)
 
 
-# Modules here will be imported from head
+# Modules here are imported from head (missing from the Brain Kernel)
 _PACKAGE_RESTRICT = [
     'etils',
     'sunds',
     'visu3d',
-    # Modules not available in the brain frameworks kernel.
     'imageio',
     'mediapy',
 ]
@@ -173,8 +172,10 @@ _PACKAGE_RESTRICT = [
 _STANDARD_MODULE_NAMES = [
     'abc',
     'argparse',
+    'ast',
     'asyncio',
     'base64',
+    'builtins',
     'collections',
     'colorsys',
     # 'concurrent.futures',
@@ -183,6 +184,7 @@ _STANDARD_MODULE_NAMES = [
     'csv',
     'dataclasses',
     'datetime',
+    'dis',
     'enum',
     'functools',
     'gc',
