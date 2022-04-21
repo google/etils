@@ -102,7 +102,7 @@ class LazyModuleState:
         setattr(self.host, attr_name, attr_value)
 
 
-# Class name has to be `module` for Colab compatibility (colab harcode class
+# Class name has to be `module` for Colab compatibility (colab hardcodes class
 # name instead of checking the instance)
 class module(types_.ModuleType):  # pylint: disable=invalid-name
   """Lazy module which auto-loads on first attribute call."""
@@ -206,6 +206,7 @@ _STANDARD_MODULE_NAMES = [
     'string',
     'subprocess',
     'sys',
+    'tarfile',
     'textwrap',
     'threading',
     'time',
@@ -252,6 +253,7 @@ _MODULE_NAMES = dict(
     np='numpy',
     pd='pandas',
     scipy='scipy',
+    sns='seaborn',
     sklearn='sklearn',
     tf='tensorflow',
     tnp='tensorflow.experimental.numpy',
