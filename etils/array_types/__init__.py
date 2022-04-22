@@ -35,3 +35,19 @@ PRNGKey = ui32[2]
 
 # Keep API clean
 del np
+
+__all__ = [
+    'ArrayAliasMeta',
+    'ArrayLike',
+    'Array',
+    'FloatArray',
+    'IntArray',
+    'BoolArray',
+    'StrArray',
+    'f32',
+    'ui8',
+    'ui32',
+    'i32',
+    'bool_',
+    'PRNGKey',
+]
