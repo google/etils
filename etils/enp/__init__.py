@@ -21,7 +21,7 @@ both numpy and jax.numpy.
 
 import sys
 
-from etils.enp import compat
+from etils.enp import linalg
 from etils.enp.array_spec import ArraySpec
 from etils.enp.interp_utils import interp
 from etils.enp.numpy_utils import get_np_module
@@ -32,9 +32,6 @@ from etils.enp.numpy_utils import lazy
 from etils.enp.numpy_utils import normalize_bytes2str
 from etils.enp.numpy_utils import NpModule
 from etils.enp.numpy_utils import tau
-
-# TODO(epot): Deprecate compat and use `linalg` everywhere ?
-linalg = compat
 
 # Inside tests, can use `enp.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import

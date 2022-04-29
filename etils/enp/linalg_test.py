@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for compat."""
+"""Tests for linalg compat module."""
 
 from etils import enp
 
@@ -22,7 +22,7 @@ import numpy as np
 @enp.testing.parametrize_xnp()
 def test_norm(xnp: enp.NpModule):
   x = xnp.array([3., 0, 0])
-  y = enp.compat.norm(x, axis=-1)
+  y = enp.linalg.norm(x, axis=-1)
   if xnp is np:
     assert isinstance(y, float)
   else:
@@ -30,7 +30,7 @@ def test_norm(xnp: enp.NpModule):
     assert y.shape == ()  # pylint: disable=g-explicit-bool-comparison
   np.testing.assert_allclose(y, 3.)
 
-  y = enp.compat.norm(x, axis=-1, keepdims=True)
+  y = enp.linalg.norm(x, axis=-1, keepdims=True)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == (1,)
   np.testing.assert_allclose(y, [3.])
@@ -42,10 +42,10 @@ def test_norm_batched(xnp: enp.NpModule):
       [3., 0, 0],
       [0, 4., 0],
   ])
-  y = enp.compat.norm(x, axis=-1)
+  y = enp.linalg.norm(x, axis=-1)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == (2,)
   np.testing.assert_allclose(y, [3., 4.])
 
-  y = enp.compat.norm(x)
+  y = enp.linalg.norm(x)
   np.testing.assert_allclose(y, np.sqrt(3**2 + 4**2))
