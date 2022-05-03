@@ -27,7 +27,7 @@ accepted. In practice, for consistency it's best to follow the conventions:
 *   Valid symbols:
     *   `str`: Named axis (e.g. `f32['batch height width']`)
     *   `int`: Static axis (e.g. `f32[28, 28]`, `f32['h w 3']`)
-    *   `_`: Anonymous axis (e.g. `f32['batch _ _ c']`)
+    *   `_`: Anonymous axis (e.g. `f32['batch _ _ c']`, `f32[None, 3]`)
     *   `...`: Anonymous zeros or more axis (e.g. `f32['... h w c']`)
     *   `*name`: Named zeros or more axis (e.g. `f32['*batch_dims h w c']`)
     *   `+`, `-`, `/`, `*` operators (e.g. `f32['h/2 w/2 c1+c2']`)
