@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Numpy utils."""
+"""Numpy utils.
+
+Attributes:
+  tau: The circle constant (2 * pi). (https://tauday.com/)
+"""
 
 import sys
 import typing

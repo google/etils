@@ -33,6 +33,9 @@ from etils.enp.numpy_utils import normalize_bytes2str
 from etils.enp.numpy_utils import NpModule
 from etils.enp.numpy_utils import tau
 
+# TODO(epot): Deprecate compat and use `linalg` everywhere ?
+linalg = compat
+
 # Inside tests, can use `enp.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import
   try:

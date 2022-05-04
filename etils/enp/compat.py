@@ -16,7 +16,7 @@
 
 from typing import Optional
 
-from etils.array_types import FloatArray
+from etils.array_types import Array, FloatArray  # pylint: disable=g-multiple-import
 from etils.enp import numpy_utils
 
 lazy = numpy_utils.lazy
@@ -36,7 +36,14 @@ def norm(
 
 def inv(x: FloatArray['*d']) -> FloatArray['*d']:
   """Like `np.linalg.inv` but auto-support jnp, tnp, np."""
-  if lazy.is_tf(x):  # TF Compatibility
-    return lazy.tf.linalg.inv(x)
-  else:
-    return lazy.get_xnp(x).linalg.inv(x)
+  return _tf_or_xnp(x).linalg.inv(x)
+
+
+def det(x: FloatArray['*d m m']) -> FloatArray['*d']:
+  """Like `np.linalg.det` but auto-support jnp, tnp, np."""
+  return _tf_or_xnp(x).linalg.det(x)
+
+
+def _tf_or_xnp(x: Array['*d']):
+  xnp = lazy.get_xnp(x)
+  return (lazy.tf if xnp is lazy.tnp else xnp)
