@@ -162,6 +162,7 @@ def _load_module(module_name: str) -> types_.ModuleType:
 # Modules here are imported from head (missing from the Brain Kernel)
 _PACKAGE_RESTRICT = [
     'etils',
+    'lark',
     'sunds',
     'visu3d',
     'imageio',
@@ -195,6 +196,7 @@ _STANDARD_MODULE_NAMES = [
     'importlib',
     'itertools',
     'json',
+    'logging',
     'math',
     'multiprocessing',
     'os',
@@ -238,6 +240,8 @@ _MODULE_NAMES = dict(
     etqdm='etils.etqdm',
     etree='etils.etree',  # TODO(epot): etree='etils.etree.jax',
     # ====== Common third party ======
+    app='absl.app',
+    flags='absl.flags',
     chex='chex',
     einops='einops',
     flax='flax',
@@ -249,6 +253,7 @@ _MODULE_NAMES = dict(
     ipywidgets='ipywidgets',
     jax='jax',
     jnp='jax.numpy',
+    lark='lark',
     matplotlib='matplotlib',
     plt='matplotlib.pyplot',
     media='mediapy',
