@@ -2,8 +2,19 @@
 
 ## vNext
 
+## v0.5.1
+
+* `array_utils`:
+  * Now has a `__all__` to allow `from etils.array_types import *`
+  * `FloatArray` and `IntArray` have dtype to `np.float32` and `np.int32`
 * `ecolab`:
   * Add `with ecolab.adhoc():`contextmanager for dynamic code import.
+  * More `ecolab.lazy_imports`
+* `enp`:
+  * Add `enp.linalg` alias of `enp.compat`
+  * `enp.testing.parametrize_xnp` now has a `restrict` kwarg
+* `epy`:
+  * `StrEnum` is now case-insensitive
 
 ## v0.5.0
 
