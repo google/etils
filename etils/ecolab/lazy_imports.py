@@ -185,6 +185,7 @@ _STANDARD_MODULE_NAMES = [
     'csv',
     'dataclasses',
     'datetime',
+    'difflib',
     'dis',
     'enum',
     'functools',

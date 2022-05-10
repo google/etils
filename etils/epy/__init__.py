@@ -14,6 +14,8 @@
 
 """Python utils public API."""
 
+import sys
+
 from etils.epy.backports import cached_property
 from etils.epy.env_utils import is_notebook
 from etils.epy.py_utils import StrEnum
@@ -22,3 +24,12 @@ from etils.epy.reraise_utils import maybe_reraise
 from etils.epy.reraise_utils import reraise
 from etils.epy.text_utils import dedent
 from etils.epy.text_utils import Lines
+
+# Inside tests, can use `epy.testing`
+if 'pytest' in sys.modules:  # < Ensure open source does not trigger import
+  try:
+    from etils.epy import testing  # pylint: disable=g-import-not-at-top
+  except ImportError:
+    pass
+
+del sys

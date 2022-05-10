@@ -97,6 +97,7 @@ all = [
 
 dev = [
     "pytest",
+    "pytest-subtests",
     "pytest-xdist",
     "chex",
     "tfds-nightly",  # TODO(etils): Remove deps

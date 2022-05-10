@@ -2,6 +2,8 @@
 
 ## vNext
 
+* `epy`: Add generic `epy.testing.subtest` for better subtests support.
+
 ## v0.5.1
 
 * `array_utils`:
