@@ -155,6 +155,12 @@ class _OsPathBackend(Backend):
       os.remove(path)
     except IsADirectoryError:
       os.rmdir(path)
+    except PermissionError:
+      # On Mac, `PermissionError` is raised instead of `IsADirectoryError`
+      if self.isdir(path):
+        os.rmdir(path)
+      else:
+        raise
 
   def rename(self, path: PathLike, dst: PathLike) -> None:
     if self.exists(dst):
