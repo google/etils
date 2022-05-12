@@ -14,6 +14,8 @@
 
 """Utils to handle resources."""
 
+from __future__ import annotations
+
 import itertools
 import os
 import pathlib

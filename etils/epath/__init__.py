@@ -14,6 +14,9 @@
 
 """Public API."""
 
+from __future__ import annotations
+
+from etils.epath import testing
 from etils.epath.abstract_path import Path
 from etils.epath.register import register_path_cls
 from etils.epath.resource_utils import resource_path

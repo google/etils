@@ -14,11 +14,14 @@
 
 """Tests for tensorflow_datasets.core.utils.gpath."""
 
+from __future__ import annotations
+
 import os
 import pathlib
 import types
 
 from etils import epath
+from etils import epy
 import pytest
 import tensorflow as tf
 
@@ -368,3 +371,10 @@ def test_default():
   assert isinstance(path, epath.Path)
   assert os.fspath(path) == 'a/x/y/z'
   assert path == epath.Path('a/x/y/z')
+
+
+@epy.testing.non_hermetic
+def test_public_access():
+  # Test a public bucket
+  p = epath.Path('gs://tfds-data/datasets')
+  assert p.exists()
