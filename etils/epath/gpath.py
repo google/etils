@@ -154,7 +154,7 @@ class _GPath(abstract_path.Path):
       if missing_ok:
         pass
       else:
-        raise FileNotFoundError(str(e))
+        raise FileNotFoundError(str(e)) from None
 
   def open(
       self,

@@ -21,44 +21,16 @@ import glob as glob_lib
 import os
 import shutil
 import typing
-from typing import Any, NoReturn, Optional, Union
+from typing import NoReturn, Union
 
 from etils.epath.typing import PathLike
-
-# Available modes (from tensorflow/python/lib/io/file_io.py;l=55)
-# Also exclude `+` as broken in gfile
-_OPEN_MODES = ('r', 'w', 'a')
 
 
 class Backend(abc.ABC):
   """Abstract backend class."""
 
-  def open(
-      self,
-      path: PathLike,
-      mode: str = 'r',
-      *,
-      encoding: Optional[str] = None,
-      errors: Optional[str] = None,
-      **kwargs: Any,
-  ) -> typing.IO[Union[str, bytes]]:
-    """`open` with argument checking."""
-    if errors:
-      raise NotImplementedError('`errors=` not supported in `open()`.')
-    if encoding and not encoding.lower().startswith(('utf8', 'utf-8')):
-      raise ValueError(f'Only UTF-8 encoding supported. Not: {encoding}')
-    # TODO(epot): Could support `x` mode
-
-    mode_without_b = mode.replace('b', '')
-    if mode_without_b not in _OPEN_MODES:
-      raise ValueError(f'mode={mode_without_b!r} is not one of {_OPEN_MODES}')
-    if kwargs:
-      raise NotImplementedError(
-          f'kwargs {list(kwargs)}` not supported in `open()`.')
-    return self._open(path, mode)
-
   @abc.abstractmethod
-  def _open(
+  def open(
       self,
       path: PathLike,
       mode: str,
@@ -114,7 +86,7 @@ class Backend(abc.ABC):
 class _OsPathBackend(Backend):
   """`os.path` backend."""
 
-  def _open(
+  def open(
       self,
       path: PathLike,
       mode: str,
@@ -139,10 +111,16 @@ class _OsPathBackend(Backend):
     return glob_lib.glob(path)
 
   def makedirs(self, path: PathLike) -> None:
-    os.makedirs(path)
+    os.makedirs(path, exist_ok=True)
 
   def mkdir(self, path: PathLike) -> None:
-    os.mkdir(path)
+    try:
+      os.mkdir(path)
+    except FileExistsError:
+      if self.isdir(path):  # No-op if directory already exists
+        pass
+      else:
+        raise
 
   def rmtree(self, path: PathLike) -> None:
     try:
@@ -195,12 +173,12 @@ class _TfBackend(Backend):
   def gfile(self):
     return self.tf.io.gfile
 
-  def _open(
+  def open(
       self,
       path: PathLike,
       mode: str,
   ) -> typing.IO[Union[str, bytes]]:
-    return self.gfile.GFile(path, mode)
+    return self.gfile.GFile(path, mode)  # pytype: disable=bad-return-type
 
   def exists(self, path: PathLike) -> bool:
     return self.gfile.exists(path)
@@ -215,13 +193,22 @@ class _TfBackend(Backend):
     return self.gfile.glob(path)
 
   def makedirs(self, path: PathLike) -> None:
-    self.gfile.makedirs(path)
+    try:
+      self.gfile.makedirs(path)
+    except self.tf.errors.FailedPreconditionError as e:
+      if 'not a directory' in str(e):
+        raise FileExistsError(str(e)) from None
+      else:
+        raise OSError(str(e)) from None
 
   def mkdir(self, path: PathLike) -> None:
     try:
       self.gfile.mkdir(path)
     except self.tf.errors.NotFoundError as e:
       raise FileNotFoundError(str(e)) from None
+    else:
+      if not self.isdir(path):  # TF do not raises error for files
+        raise FileExistsError(f'Cannot create dir. {path} is not a directory')
 
   def rmtree(self, path: PathLike) -> None:
     try:

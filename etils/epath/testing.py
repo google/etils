@@ -44,12 +44,12 @@ class _MockBackend(backend._OsPathBackend):  # pylint: disable=protected-access
       fn_to_call = original_fn
     return fn_to_call
 
-  def _open(
+  def open(
       self,
       path: PathLike,
       mode: str,
   ) -> typing.IO[Union[str, bytes]]:
-    return self._get_fn('_open')(path, mode)
+    return self._get_fn('open')(path, mode)
 
   def exists(self, path: PathLike) -> bool:
     return self._get_fn('exists')(path)
@@ -126,7 +126,7 @@ def mock_epath(
     None
   """
   mock_fns = dict(
-      _open=open,
+      open=open,
       copy=copy,
       rename=rename,
       exists=exists,

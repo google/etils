@@ -88,14 +88,6 @@ def _test_open(
   with backend.open(p, 'r') as f:
     assert f.read() == 'abc统一码def'
 
-  # `+` mode broken in GFile
-  with pytest.raises(ValueError, match='mode='):
-    backend.open(p, 'r+')
-
-  # Only utf8 encoding supported (like tf.io.gfile)
-  with pytest.raises(ValueError, match='encoding'):
-    backend.open(p, encoding='ascii')
-
   # TODO(epot): Add test with non-utf-8 character to make
   # sure errors are consistents.
 
@@ -174,6 +166,23 @@ def _test_makedirs(
     backend.makedirs(p)
     assert backend.isdir(p)
 
+  # Should be no-op when the directory already exists
+  for name in _DIR_NAMES:
+    p = tmp_path / name / 'nested'
+    assert backend.isdir(p)
+    assert backend.isdir(p / 'other')
+    backend.makedirs(p)
+    assert backend.isdir(p)
+    assert backend.isdir(p / 'other')
+
+  # Raise error when the directory is a file
+  for name in _FILE_NAMES:
+    p = tmp_path / name
+    p.touch()
+    with pytest.raises(FileExistsError):
+      backend.makedirs(p)
+    assert not backend.isdir(p)
+
 
 def _test_mkdir(
     backend: epath.backend.Backend,
@@ -183,6 +192,21 @@ def _test_mkdir(
     p = tmp_path / name
     backend.mkdir(p)
     assert backend.isdir(p)
+
+  # When the file already exists
+  for name in _DIR_NAMES:
+    p = tmp_path / name
+    backend.mkdir(p)
+    assert backend.isdir(p)
+
+  # Raise error when the directory is a file
+  for name in _FILE_NAMES:
+    p = tmp_path / name
+    p.touch()
+    with pytest.raises(FileExistsError):
+      print(backend, p)
+      backend.mkdir(p)
+    assert not backend.isdir(p)
 
   with pytest.raises(FileNotFoundError, match='No such file or directory'):
     backend.mkdir(tmp_path / 'nested/non-existing')
