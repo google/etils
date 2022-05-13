@@ -14,6 +14,8 @@
 
 """GPath wrapper around the gfile API."""
 
+from __future__ import annotations
+
 import ntpath
 import os
 import pathlib
@@ -36,6 +38,8 @@ _URI_MAP_ROOT = {
     'gs://': '/gs/',
     's3://': '/s3/',
 }
+
+_PREFIX_TO_BACKEND = {}
 
 
 class _GPath(abstract_path.Path):

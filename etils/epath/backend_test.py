@@ -23,8 +23,6 @@ from typing import Dict, Union
 
 from etils import epath
 from etils import epy
-# Import for registration. TODO(epot): Delete once parent are submitted
-from etils.epath import backend as epath_backend  # pylint: disable=unused-import
 import pytest
 
 with_subtests = epy.testing.with_subtests

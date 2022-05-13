@@ -2,7 +2,11 @@
 
 ## vNext
 
-* `epy`: Add generic `epy.testing.subtest` for better subtests support.
+* `epath`:
+  * Add `epath.testing.mock_epath` to mock GCS calls.
+* `epy.testing`:
+  * Add `epy.testing.subtest` for better subtests support.
+  * Add `epy.testing.non_hermetic` to mark non-hermetic tests.
 
 ## v0.5.1
 

@@ -22,6 +22,20 @@ from typing import Any, Iterator
 
 import pytest
 
+
+# ==== Hermetic tests ===
+
+_SKIP_NON_HERMETIC = False
+
+# Non hermetic tests are explicitly marked and skipped if `_SKIP_NON_HERMETIC`
+# is True.
+non_hermetic = pytest.mark.skipif(
+    _SKIP_NON_HERMETIC,
+    reason='Non-hermetic test skipped.',
+)
+
+# ==== Subtests ===
+
 _curr_context = None
 
 
