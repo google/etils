@@ -94,7 +94,7 @@ def test_interp_coords(xnp):
       [1, 1],
   ])
   assert xnp.allclose(
-      enp.interp(coords, (-1, 1), (0, (1024, 256))),
+      enp.interp(coords, from_=(-1, 1), to=(0, (1024, 256))),
       xnp.array([
           [0, 0],
           [0, 128],
@@ -108,8 +108,33 @@ def test_interp_coords(xnp):
       [[256, 256], [0, 768]],
   ])
   assert xnp.allclose(
-      enp.interp(coords, (0, (256, 1024)), (0, 1)),
+      enp.interp(coords, from_=(0, (256, 1024)), to=(0, 1)),
       xnp.array([
           [[0, 0], [0, 1]],
           [[1, 0.25], [0, 0.75]],
       ]))
+
+
+@pytest.mark.parametrize('xnp', [np, jnp, tnp])
+def test_interp_function(xnp):
+
+  vals = xnp.array([
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0.5, 1],
+      [1, 1],
+  ])
+  expected = xnp.array([
+      [0, 0],
+      [0, 128],
+      [0, 256],
+      [192, 256],
+      [256, 256],
+  ])
+
+  interp_fn = enp.interp(from_=(-1, 1), to=(0, 256))
+
+  for val, val_expected in zip(vals, expected):
+    val_out = interp_fn(val)
+    assert xnp.allclose(val_out, val_expected)

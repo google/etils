@@ -30,7 +30,7 @@ Examples:
 * Normalize `np.uint8` image to `np.float32`:
 
   ```python
-  img = enp.interp(img, (0, 255), (-1, 1))
+  img = enp.interp(img, from_=(0, 255), to=(-1, 1))
   ```
 
 * Converting normalized 3d coordinates to world coordinates:
