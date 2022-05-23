@@ -56,7 +56,7 @@ def gcs_mocked_path(tmp_path: pathlib.Path):
   ]
   origin_gfile = types.SimpleNamespace(
       **{name: getattr(tf.io.gfile, name) for name in gfile_fn_names})
-  with tfds.testing.mock_tf(
+  with tfds.testing.test_utils.mock_tf(
       'tf.io.gfile',
       GFile=lambda p, *args, **kwargs: origin_gfile.GFile(  # pylint: disable=g-long-lambda
           _norm_path(p), *args, **kwargs),
