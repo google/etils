@@ -30,47 +30,20 @@ jobs:
   # Auto-publish when version is increased
   publish-job:
     # Only try to publish if:
-    # * Repo is etils (prevents running from forks)
+    # * Repo is self (prevents running from forks)
     # * Branch is `main`
     if: |
       github.repository == 'google/etils'
       && github.ref == 'refs/heads/main'
     needs: pytest-job  # Only publish after tests are successful
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v2
-
-    # Setup Python
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-
-    - run: pip install packaging
-
-    # Extract current local `__version__`
-    # Output: `local-version.outputs.version`
-    - id: local-version
-      run: |
-        VERSION=$(python -c "import etils ; print(etils.__version__)")
-        echo ::set-output name=version::${VERSION}
-
-    # Extract current `pip version`
-    # Output: `pip-version.outputs.version`
-    - id: pip-version
-      run: python oss/get_pypi_version.py etils --github_action_output_name=version
-
-    # Check if local `__version__` < pip version
-    # Output: `compare-version.outputs.should-release`
-    - id: compare-version
-      run: |
-        python oss/compare_version.py \
-          --local_version=${{ steps.local-version.outputs.version }} \
-          --pypi_version=${{ steps.pip-version.outputs.version }}
-
-    # Publish the package (if local `__version__` < pip version)
-    - if: steps.compare-version.outputs.should-release == 'true'
-      uses: etils-actions/pypi-build-publish@v1
+    # Publish the package (if local `__version__` > pip version)
+    - uses: etils-actions/pypi-auto-publish@v1
       with:
         pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+        gh-token: ${{ secrets.GITHUB_TOKEN }}
