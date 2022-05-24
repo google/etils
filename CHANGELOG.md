@@ -1,6 +1,6 @@
 # Changelog
 
-## vNext
+## [Unreleased]
 
 * `epath`:
   * Add `epath.testing.mock_epath` to mock GCS calls.
@@ -8,7 +8,7 @@
   * Add `epy.testing.subtest` for better subtests support.
   * Add `epy.testing.non_hermetic` to mark non-hermetic tests.
 
-## v0.5.1
+## [0.5.1] - 2022-05-04
 
 * `array_utils`:
   * Now has a `__all__` to allow `from etils.array_types import *`
@@ -22,7 +22,7 @@
 * `epy`:
   * `StrEnum` is now case-insensitive
 
-## v0.5.0
+## [0.5.0] - 2022-03-23
 
 * `enp`:
   * Expose `enp.lazy` to the public API to help design code compatible
@@ -40,7 +40,7 @@
 * `etree`: Add `assert_same_structure` on the backend
 * `epy`: Add `epy.zip_dict`
 
-## v0.4.0
+## [0.4.0] - 2022-02-03
 
 * `edc`: Dataclasses utils
 * `etree`:
@@ -51,12 +51,19 @@
 * `ecolab`:
     * Replace `ecolab.collapse_xyz()` by unified `ecolab.collapse()`
 
-## v0.3.3
+## [0.3.3] - 2022-01-07
 
 * Add text utils:
   * `epy.Lines`
   * `epy.dedent`
 
-## v0.3.2
+## [0.3.2] - 2022-01-04
 
 * Automated github release
+
+[Unreleased]: https://github.com/google/etils/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/google/etils/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/google/etils/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/google/etils/compare/v0.3.3...0.4.0
+[0.3.3]: https://github.com/google/etils/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/google/etils/releases/tag/v0.3.2
