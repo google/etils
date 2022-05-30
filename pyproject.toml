@@ -99,6 +99,8 @@ dev = [
     "pytest",
     "pytest-subtests",
     "pytest-xdist",
+    "pylint>=2.6.0",
+    "yapf",
     "chex",
     "tfds-nightly",  # TODO(etils): Remove deps
 ]
