@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2022-05-31
+
 * `epath`:
   * Remove TensorFlow dependency from `epath.Path` by default. (For now
     accessing `gs://` still require TF to be installed).
@@ -9,6 +11,8 @@
 * `epy.testing`:
   * Add `epy.testing.subtest` for better subtests support.
   * Add `epy.testing.non_hermetic` to mark non-hermetic tests.
+* `oss-kit`:
+  * [`pypi-auto-publish`](https://github.com/marketplace/actions/pypi-github-auto-release) GitHub action for automated PyPI and GitHub releases
 
 ## [0.5.1] - 2022-05-04
 
@@ -63,7 +67,8 @@
 
 * Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/google/etils/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/google/etils/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/google/etils/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/google/etils/compare/v0.3.3...0.4.0
