@@ -26,8 +26,8 @@ from typing import Any, ClassVar, Iterator, Optional, Type, TypeVar, Union
 
 from etils import epy
 from etils.epath import abstract_path
+from etils.epath import backend as backend_lib
 from etils.epath.typing import PathLike
-import tensorflow as tf
 
 _P = TypeVar('_P')
 
@@ -38,12 +38,22 @@ _URI_MAP_ROOT = {
     'gs://': '/gs/',
     's3://': '/s3/',
 }
+_PREFIX_TO_BACKEND = {
+    'gs': backend_lib.tf_backend,
+    's3': backend_lib.tf_backend,
+    None: backend_lib.os_backend,
+}
+_GCS_BACKENDS = frozenset({
+    backend_lib.tf_backend,
+})
 
-_PREFIX_TO_BACKEND = {}
+# Available modes (from tensorflow/python/lib/io/file_io.py;l=55)
+# Also exclude `+` as broken in gfile
+_OPEN_MODES = ('r', 'w', 'a')
 
 
 class _GPath(abstract_path.Path):
-  """Pathlib like api around `tf.io.gfile`."""
+  """Pathlib like api with gs://, s3:// support."""
 
   # `_PATH` is `posixpath` or `ntpath`.
   # Use explicit `join()` rather than `super().joinpath()` to avoid infinite
@@ -66,7 +76,7 @@ class _GPath(abstract_path.Path):
     return type(self)(*parts)
 
   # Could try to use `cached_property` when beam is compatible (currently
-  # raise mutable input error).
+  # raise mutable input error when used with beam).
   @property
   def _uri_scheme(self) -> Optional[str]:
     if (len(self.parts) >= 2 and self.parts[0] == '/' and
@@ -74,6 +84,16 @@ class _GPath(abstract_path.Path):
       return self.parts[1]
     else:
       return None
+
+  @property
+  def _backend(self) -> backend_lib.Backend:
+    try:
+      return _PREFIX_TO_BACKEND[self._uri_scheme]
+    except KeyError:
+      supported = ', '.join(f'`{k}://`' for k in _PREFIX_TO_BACKEND)
+      raise NotImplementedError(
+          f'Unsuported scheme `{self._uri_scheme}://` (supported: {supported})'
+      ) from None
 
   @property
   def _path_str(self) -> str:
@@ -95,15 +115,15 @@ class _GPath(abstract_path.Path):
 
   def exists(self) -> bool:
     """Returns True if self exists."""
-    return tf.io.gfile.exists(self._path_str)
+    return self._backend.exists(self._path_str)
 
   def is_dir(self) -> bool:
     """Returns True if self is a directory."""
-    return tf.io.gfile.isdir(self._path_str)
+    return self._backend.isdir(self._path_str)
 
   def iterdir(self: _P) -> Iterator[_P]:
     """Iterates over the directory."""
-    for f in tf.io.gfile.listdir(self._path_str):
+    for f in self._backend.listdir(self._path_str):
       yield self._new(self, f)
 
   def expanduser(self: _P) -> _P:
@@ -116,7 +136,7 @@ class _GPath(abstract_path.Path):
 
   def glob(self: _P, pattern: str) -> Iterator[_P]:
     """Yielding all matching files (of any kind)."""
-    for f in tf.io.gfile.glob(self._PATH.join(self._path_str, pattern)):
+    for f in self._backend.glob(self._PATH.join(self._path_str, pattern)):
       yield self._new(f)
 
   def mkdir(
@@ -130,9 +150,9 @@ class _GPath(abstract_path.Path):
       raise FileExistsError(f'{self._path_str} already exists.')
 
     if parents:
-      tf.io.gfile.makedirs(self._path_str)
+      self._backend.makedirs(self._path_str)
     else:
-      tf.io.gfile.mkdir(self._path_str)
+      self._backend.mkdir(self._path_str)
 
   def rmdir(self) -> None:
     """Remove the empty directory."""
@@ -140,35 +160,44 @@ class _GPath(abstract_path.Path):
       raise NotADirectoryError(f'{self._path_str} is not a directory.')
     if list(self.iterdir()):
       raise ValueError(f'Directory {self._path_str} is not empty')
-    tf.io.gfile.rmtree(self._path_str)
+    self._backend.rmtree(self._path_str)
 
   def rmtree(self) -> None:
     """Remove the directory."""
-    tf.io.gfile.rmtree(self._path_str)
+    self._backend.rmtree(self._path_str)
 
   def unlink(self, missing_ok: bool = False) -> None:
     """Remove this file or symbolic link."""
     try:
-      tf.io.gfile.remove(self._path_str)
-    except tf.errors.NotFoundError as e:
+      self._backend.remove(self._path_str)
+    except FileNotFoundError:
       if missing_ok:
         pass
       else:
-        raise FileNotFoundError(str(e)) from None
+        raise
 
   def open(
       self,
       mode: str = 'r',
+      *,
       encoding: Optional[str] = None,
       errors: Optional[str] = None,
       **kwargs: Any,
   ) -> typing.IO[Union[str, bytes]]:
     """Opens the file."""
     if errors:
-      raise NotImplementedError
+      raise NotImplementedError('`errors=` not supported in `open()`.')
     if encoding and not encoding.lower().startswith(('utf8', 'utf-8')):
       raise ValueError(f'Only UTF-8 encoding supported. Not: {encoding}')
-    gfile = tf.io.gfile.GFile(self._path_str, mode, **kwargs)
+    # TODO(epot): Could support `x` mode
+
+    mode_without_b = mode.replace('b', '')
+    if mode_without_b not in _OPEN_MODES:
+      raise ValueError(f'mode={mode_without_b!r} is not one of {_OPEN_MODES}')
+    if kwargs:
+      raise NotImplementedError(
+          f'kwargs {list(kwargs)}` not supported in `open()`.')
+    gfile = self._backend.open(self._path_str, mode)
     gfile = typing.cast(typing.IO[Union[str, bytes]], gfile)
     return gfile
 
@@ -178,28 +207,53 @@ class _GPath(abstract_path.Path):
     # `GPath.__new__` should dynamically return either `PosixGPath` or
     # `WindowsPath`, similarly to `pathlib.Path`.
     target = self._new(target)
-    tf.io.gfile.rename(self._path_str, os.fspath(target))
+    backend = _get_backend(self, target)
+    backend.rename(self._path_str, os.fspath(target))
     return target
 
   def replace(self: _P, target: PathLike) -> _P:
     """Replace file or directory to the given target."""
     target = self._new(target)
-    tf.io.gfile.rename(self._path_str, os.fspath(target), overwrite=True)
+    backend = _get_backend(self, target)
+    backend.replace(self._path_str, os.fspath(target))
     return target
 
   def copy(self: _P, dst: PathLike, overwrite: bool = False) -> _P:
     """Remove the directory."""
     # Could add a recursive=True mode
     dst = self._new(dst)
-    tf.io.gfile.copy(self._path_str, os.fspath(dst), overwrite=overwrite)
+    backend = _get_backend(self, dst)
+    backend.copy(self._path_str, os.fspath(dst), overwrite=overwrite)
     return dst
 
 
+def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
+  """When composing with another backend, GCS win.
+
+  To allow `Path('.').replace('gs://')`
+
+  Args:
+    p0: Path to compare
+    p1: Path to compare
+
+  Returns:
+    GCS backend if one of the 2 path is GCS, else p0 backend.
+  """
+  # pylint: disable=protected-access
+  if p0._backend in _GCS_BACKENDS:
+    return p0._backend
+  elif p0._backend in _GCS_BACKENDS:
+    return p1._backend
+  else:
+    return p0._backend
+  # pylint: enable=protected-access
+
+
 class PosixGPath(_GPath):
-  """Pathlib like api around `tf.io.gfile`."""
+  """Pathlib like api with gs://, s3:// support."""
   _PATH = posixpath
 
 
 class WindowsGPath(pathlib.PureWindowsPath, _GPath):
-  """Pathlib like api around `tf.io.gfile`."""
+  """Pathlib like api with gs://, s3:// support."""
   _PATH = ntpath

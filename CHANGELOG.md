@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 * `epath`:
+  * Remove TensorFlow dependency from `epath.Path` by default. (For now
+    accessing `gs://` still require TF to be installed).
   * Add `epath.testing.mock_epath` to mock GCS calls.
 * `epy.testing`:
   * Add `epy.testing.subtest` for better subtests support.

@@ -46,14 +46,13 @@ enp = [
     "numpy",
     "etils[array-types]",
 ]
-epath-no-tf = [  # Users might want to choose between tf / tf-nightly
+epath = [
     "importlib_resources",
     "zipp",
     "etils[epy]",
 ]
-epath = [
-    "etils[epath-no-tf]",
-    "tf-nightly",
+epath-no-tf = [  # DEPRECATED: Use `etils[epath]` instead.
+    "etils[epath]",
 ]
 epy = [
     "typing_extensions",
@@ -102,7 +101,6 @@ dev = [
     "pylint>=2.6.0",
     "yapf",
     "chex",
-    "tfds-nightly",  # TODO(etils): Remove deps
 ]
 
 [build-system]

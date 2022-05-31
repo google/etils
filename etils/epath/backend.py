@@ -164,9 +164,10 @@ class _TfBackend(Backend):
   def tf(self):
     try:
       import tensorflow  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-    except ImportError:
-      raise ImportError(  # pylint: disable=raise-missing-from
-          'To use epath.Path with gs://, TensorFlow should be installed.')
+    except ImportError as e:
+      raise ImportError(
+          f'{e}. To use epath.Path with gs://, TensorFlow should be '
+          'installed.') from None
     return tensorflow
 
   @property

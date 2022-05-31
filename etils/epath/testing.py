@@ -30,8 +30,11 @@ from etils.epath.typing import PathLike
 _MockFn = Callable[..., Any]
 
 
-@dataclasses.dataclass
-class _MockBackend(backend._OsPathBackend):  # pylint: disable=protected-access
+_backend_cls = backend._OsPathBackend  # pylint: disable=protected-access
+
+
+@dataclasses.dataclass(eq=False)
+class _MockBackend(_backend_cls):
   """Backend with functions overwritten."""
   mock_fns: dict[str, _MockFn]
 

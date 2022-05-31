@@ -18,60 +18,50 @@ from __future__ import annotations
 
 import os
 import pathlib
-import types
 
 from etils import epath
 from etils import epy
 import pytest
-import tensorflow as tf
-
-# TODO(epot): Remove TFDS dependency for tests
-import tensorflow_datasets as tfds
 
 _GCS_SCHEME = 'gs://'
 
 
-@pytest.fixture
-def gcs_mocked_path(tmp_path: pathlib.Path):
+# Test mock gpath on each backend
+@pytest.fixture(params=[
+    epath.backend.os_backend,
+])
+def gcs_mocked_path(tmp_path: pathlib.Path, request):
   """Fixture which patch the gfile API to redirect `gs://` calls."""
+  backend = request.param  # SubRequest
   prefix_path = os.fspath(tmp_path) + '/'
 
   def _norm_path(path: str):
     return path.replace(_GCS_SCHEME, prefix_path)
 
-  gfile_fn_names = [
-      'GFile',
-      'copy',
-      'exists',
-      'glob',
-      'isdir',
-      'listdir',
-      'makedirs',
-      'mkdir',
-      'remove',
-      'rename',
-      'rmtree',
-      # 'stat',
-      # 'walk',
-  ]
-  origin_gfile = types.SimpleNamespace(
-      **{name: getattr(tf.io.gfile, name) for name in gfile_fn_names})
-  with tfds.testing.test_utils.mock_tf(
-      'tf.io.gfile',
-      GFile=lambda p, *args, **kwargs: origin_gfile.GFile(  # pylint: disable=g-long-lambda
+  def _call(fn):
+
+    def new_fn(_, p):
+      return fn(_norm_path(p))
+
+    return new_fn
+
+  with epath.testing.mock_epath(
+      open=lambda _, p, *args, **kwargs: backend.open(  # pylint: disable=g-long-lambda
           _norm_path(p), *args, **kwargs),
-      copy=lambda p1, p2, **kwargs: origin_gfile.copy(  # pylint: disable=g-long-lambda
+      copy=lambda _, p1, p2, *args, **kwargs: backend.copy(  # pylint: disable=g-long-lambda
           _norm_path(p1), _norm_path(p2), **kwargs),
-      exists=lambda p: origin_gfile.exists(_norm_path(p)),
-      glob=lambda p: origin_gfile.glob(_norm_path(p)),
-      isdir=lambda p: origin_gfile.isdir(_norm_path(p)),
-      listdir=lambda p: origin_gfile.listdir(_norm_path(p)),
-      makedirs=lambda p: origin_gfile.makedirs(_norm_path(p)),
-      mkdir=lambda p: origin_gfile.mkdir(_norm_path(p)),
-      remove=lambda p: origin_gfile.remove(_norm_path(p)),
-      rename=lambda p1, p2, **kwargs: origin_gfile.rename(  # pylint: disable=g-long-lambda
+      rename=lambda _, p1, p2, *args, **kwargs: backend.rename(  # pylint: disable=g-long-lambda
           _norm_path(p1), _norm_path(p2), **kwargs),
-      rmtree=lambda p: origin_gfile.rmtree(_norm_path(p)),
+      replace=lambda _, p1, p2, *args, **kwargs: backend.replace(  # pylint: disable=g-long-lambda
+          _norm_path(p1), _norm_path(p2), **kwargs),
+      exists=_call(backend.exists),
+      glob=_call(backend.glob),
+      isdir=_call(backend.isdir),
+      listdir=_call(backend.listdir),
+      makedirs=_call(backend.makedirs),
+      mkdir=_call(backend.mkdir),
+      remove=_call(backend.remove),
+      rmtree=_call(backend.rmtree),
   ):
     yield tmp_path
 
@@ -216,6 +206,14 @@ def test_open(gcs_mocked_path: pathlib.Path):
   # encoding argument
   with dataset_path.joinpath('foo.py').open('r', encoding='UTF-8') as f:
     f.read()
+
+  # `+` mode broken in GFile
+  with pytest.raises(ValueError, match='mode='):
+    dataset_path.joinpath('foo.py').open('r+')
+
+  # Only utf8 encoding supported (like tf.io.gfile)
+  with pytest.raises(ValueError, match='encoding'):
+    dataset_path.joinpath('foo.py').open(encoding='ascii')
 
   # iterdir()
   assert len(list(gcs_mocked_path.joinpath('bucket/dataset').iterdir())) == 6
