@@ -38,6 +38,7 @@ _URI_MAP_ROOT = {
     'gs://': '/gs/',
     's3://': '/s3/',
 }
+
 _PREFIX_TO_BACKEND = {
     'gs': backend_lib.tf_backend,
     's3': backend_lib.tf_backend,
