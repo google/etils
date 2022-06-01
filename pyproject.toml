@@ -51,9 +51,6 @@ epath = [
     "zipp",
     "etils[epy]",
 ]
-epath-no-tf = [  # DEPRECATED: Use `etils[epath]` instead.
-    "etils[epath]",
-]
 epy = [
     "typing_extensions",
 ]
