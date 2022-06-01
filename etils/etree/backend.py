@@ -76,8 +76,8 @@ class Backend(abc.ABC):
   @abc.abstractmethod
   def assert_same_structure(
       self,
-      struct0: Tree[Any],
-      struct1: Tree[Any],
+      tree0: Tree[Any],
+      tree1: Tree[Any],
   ) -> None:
     raise NotImplementedError
 
@@ -90,7 +90,7 @@ class Jax(Backend):
     return jax.tree_util
 
   def map(self, map_fn, *trees):
-    return self.module.tree_multimap(map_fn, *trees)
+    return self.module.tree_map(map_fn, *trees)
 
   def flatten(self, tree):
     flat_vals, treedef = self.module.tree_flatten(tree)
