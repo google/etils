@@ -476,7 +476,7 @@ def _make_default_path(tmp_path: pathlib.Path):
 
 
 @dataclasses.dataclass
-class TestItem:
+class _TestItem:
   """Item to test various combinaison of files copy, rename, replace."""
   src_file: _FileDict
   dst_file: _FileDict
@@ -519,19 +519,19 @@ class TestItem:
 # TODO(epot): Test rename with it-self ?
 _SRC_DST_ITEMS = (
     # Rename/replace/copy a file
-    TestItem(
+    _TestItem(
         src_file={'file.txt': b'abc'},
         dst_file={'file.txt': b'edf'},
         expected_rename=FileExistsError(),
         expected_replace={'file.txt': b'abc'},
     ),
-    TestItem(
+    _TestItem(
         src_file={'file.txt': b'abc'},
         dst_file={'folder': None},
         expected_rename=FileExistsError(),
         expected_replace=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={'file.txt': b'abc'},
         dst_file={
             'non-empty-folder': None,
@@ -540,27 +540,27 @@ _SRC_DST_ITEMS = (
         expected_rename=FileExistsError(),
         expected_replace=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={'file.txt': b'abc'},
         dst_file={'nonexistent': _NOT_EXIST},
         expected_rename={'nonexistent': b'abc'},
         expected_replace={'nonexistent': b'abc'},
     ),
-    TestItem(
+    _TestItem(
         src_file={'file.txt': b'abc'},
         dst_file={'nonexistent/nested': _NOT_EXIST},
         expected_rename=FileNotFoundError(),  # dst parent don't exists
         expected_replace=FileNotFoundError(),
     ),
     # Rename/replace/copy an empty folder
-    TestItem(
+    _TestItem(
         src_file={'folder0': None},
         dst_file={'file.txt': b'edf'},
         expected_rename=FileExistsError(),
         expected_replace=NotADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={'folder0': None},
         dst_file={'folder': None},
         expected_rename=FileExistsError(),
@@ -568,7 +568,7 @@ _SRC_DST_ITEMS = (
         expected_replace=IsADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={'folder0': None},
         dst_file={
             'non-empty-folder': None,
@@ -578,7 +578,7 @@ _SRC_DST_ITEMS = (
         expected_replace=IsADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={'folder0': None},
         dst_file={'nonexistent': _NOT_EXIST},
         expected_rename={'nonexistent': None},
@@ -587,7 +587,7 @@ _SRC_DST_ITEMS = (
         expected_copy=IsADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={'folder0': None},
         dst_file={'nonexistent/nested': _NOT_EXIST},
         expected_rename=FileNotFoundError(),  # dst parent don't exists
@@ -597,7 +597,7 @@ _SRC_DST_ITEMS = (
         expected_copy_overwrite=IsADirectoryError(),
     ),
     # Rename/replace/copy an non-empty folder
-    TestItem(
+    _TestItem(
         src_file={
             'folderfull': None,
             'folderfull/f.txt': b'abc',
@@ -607,7 +607,7 @@ _SRC_DST_ITEMS = (
         expected_replace=NotADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={
             'folderfull': None,
             'folderfull/f.txt': b'abc',
@@ -616,7 +616,7 @@ _SRC_DST_ITEMS = (
         expected_rename=FileExistsError(),
         expected_replace=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={
             'folderfull': None,
             'folderfull/f.txt': b'abc',
@@ -628,7 +628,7 @@ _SRC_DST_ITEMS = (
         expected_rename=FileExistsError(),
         expected_replace=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={
             'folderfull': None,
             'folderfull/f.txt': b'abc',
@@ -646,7 +646,7 @@ _SRC_DST_ITEMS = (
         expected_copy=IsADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),
     ),
-    TestItem(
+    _TestItem(
         src_file={
             'folderfull': None,
             'folderfull/f.txt': b'abc',
