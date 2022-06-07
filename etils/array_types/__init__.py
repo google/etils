@@ -29,6 +29,7 @@ f32 = ArrayAliasMeta(shape=None, dtype=np.float32)
 ui8 = ArrayAliasMeta(shape=None, dtype=np.uint8)
 ui32 = ArrayAliasMeta(shape=None, dtype=np.uint32)
 i32 = ArrayAliasMeta(shape=None, dtype=np.int32)
+i64 = ArrayAliasMeta(shape=None, dtype=np.int64)
 bool_ = ArrayAliasMeta(shape=None, dtype=np.bool_)
 
 # Random number generator jax key
@@ -49,6 +50,7 @@ __all__ = [
     'ui8',
     'ui32',
     'i32',
+    'i64',
     'bool_',
     'PRNGKey',
 ]

@@ -38,7 +38,7 @@ def test_array_spec_tensors():
   # ====== Numpy ======
   # np.array
   assert _array_repr(np.zeros((3,), dtype=np.float64)) == 'f64[3]'
-  assert _array_repr(np.array(123)) == 'int64[]'
+  assert _array_repr(np.array(123)) == 'i64[]'
   # str arrays
   assert _array_repr(np.array('123')) == 'str[]'
   assert _array_repr(np.array(['abc', 'def', ''], dtype=object)) == 'str[3]'

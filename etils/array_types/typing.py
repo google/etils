@@ -30,6 +30,7 @@ DTYPE_NP_TO_COMPACT_STR: Dict[Optional[np.dtype], str] = {
     np.dtype('uint8'): 'ui8',
     np.dtype('uint32'): 'ui32',
     np.dtype('int32'): 'i32',
+    np.dtype('int64'): 'i64',
     np.dtype('float32'): 'f32',
     np.dtype('float64'): 'f64',
     np.dtype('bool_'): 'bool_',
