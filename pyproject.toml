@@ -31,7 +31,8 @@ repository = "https://github.com/google/etils"
 
 [project.optional-dependencies]
 array-types = [
-    "numpy",
+    # Do not add anything here. `array_types` is an alias for `enp`
+    "etils[enp]",
 ]
 ecolab = [
     "jupyter",
@@ -44,7 +45,7 @@ edc = [
 ]
 enp = [
     "numpy",
-    "etils[array-types]",
+    "etils[epy]",
 ]
 epath = [
     "importlib_resources",

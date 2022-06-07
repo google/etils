@@ -18,12 +18,17 @@ Attributes:
   tau: The circle constant (2 * pi). (https://tauday.com/)
 """
 
+from __future__ import annotations
+
 import sys
 import typing
 from typing import Any, TypeVar
 
-from etils.array_types import Array
 import numpy as np
+
+if typing.TYPE_CHECKING:
+  from etils.array_types import Array
+
 
 _T = TypeVar('_T')
 

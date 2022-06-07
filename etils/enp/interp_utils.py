@@ -14,15 +14,21 @@
 
 """Interpolate utils."""
 
+from __future__ import annotations
+
+import typing
 from typing import Tuple, Union
 
-from etils.array_types import Array, ArrayLike, FloatArray  # pylint: disable=g-multiple-import
 from etils.enp import numpy_utils
 import numpy as np
 
+if typing.TYPE_CHECKING:
+  from etils.array_types import Array, ArrayLike, FloatArray  # pylint: disable=g-multiple-import
+
+
 lazy = numpy_utils.lazy
 
-_MinMaxValue = Union[int, float, ArrayLike[Array['d']]]
+_MinMaxValue = Union[int, float, "ArrayLike[Array['d']]"]
 
 
 def interp(

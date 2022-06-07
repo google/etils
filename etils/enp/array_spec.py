@@ -17,12 +17,16 @@
 from __future__ import annotations
 
 import functools
+import typing
 from typing import Any, Optional
 
 from etils import array_types
-from etils.array_types import Array
 from etils.enp import numpy_utils
 import numpy as np
+
+if typing.TYPE_CHECKING:
+  from etils.array_types import Array
+
 
 lazy = numpy_utils.lazy
 
