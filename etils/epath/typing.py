@@ -23,7 +23,7 @@ from typing import Union
 # Accept both `str` and `pathlib.Path`-like
 PathLike = Union[str, os.PathLike]
 if typing.TYPE_CHECKING:
-  # TODO(py3.10): os.PathLike is not suscrible
+  # TODO(py310): os.PathLike is not suscrible
   PathLike = Union[str, os.PathLike[str]]
 
 PathLikeCls = (str, os.PathLike)  # Used in `isinstance`

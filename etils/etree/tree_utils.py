@@ -91,7 +91,7 @@ class TreeAPI:
       Trees of same structure than the input, but with individual elements.
     """
     leaves, treedef = self.backend.flatten(tree)
-    for leaf_elems in zip(*leaves):  # TODO(py3.10): check=True
+    for leaf_elems in zip(*leaves):  # TODO(py310): check=True
       yield self.backend.unflatten(treedef, leaf_elems)
 
   def spec_like(

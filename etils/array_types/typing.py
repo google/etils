@@ -37,7 +37,7 @@ DTYPE_NP_TO_COMPACT_STR: Dict[Optional[np.dtype], str] = {
     None: 'Array',
 }
 
-_EllipsisType = type(Ellipsis)  # TODO(py3.10): Use types.EllipsisType
+_EllipsisType = type(Ellipsis)  # TODO(py310): Use types.EllipsisType
 _ShapeItem = Union[ShapeSpec, int, _EllipsisType, None]
 _ShapeSpecInput = Union[_ShapeItem, Tuple[_ShapeItem, ...]]
 
