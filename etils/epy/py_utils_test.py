@@ -78,3 +78,8 @@ def test_zip_dict_three():
   d2 = {'a': 100, 'c': 300}
   with pytest.raises(KeyError):
     list(epy.zip_dict(d0, d1, d2))
+
+
+def test_issubclass():
+  assert not epy.issubclass(1, int)
+  assert epy.issubclass(bool, int)

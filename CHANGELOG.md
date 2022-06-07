@@ -1,6 +1,16 @@
 # Changelog
 
+<!--
+
+Changelog follow https://keepachangelog.com/ format.
+
+-->
+
 ## [Unreleased]
+
+*   `epy`
+    *   Added: `epy.issubclass` (like `issubclass` but does not raises error for
+        non-types)
 
 ## [0.6.0] - 2022-05-31
 

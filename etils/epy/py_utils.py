@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import enum
 import itertools
-from typing import Any, Iterator, TypeVar
+from typing import Any, Iterator, TypeVar, Union
 
 # from typing_extensions import Unpack, TypeVarTuple  # pytype: disable=not-supported-yet  # pylint: disable=g-multiple-import
 
@@ -105,3 +105,11 @@ def zip_dict(  # pytype: disable=invalid-annotation
   for key in d0:  # set merge all keys
     # Will raise KeyError if the dict don't have the same keys
     yield key, tuple(d[key] for d in dicts)
+
+
+def issubclass_(
+    cls: Any,
+    types: Union[type[Any], tuple[type[Any], ...]],
+) -> bool:
+  """Like `issubclass`, but do not raise error if value is not `type`."""
+  return isinstance(cls, type) and issubclass(cls, types)
