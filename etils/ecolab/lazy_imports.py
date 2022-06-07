@@ -167,6 +167,7 @@ _PACKAGE_RESTRICT = [
     'visu3d',
     'imageio',
     'mediapy',
+    'pycolmap',
 ]
 
 
@@ -260,6 +261,7 @@ _MODULE_NAMES = dict(
     media='mediapy',
     np='numpy',
     pd='pandas',
+    pycolmap='pycolmap',
     scipy='scipy',
     sns='seaborn',
     sklearn='sklearn',
