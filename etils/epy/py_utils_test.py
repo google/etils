@@ -17,7 +17,6 @@
 import enum
 
 from etils import epy
-import pytest
 
 
 def test_str_enum():
@@ -34,52 +33,3 @@ def test_str_enum():
   assert MyEnum.MY_ATTR == 'MY_ATTR'
 
   assert hash(MyEnum.MY_ATTR) == hash('my_attr')
-
-
-def test_zip_dict():
-  d0 = {'a': 1, 'b': 2}
-  d1 = {'a': 10, 'b': 20}
-  assert list(epy.zip_dict(d0, d1)) == [
-      ('a', (1, 10)),
-      ('b', (2, 20)),
-  ]
-
-  # Order is preserved
-  d0 = {'b': 1, 'a': 2}
-  d1 = {'b': 10, 'a': 20}
-  assert list(epy.zip_dict(d0, d1)) == [
-      ('b', (1, 10)),
-      ('a', (2, 20)),
-  ]
-
-  d0 = {'a': 1}
-  d1 = {'a': 10, 'b': 20}
-  with pytest.raises(KeyError):
-    list(epy.zip_dict(d0, d1))
-
-  with pytest.raises(KeyError):
-    list(epy.zip_dict(d1, d0))
-
-
-def test_zip_dict_three():
-  d0 = {'a': 1, 'b': 2}
-  d1 = {'a': 10, 'b': 20}
-  d2 = {'a': 100, 'b': 200}
-
-  assert list(epy.zip_dict(d0, d1, d2)) == [
-      ('a', (1, 10, 100)),
-      ('b', (2, 20, 200)),
-  ]
-
-  d2 = {'a': 100, 'b': 200, 'c': 300}
-  with pytest.raises(KeyError):
-    list(epy.zip_dict(d0, d1, d2))
-
-  d2 = {'a': 100, 'c': 300}
-  with pytest.raises(KeyError):
-    list(epy.zip_dict(d0, d1, d2))
-
-
-def test_issubclass():
-  assert not epy.issubclass(1, int)
-  assert epy.issubclass(bool, int)

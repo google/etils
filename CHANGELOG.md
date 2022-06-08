@@ -11,6 +11,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`
     *   Added: `epy.issubclass` (like `issubclass` but does not raises error for
         non-types)
+    *   Added: `epy.groupby`, like `itertools.groupby` but returns a `dict`.
 
 ## [0.6.0] - 2022-05-31
 
