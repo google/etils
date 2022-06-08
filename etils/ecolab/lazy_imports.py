@@ -23,8 +23,8 @@ from etils.ecolab.lazy_imports import *
 To get the list of available modules:
 
 ```python
-ecolab.lazy_imports.__all__  # List of modules aliases
-ecolab.lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
+lazy_imports.__all__  # List of modules aliases
+lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
 ```
 
 """
@@ -37,6 +37,24 @@ import importlib as importlib_
 import traceback as traceback_
 import types as types_
 from typing import Any, Optional
+
+
+def __dir__() -> list[str]:  # pylint: disable=invalid-name
+  """`lazy_imports` public API.
+
+  Because `globals()` contains hundreds of symbols, we overwrite `dir(module)`
+  to avoid poluting the namespace during auto-completion.
+
+  Returns:
+    public symbols
+  """
+  return [
+      '__all__',
+      'LAZY_MODULES',
+      'print_current_imports',
+      'LazyModule',
+      'LazyModuleState',
+  ]
 
 
 # Attributes which will be updated after the module is loaded.
@@ -187,22 +205,28 @@ def _load_module(module_name: str) -> types_.ModuleType:
     return importlib_.import_module(module_name)
 
 
-def print_lazy_imports() -> None:
+def print_current_imports() -> None:
   """Display the active lazy imports.
 
   This can be used before publishing a colab. To convert lazy imports
   into explicit imports.
 
+  For convenience, `from etils.ecolab import lazy_imports` is excluded from
+  the current imports.
+
   """
-  print(_lazy_import_statements())
+  print(_current_import_statements())
 
 
-def _lazy_import_statements() -> str:
+def _current_import_statements() -> str:
   """Returns the lazy import statement string."""
   lines = []
 
   lazy_modules = [m._etils_state for m in LAZY_MODULES.values()]  # pylint: disable=protected-access
-  used_lazy_modules = [m for m in lazy_modules if m.module_loaded]
+  used_lazy_modules = [
+      # For convenience, we do not add the `lazy_imports` import
+      m for m in lazy_modules if m.module_loaded and m.alias != 'lazy_imports'
+  ]
   std_modules = [m.import_statement for m in used_lazy_modules if m.is_std]
   non_std_modules = [
       m.import_statement for m in used_lazy_modules if not m.is_std
@@ -296,6 +320,7 @@ _MODULE_NAMES = dict(
     epy='etils.epy',
     etqdm='etils.etqdm',
     etree='etils.etree',  # TODO(epot): etree='etils.etree.jax',
+    lazy_imports='etils.ecolab.lazy_imports',
     # ====== Common third party ======
     app='absl.app',
     flags='absl.flags',
@@ -342,5 +367,6 @@ LAZY_MODULES: dict[str, LazyModule] = {
 }
 
 globals().update(LAZY_MODULES)
+
 
 __all__ = sorted(_MODULE_NAMES)  # Sorted per alias
