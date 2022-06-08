@@ -25,3 +25,6 @@ In addition of the pathlib methods, `epath.Path` has the additional methods:
 *   `path.rmtree()`
 *   `path.format(*args, **kwargs)`: Apply `str.format` on the underlying path
     `str`
+
+There are some [discussions](https://github.com/python/cpython/issues/92771)
+about adding those methods nativelly in pathlib.
