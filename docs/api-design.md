@@ -1,5 +1,7 @@
 # API design principles
 
+Good practices for designing API, in Python.
+
 ## High level
 
 ### Start by the end-user code
@@ -107,7 +109,7 @@ sample(num_points=100, strategy=UniformSampling())
 
 Externalisation of the implementation allow greater customizability/modularity:
 
-*   User can augment you function for their custom needs directly in their
+*   User can augment your functions for their custom needs directly in their
     codebase, without having to send a PR (e.g. add a
     `strategy=WeigthedSampling(weights=...)`).
 *   Abstractions can be reused in other parts of the code.
@@ -150,26 +152,6 @@ eventually to provide a default implementation/behavior.
 *   Avoid overwriting methods implemented in the parent class. Instead, add
     hooks in the parent class to allow either childs to control the behavior, or
     even to remove the need for inheritance entirely.
-
-### Use `__init__.py`
-
-The public user API should be explicitly defined in your project `__init__.py`
-file.
-
-Having an explicit API has many benefit:
-
-*   Limit entry points: users only have a single import, it makes it obvious how
-    to start using the API.
-*   Helps discoverability: users can inspect a single file, or rely on
-    auto-completion so see which symbols your project provide
-*   Force you to be explicit about which features should be used by users and
-    which are internal (even a public function might be only meant for internal
-    usage only)
-*   Having an explicit list of public symbols can make you aware of issue (is
-    there too many symbols which would benefit from being factored into a sub
-    namespace ?)
-*   Helps maintenance: You can refactor internal code while keeping the public
-    aliases unchanged
 
 ### Reduce friction
 
@@ -248,6 +230,26 @@ readable.
 
     *   `__getitem__`: `x.fetch_index(i)` -> `x[i]`
     *   `__len__`: `x.num_elems` -> `len(x)`
+
+### Use `__init__.py`
+
+The public user API should be explicitly defined in your project `__init__.py`
+file.
+
+Having an explicit API has many benefit:
+
+*   Limit entry points: users only have a single import, it makes it obvious how
+    to start using the API.
+*   Helps discoverability: users can inspect a single file, or rely on
+    auto-completion so see which symbols your project provide
+*   Force you to be explicit about which features should be used by users and
+    which are internal (even a public function might be only meant for internal
+    usage only)
+*   Having an explicit list of public symbols can make you aware of issue (is
+    there too many symbols which would benefit from being factored into a sub
+    namespace ?)
+*   Helps maintenance: You can refactor internal code while keeping the public
+    aliases unchanged
 
 ### Prefer kwargs-only argument
 
