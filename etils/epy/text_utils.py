@@ -33,7 +33,7 @@ class _Line:
 class Lines:
   """Util to build multi-line text.
 
-  Usefull for pretty-print tools and human readable `__repr__`.
+  Useful for pretty-print tools and human readable `__repr__`.
 
   Example:
 
