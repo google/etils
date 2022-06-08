@@ -40,6 +40,10 @@ NpModule = Any
 # Mirror math.tau (PEP 628). See https://tauday.com/
 tau = 2 * np.pi
 
+# When `strict=False` (in `get_xnp`, `is_array`,...), those types are also
+# accepted:
+_ARRAY_LIKE_TYPES = (int, bool, float, list, tuple)
+
 
 class _LazyImporter:
   """Lazy import module.
@@ -90,8 +94,9 @@ class _LazyImporter:
   def is_jax(self, x: Array) -> bool:
     return self.has_jax and isinstance(x, self.jnp.ndarray)
 
-  def is_array(self, x: Array) -> bool:
-    return self.is_np(x) or self.is_jax(x) or self.is_tf(x)
+  def is_array(self, x: Array, *, strict: bool = True) -> bool:
+    is_array_like = False if strict else isinstance(x, _ARRAY_LIKE_TYPES)
+    return self.is_np(x) or self.is_jax(x) or self.is_tf(x) or is_array_like
 
   def get_xnp(self, x: Array, *, strict: bool = True):  # -> NpModule:
     """Returns the numpy module associated with the given array.
@@ -115,7 +120,7 @@ class _LazyImporter:
       return self.tnp
     elif self.is_np(x):
       return np
-    elif not strict and isinstance(x, (int, bool, float, list, tuple)):
+    elif not strict and isinstance(x, _ARRAY_LIKE_TYPES):
       # `strict=False` support `[0, 0, 0]`, `0`,...
       return np
     else:
