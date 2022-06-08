@@ -20,9 +20,6 @@ jobs:
       with:
         python-version: 3.7
     - run: pip --version
-    # As changes can be pushed to both etils and visu3d, we install etils from `main` branch
-    # If modifying this, also modify `pyproject.toml`
-    - run: pip install "etils[array_types,edc,enp,epath,epy,etree] @ git+https://github.com/google/etils"
     - run: pip install -e .[all,dev]
     - run: pip freeze
 
