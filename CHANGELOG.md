@@ -8,6 +8,12 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `array_types`:
+    *   Added: More array types: `complex64`,...
+    *   Added: An **experimental** `array_types.dtypes.DType` to support more
+        flexible dtype expression (`AnyFloat`, type union,...)
+    *   Changed (breaking): Array dtypes (e.g. (`f32.dtype`) are now
+        `array_types.dtypes.DType`.
 *   `ecolab`:
     *   Added: `lazy_imports.print_current_imports` to display the active lazy
         imports (e.g. to add imports before publishing a colab).

@@ -14,29 +14,18 @@
 
 """Typing utils."""
 
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
+from etils.array_types import dtypes
 import numpy as np
 
 _T = TypeVar('_T')
 
 # Match both `np.dtype('int32')` and np.int32
-DType = Union[np.dtype, Type[np.generic]]
+_DType = Union[np.dtype, Type[np.generic], dtypes.DType]
 
 # Shape definition spec (e.g. `h w c`, `batch ...`)
 ShapeSpec = str
-
-DTYPE_NP_TO_COMPACT_STR: Dict[Optional[np.dtype], str] = {
-    np.dtype('uint8'): 'ui8',
-    np.dtype('uint32'): 'ui32',
-    np.dtype('int32'): 'i32',
-    np.dtype('int64'): 'i64',
-    np.dtype('float32'): 'f32',
-    np.dtype('float64'): 'f64',
-    np.dtype('bool_'): 'bool_',
-    np.dtype('O'): 'str',
-    None: 'Array',
-}
 
 _EllipsisType = type(Ellipsis)  # TODO(py310): Use types.EllipsisType
 _ShapeItem = Union[ShapeSpec, int, _EllipsisType, None]
@@ -57,14 +46,14 @@ class ArrayAliasMeta(type):
 
   """
   shape: ShapeSpec
-  dtype: DType
+  dtype: dtypes.DType
 
   def __new__(
       cls,
       shape: Optional[_ShapeSpecInput],
-      dtype: Optional[Type[DType]],
+      dtype: Optional[_DType],
   ):
-    dtype = np.dtype(dtype) if dtype else None
+    dtype = dtypes.DType.from_value(dtype)
     # Normalize to str
     if shape is None:
       shape = '...'
@@ -72,12 +61,12 @@ class ArrayAliasMeta(type):
       shape = ' '.join(_normalize_shape_item(x) for x in shape)
     else:
       shape = _normalize_shape_item(shape)
-    return super().__new__(cls, DTYPE_NP_TO_COMPACT_STR[dtype], (cls,), {
+    return super().__new__(cls, dtype.array_cls_name, (cls,), {
         'shape': shape,
         'dtype': dtype,
     })
 
-  def __init__(cls, shape: Optional[ShapeSpec], dtype: Optional[Type[DType]]):
+  def __init__(cls, shape: Optional[ShapeSpec], dtype: Optional[_DType]):
     del shape, dtype
     super().__init__(cls, cls.__name__, (cls,), {})  # pytype: disable=wrong-arg-count
 

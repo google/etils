@@ -14,23 +14,33 @@
 
 """Typing utils."""
 
+from etils.array_types import dtypes
 from etils.array_types.typing import ArrayAliasMeta
 from etils.array_types.typing import ArrayLike
 import numpy as np
 
-Array = ArrayAliasMeta(shape=None, dtype=None)
-# TODO(epot): Should have some generic `dtype=float`
+Array = ArrayAliasMeta(shape=None, dtype=dtypes.AnyDType())
+# TODO(epot): Should have some generic `dtype=dtypes.AnyFloat`,...
 FloatArray = ArrayAliasMeta(shape=None, dtype=np.float32)
 IntArray = ArrayAliasMeta(shape=None, dtype=np.int32)
 BoolArray = ArrayAliasMeta(shape=None, dtype=np.bool_)
 StrArray = ArrayAliasMeta(shape=None, dtype=np.dtype('O'))
 
-f32 = ArrayAliasMeta(shape=None, dtype=np.float32)
 ui8 = ArrayAliasMeta(shape=None, dtype=np.uint8)
+ui16 = ArrayAliasMeta(shape=None, dtype=np.uint16)
 ui32 = ArrayAliasMeta(shape=None, dtype=np.uint32)
+ui64 = ArrayAliasMeta(shape=None, dtype=np.uint64)
+i8 = ArrayAliasMeta(shape=None, dtype=np.int8)
+i16 = ArrayAliasMeta(shape=None, dtype=np.int16)
 i32 = ArrayAliasMeta(shape=None, dtype=np.int32)
 i64 = ArrayAliasMeta(shape=None, dtype=np.int64)
+f16 = ArrayAliasMeta(shape=None, dtype=np.float16)
+f32 = ArrayAliasMeta(shape=None, dtype=np.float32)
+f64 = ArrayAliasMeta(shape=None, dtype=np.float64)
+complex64 = ArrayAliasMeta(shape=None, dtype=np.complex64)
+complex128 = ArrayAliasMeta(shape=None, dtype=np.complex128)
 bool_ = ArrayAliasMeta(shape=None, dtype=np.bool_)
+
 
 # Random number generator jax key
 PRNGKey = ui32[2]
@@ -46,11 +56,19 @@ __all__ = [
     'IntArray',
     'BoolArray',
     'StrArray',
-    'f32',
+    'bool_',
     'ui8',
+    'ui16',
     'ui32',
+    'ui64',
+    'i8',
+    'i16',
     'i32',
     'i64',
-    'bool_',
+    'f16',
+    'f32',
+    'f64',
+    'complex64',
+    'complex128',
     'PRNGKey',
 ]

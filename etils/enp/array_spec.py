@@ -58,10 +58,11 @@ class ArraySpec:
     self.dtype = np.dtype(dtype)
 
   def __repr__(self) -> str:
-    shape_str = ' '.join(['_' if s is None else str(s) for s in self.shape])
-    dtype_str = array_types.typing.DTYPE_NP_TO_COMPACT_STR.get(
-        self.dtype, self.dtype.name)
-    return f'{dtype_str}[{shape_str}]'
+    array_type = array_types.ArrayAliasMeta(
+        dtype=self.dtype,
+        shape=self.shape,
+    )
+    return repr(array_type)
 
   def __eq__(self, other) -> bool:
     if not isinstance(other, type(self)):
