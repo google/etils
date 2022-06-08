@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   Added: `ecolab.print_lazy_imports` to display the active lazy imports
+        (e.g. to add imports before publishing a colab).
 *   `epy`
     *   Added: `epy.issubclass` (like `issubclass` but does not raises error for
         non-types)

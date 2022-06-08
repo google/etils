@@ -64,7 +64,8 @@ class LazyModuleState:
   3) `@property`, `epy.cached_property` fail when the class is changed
 
   """
-  module_name: str  # pylint: disable=invalid-name
+  module_name: str
+  alias: str
   host: LazyModule = dataclasses_.field(repr=False)
   _module: Optional[types_.ModuleType] = None
   # Track the trace which trigger the import
@@ -92,6 +93,29 @@ class LazyModuleState:
   def module_loaded(self) -> bool:
     return self._module is not None
 
+  @property
+  def is_std(self) -> bool:
+    """Returns `True` if the module is in the standard library."""
+    return self.module_name in _STANDARD_MODULE_NAMES
+
+  @property
+  def import_statement(self) -> str:
+    """Returns the `import xyz` statement."""
+    # Possible cases:
+    # `import abc.xyz`
+    # `import abc.xyz as def`
+    # `from abc import xyz`
+    # `from abc import xyz as def` (currently, never used)
+    if self.module_name == self.alias:
+      return f'import {self.module_name}'
+
+    if '.' in self.module_name:
+      left_import, right_import = self.module_name.rsplit('.', maxsplit=1)
+      if right_import == self.alias:
+        return f'from {left_import} import {right_import}'
+
+    return f'import {self.module_name} as {self.alias}'
+
   def _mutate_host(self) -> None:
     """When the module is first loaded, update `__doc__`, `__file__`,..."""
     assert self.module_loaded
@@ -107,12 +131,16 @@ class LazyModuleState:
 class module(types_.ModuleType):  # pylint: disable=invalid-name
   """Lazy module which auto-loads on first attribute call."""
 
-  def __init__(self, module_name: str):
+  def __init__(self, module_name: str, *, alias: str):
     # We set `__file__` to None, to avoid `colab_import.reload_package(etils)`
     # to trigger a full reload of all modules here.
     self.__file__ = None
 
-    self._etils_state = LazyModuleState(module_name, host=self)
+    self._etils_state = LazyModuleState(
+        module_name=module_name,
+        alias=alias,
+        host=self,
+    )
 
   def __getattr__(self, name: str) -> Any:
     if not self._etils_state.module_loaded and name in {
@@ -159,6 +187,35 @@ def _load_module(module_name: str) -> types_.ModuleType:
     return importlib_.import_module(module_name)
 
 
+def print_lazy_imports() -> None:
+  """Display the active lazy imports.
+
+  This can be used before publishing a colab. To convert lazy imports
+  into explicit imports.
+
+  """
+  print(_lazy_import_statements())
+
+
+def _lazy_import_statements() -> str:
+  """Returns the lazy import statement string."""
+  lines = []
+
+  lazy_modules = [m._etils_state for m in LAZY_MODULES.values()]  # pylint: disable=protected-access
+  used_lazy_modules = [m for m in lazy_modules if m.module_loaded]
+  std_modules = [m.import_statement for m in used_lazy_modules if m.is_std]
+  non_std_modules = [
+      m.import_statement for m in used_lazy_modules if not m.is_std
+  ]
+
+  # Import standard python module first, then other modules
+  lines.extend(std_modules)
+  if std_modules and non_std_modules:
+    lines.append('')  # Empty line
+  lines.extend(non_std_modules)  # pylint: disable=protected-access
+  return '\n'.join(lines)
+
+
 # Modules here are imported from head (missing from the Brain Kernel)
 _PACKAGE_RESTRICT = [
     'etils',
@@ -169,7 +226,6 @@ _PACKAGE_RESTRICT = [
     'mediapy',
     'pycolmap',
 ]
-
 
 _STANDARD_MODULE_NAMES = [
     'abc',
@@ -225,7 +281,6 @@ _STANDARD_MODULE_NAMES = [
     'weakref',
     'zipfile',
 ]
-
 
 _MODULE_NAMES = dict(
     # ====== Python standard lib ======
@@ -283,7 +338,7 @@ _MODULE_NAMES = dict(
 _MODULE_NAMES = dict(sorted(_MODULE_NAMES.items(), key=lambda x: x[1]))
 
 LAZY_MODULES: dict[str, LazyModule] = {
-    k: LazyModule(v) for k, v in _MODULE_NAMES.items()
+    k: LazyModule(v, alias=k) for k, v in _MODULE_NAMES.items()
 }
 
 globals().update(LAZY_MODULES)

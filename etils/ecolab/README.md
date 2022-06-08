@@ -31,9 +31,11 @@ ecolab.lazy_imports.__all__  # List of all modules aliases
 ecolab.lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
 ```
 
+To print the active import (e.g. to convert lazy imports into real ones before
+publishing a notebook), uses `ecolab.print_lazy_imports()`.
+
 Code at:
 [lazy_imports.py](https://github.com/google/etils/tree/main/etils/ecolab/lazy_imports.py).
-
 
 ### Display arrays/tensors as images
 

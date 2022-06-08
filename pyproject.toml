@@ -39,6 +39,7 @@ ecolab = [
     "numpy",
     "mediapy",
     "etils[enp]",
+    "etils[epy]",
 ]
 edc = [
     "etils[epy]",

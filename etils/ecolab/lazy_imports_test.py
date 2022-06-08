@@ -34,8 +34,26 @@ def test_lazy_imports():
   assert jax.numpy.zeros((2, 3)).shape == (2, 3)
   assert 'jax' in sys.modules
   assert repr(jax).startswith("<lazy_module 'jax'")
+  assert jax._etils_state.module_loaded
 
-  assert isinstance(ecolab.lazy_imports.LAZY_MODULES, dict)
+  from etils.ecolab.lazy_imports import jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  assert not jnp._etils_state.module_loaded
+  _ = jnp.array  # Trigger import
+  assert jnp._etils_state.module_loaded
+  del jnp
+
+  from etils.ecolab.lazy_imports import epy  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  _ = epy.reraise  # Trigger import
+
+  # Import os but do not trigger imports
+  from etils.ecolab.lazy_imports import os  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  del os
+
+  assert ecolab.lazy_imports._lazy_import_statements() == epy.dedent("""
+      from etils import epy
+      import jax
+      import jax.numpy as jnp
+      """)
 
 
 def test_lazy_imports_built_in():
