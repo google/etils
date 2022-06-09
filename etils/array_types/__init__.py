@@ -20,9 +20,8 @@ from etils.array_types.typing import ArrayLike
 import numpy as np
 
 Array = ArrayAliasMeta(shape=None, dtype=dtypes.AnyDType())
-# TODO(epot): Should have some generic `dtype=dtypes.AnyFloat`,...
-FloatArray = ArrayAliasMeta(shape=None, dtype=np.float32)
-IntArray = ArrayAliasMeta(shape=None, dtype=np.int32)
+FloatArray = ArrayAliasMeta(shape=None, dtype=dtypes.AnyFloat())
+IntArray = ArrayAliasMeta(shape=None, dtype=dtypes.AnyInt())
 BoolArray = ArrayAliasMeta(shape=None, dtype=np.bool_)
 StrArray = ArrayAliasMeta(shape=None, dtype=np.dtype('O'))
 

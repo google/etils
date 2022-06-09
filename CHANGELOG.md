@@ -12,6 +12,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: More array types: `complex64`,...
     *   Added: An **experimental** `array_types.dtypes.DType` to support more
         flexible dtype expression (`AnyFloat`, type union,...)
+    *   Changed: `FloatArray`, `IntArray` do supports any float, int without
+        casting.
     *   Changed (breaking): Array dtypes (e.g. (`f32.dtype`) are now
         `array_types.dtypes.DType`.
 *   `ecolab`:
