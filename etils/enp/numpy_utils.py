@@ -24,11 +24,11 @@ import sys
 import typing
 from typing import Any, TypeVar
 
+from etils import epy
 import numpy as np
 
 if typing.TYPE_CHECKING:
   from etils.array_types import Array
-
 
 _T = TypeVar('_T')
 
@@ -43,6 +43,10 @@ tau = 2 * np.pi
 # When `strict=False` (in `get_xnp`, `is_array`,...), those types are also
 # accepted:
 _ARRAY_LIKE_TYPES = (int, bool, float, list, tuple)
+
+# During the class construction, pytype fails because of name conflict between
+# the `np` `@property` and the module.
+_np = np
 
 
 class _LazyImporter:
@@ -97,6 +101,30 @@ class _LazyImporter:
   def is_array(self, x: Array, *, strict: bool = True) -> bool:
     is_array_like = False if strict else isinstance(x, _ARRAY_LIKE_TYPES)
     return self.is_np(x) or self.is_jax(x) or self.is_tf(x) or is_array_like
+
+  def is_np_dtype(self, dtype) -> bool:
+    return isinstance(dtype, np.dtype) or epy.issubclass(dtype, np.generic)
+
+  def is_tf_dtype(self, dtype) -> bool:
+    return self.has_tf and isinstance(dtype, self.tf.dtypes.DType)
+
+  def is_jax_dtype(self, dtype) -> bool:
+    # `jnp.int64`,... are `jax._src.numpy.lax_numpy._ScalarMeta`, but
+    # jnp.ndarray.dtype are numpy dtype
+    check_jax = self.has_jax and isinstance(dtype, type(self.jnp.float32))
+    return self.is_np_dtype(dtype) or check_jax
+
+  def is_dtype(self, dtype) -> bool:
+    return (self.is_np_dtype(dtype) or self.is_jax_dtype(dtype) or
+            self.is_tf_dtype(dtype))
+
+  def as_dtype(self, dtype) -> _np.dtype:
+    """Normalize to numpy dtype."""
+    if self.is_tf_dtype(dtype):
+      dtype = dtype.as_numpy_dtype
+    elif not self.is_jax_dtype(dtype) and not self.is_np_dtype(dtype):
+      raise TypeError(f'Invalid dtype: {dtype!r}')
+    return np.dtype(dtype)
 
   def get_xnp(self, x: Array, *, strict: bool = True):  # -> NpModule:
     """Returns the numpy module associated with the given array.

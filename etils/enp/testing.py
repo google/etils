@@ -31,7 +31,7 @@ def set_tnp() -> None:
 
   Note: The fixture has to be explicitly declared in the `_test.py`
   file where it is used. This can be done by assigning
-  `set_tnp = testing.set_tnp`.
+  `set_tnp = enp.testing.set_tnp`.
 
   """
   # This is required to have TF follow the same casting rules as numpy

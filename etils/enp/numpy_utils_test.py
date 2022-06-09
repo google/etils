@@ -68,6 +68,31 @@ def test_lazy():
     lazy.get_xnp(None, strict=False)
 
 
+def test_lazy_dtype():
+  lazy = enp.numpy_utils.lazy
+
+  assert lazy.is_np_dtype(np.int32)
+  assert lazy.is_np_dtype(np.dtype('int32'))
+  assert lazy.is_jax_dtype(jnp.int32)
+  assert lazy.is_jax_dtype(np.int32)
+  assert lazy.is_tf_dtype(tf.int32)
+
+  assert not lazy.is_np_dtype(tf.int32)
+  assert not lazy.is_jax_dtype(tf.int32)
+  assert not lazy.is_tf_dtype(np.int32)
+  assert not lazy.is_np_dtype(int)
+  assert not lazy.is_jax_dtype(int)
+  assert not lazy.is_tf_dtype(int)
+
+  assert lazy.as_dtype(tf.int32) == np.dtype('int32')
+  assert lazy.as_dtype(jnp.int32) == np.dtype('int32')
+  assert lazy.as_dtype(np.int32) == np.dtype('int32')
+  assert lazy.as_dtype(np.dtype('int32')) == np.dtype('int32')
+
+  with pytest.raises(TypeError, match='Invalid dtype'):
+    lazy.as_dtype(123)
+
+
 @enp.testing.parametrize_xnp()
 def test_get_array_module(xnp):
   y = fn(xnp.array([123]))
