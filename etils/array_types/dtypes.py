@@ -78,7 +78,7 @@ class DType(abc.ABC):
       raise TypeError(f'Unsuported dtype: {value!r}')
 
   def asarray(self, array_like, *, xnp: numpy_utils.NpModule):
-    from_dtype = _get_array_dtype(array_like)
+    from_dtype = numpy_utils.lazy.dtype_from_array(array_like, strict=False)
     to_dtype = self._get_target_dtype(from_dtype)
     return xnp.asarray(array_like, dtype=to_dtype)
 
@@ -207,18 +207,6 @@ _STD_TYPE_TO_DTYPE = {
     float: AnyFloat(),
     bool: NpDType(np.bool_),
 }
-
-
-def _get_array_dtype(array_like) -> Optional[np.dtype]:
-  """Returns the numpy dtype from the array."""
-  if numpy_utils.lazy.is_array(array_like):  # Already an ndarray
-    return numpy_utils.lazy.as_dtype(array_like.dtype)
-  else:
-    # TODO(epot): Could have a smarter way of infering the dtype for
-    # scalar, int, float,... but difficult to infer list without performance
-    # cost (one way would be to call `asarray(array_like, dtype=None)`, then
-    # cast again)
-    return None
 
 
 def _is_float(dtype: np.dtype) -> bool:

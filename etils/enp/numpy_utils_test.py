@@ -93,6 +93,53 @@ def test_lazy_dtype():
     lazy.as_dtype(123)
 
 
+def test_dtype_from_array_builtins():
+  lazy = enp.numpy_utils.lazy
+
+  assert lazy.dtype_from_array(True, strict=False) == np.dtype('bool')
+  assert lazy.dtype_from_array(123, strict=False) is None
+  assert lazy.dtype_from_array(123., strict=False) is None
+  assert lazy.dtype_from_array([123.], strict=False) is None
+
+  with pytest.raises(TypeError, match='Cannot extract dtype'):
+    lazy.dtype_from_array(123)
+
+  with pytest.raises(TypeError, match='Cannot extract dtype'):
+    lazy.dtype_from_array(True)
+
+  with pytest.raises(TypeError, match='Cannot extract dtype'):
+    lazy.dtype_from_array(123.)
+
+  with pytest.raises(TypeError, match='Cannot extract dtype'):
+    lazy.dtype_from_array([123.])
+
+
+@pytest.mark.parametrize('dtype', [
+    np.uint8,
+    np.int32,
+    np.int64,
+    np.float32,
+    np.float64,
+    np.bool_,
+    jnp.bfloat16,
+])
+@enp.testing.parametrize_xnp()
+def test_dtype_from_array_xnp(xnp, dtype):
+  lazy = enp.numpy_utils.lazy
+
+  # jnp auto-cast float64 -> float32
+  assert not jax.config.jax_enable_x64
+  target_dtype = dtype
+  if xnp is jnp:
+    target_dtype = ({
+        np.float64: np.float32,
+        np.int64: np.int32,
+    }).get(dtype, dtype)
+
+  x = xnp.array([1, 2], dtype=dtype)
+  assert lazy.dtype_from_array(x) == target_dtype
+
+
 @enp.testing.parametrize_xnp()
 def test_get_array_module(xnp):
   y = fn(xnp.array([123]))

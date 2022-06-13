@@ -22,8 +22,6 @@ from typing import Any
 from etils import array_types
 from etils import enp
 from etils import epy
-from etils.array_types import dtypes
-import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -189,30 +187,3 @@ def test_dtype(xnp, item):
       array = dtype.asarray(value, xnp=xnp)
       assert isinstance(array, xnp.ndarray)
       assert enp.lazy.as_dtype(array.dtype) == to_dtype
-
-
-@pytest.mark.parametrize('dtype', [
-    np.uint8,
-    np.int32,
-    np.int64,
-    np.float32,
-    np.float64,
-    np.bool_,
-    jnp.bfloat16,
-])
-@enp.testing.parametrize_xnp()
-def test_get_array_dtype_xnp(xnp, dtype):
-
-  # jnp auto-cast float64 -> float32
-  assert not jax.config.jax_enable_x64
-  target_dtype = dtype
-  if xnp is jnp:
-    target_dtype = ({
-        np.float64: np.float32,
-        np.int64: np.int32,
-    }).get(dtype, dtype)
-
-  assert dtypes._get_array_dtype(xnp.array(
-      [1, 2],
-      dtype=dtype,
-  )) == target_dtype

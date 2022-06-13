@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import sys
 import typing
-from typing import Any, TypeVar
+from typing import Any, Optional, TypeVar
 
 from etils import epy
 import numpy as np
@@ -125,6 +125,31 @@ class _LazyImporter:
     elif not self.is_jax_dtype(dtype) and not self.is_np_dtype(dtype):
       raise TypeError(f'Invalid dtype: {dtype!r}')
     return np.dtype(dtype)
+
+  def dtype_from_array(
+      self,
+      array_like: Array,
+      *,
+      strict: bool = True,
+  ) -> Optional[_np.dtype]:
+    """Returns the dtype associated with the array."""
+    if self.is_array(array_like):  # Already an ndarray, normalize the dtype
+      dtype = array_like.dtype
+    elif strict:  # Not an array and strict mode: error
+      raise TypeError(
+          f'Cannot extract dtype from non-array {type(array_like)}, '
+          'when strict=True.')
+    elif isinstance(array_like, bool):
+      dtype = np.bool_
+    elif isinstance(array_like, _ARRAY_LIKE_TYPES):  # list, tuple, int, float
+      # TODO(epot): Could have a smarter way of infering the dtype for
+      # scalar, int, float,... but difficult to infer list without performance
+      # cost (one way would be to call `asarray(array_like, dtype=None)`, then
+      # cast again)
+      return None
+    else:
+      raise TypeError(f'Cannot extract dtype from non-array {type(array_like)}')
+    return self.as_dtype(dtype)
 
   def get_xnp(self, x: Array, *, strict: bool = True):  # -> NpModule:
     """Returns the numpy module associated with the given array.
