@@ -18,8 +18,10 @@ from __future__ import annotations
 
 import abc
 import dataclasses
-from typing import Any, ClassVar, Optional
+import enum
+from typing import Any, ClassVar, Optional, Union
 
+from etils import epy
 from etils.enp import numpy_utils
 import numpy as np
 
@@ -35,6 +37,18 @@ _NP_KIND_TO_STR = {
 }
 # Numpy kinds which should be displayed with bits number (`f32`,...)
 _BITS_KINDS = {'u', 'i', 'f', 'c', 'V'}
+
+
+class Casting(epy.StrEnum):
+  """Casting mode when converting to array.
+
+  Attributes:
+    ALL: Allow all casting (e.g. `float`-> `int`)
+    NONE: No casting allowed for existing `ndarray`. Array-like built-ins (list,
+      int,...) are casted to the given dtype.
+  """
+  ALL = enum.auto()
+  NONE = enum.auto()
 
 
 def _make_array_cls_name(np_dtype: np.dtype) -> str:
@@ -77,9 +91,40 @@ class DType(abc.ABC):
     else:
       raise TypeError(f'Unsuported dtype: {value!r}')
 
-  def asarray(self, array_like, *, xnp: numpy_utils.NpModule):
+  def asarray(
+      self,
+      array_like,
+      *,
+      xnp: numpy_utils.NpModule,
+      casting: Union[Casting, str] = Casting.ALL,
+  ):
+    """Creates an `xnp.ndarray` from the `array_like`.
+
+    Args:
+      array_like: Any array-like
+      xnp: Target numpy module
+      casting: If `NONE`, prevent casting.
+
+    Returns:
+      array: The xnp array.
+    """
+    casting = Casting(casting)
     from_dtype = numpy_utils.lazy.dtype_from_array(array_like, strict=False)
     to_dtype = self._get_target_dtype(from_dtype)
+
+    if casting == casting.NONE:  # When casting is invalid
+      if to_dtype is None:
+        pass  # Keep original casting
+      elif from_dtype is None:  # Array-like (int, float, list,...)
+        # TODO(epot): Could try to infer array types to prevent float -> int
+        pass
+      elif from_dtype != to_dtype:
+        raise ValueError(
+            f'Cannot cast {from_dtype} to {to_dtype} (casting={casting}).')
+    elif casting == casting.ALL:
+      pass  # Always try to cast to dtype
+    else:
+      raise NotImplementedError(f'Unsupported casting {casting}')
     return xnp.asarray(array_like, dtype=to_dtype)
 
   @abc.abstractmethod
