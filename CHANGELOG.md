@@ -23,7 +23,11 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epy.issubclass` (like `issubclass` but does not raises error for
         non-types)
     *   Added: `epy.groupby`, like `itertools.groupby` but returns a `dict`.
-    *   Fix: `epy.StrEnum` raises better error message if invalid input.
+    *   Fixed: `epy.StrEnum` raises better error message if invalid input.
+*   `epath`
+    *   Changed: Add `__eq__` and `__hash__` for resource path.
+*   `edc`
+    *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
 *   Other:
     *   Added: Guide on
         [API design principles](https://github.com/google/etils/blob/main/docs/api-design.md).

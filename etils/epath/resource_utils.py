@@ -17,8 +17,8 @@
 from __future__ import annotations
 
 import itertools
-import os
 import pathlib
+import posixpath
 import sys
 import types
 import typing
@@ -26,7 +26,6 @@ from typing import Union
 
 from etils.epath import abstract_path
 from etils.epath import register
-from etils.epath.typing import PathLike
 
 # pylint: disable=g-import-not-at-top
 if sys.version_info >= (3, 9):  # `importlib.resources.files` was added in 3.9
@@ -64,19 +63,31 @@ class ResourcePath(zipfile.Path):
     """
     raise NotImplementedError('zipapp not supported. Please send us a PR.')
 
+  # zipfile.Path do not define `__eq__` nor `__hash__`. See:
+  # https://discuss.python.org/t/missing-zipfile-path-eq-and-zipfile-path-hash/16519
+  def __eq__(self, other) -> bool:
+    # pyformat:disable
+    return (
+        type(self) == type(other)  # pylint: disable=unidiomatic-typecheck
+        and self.root == other.root  # pytype: disable=attribute-error
+        and self.at == other.at  # pytype: disable=attribute-error
+    )
+    # pyformat:enable
+
+  def __hash__(self) -> int:
+    return hash((self.root, self.at))  # pytype: disable=attribute-error
+
   if sys.version_info < (3, 10):
 
     # Required due to: https://bugs.python.org/issue42043
     def _next(self, at) -> 'ResourcePath':
-      return type(self)(self.root, at)  # pytype: disable=attribute-error  # py39-upgrade
+      return type(self)(self.root, at)  # pytype: disable=attribute-error
 
     # Before 3.10, joinpath only accept a single arg
-    def joinpath(self, *parts: PathLike) -> 'ResourcePath':
+    def joinpath(self, *other):
       """Overwrite `joinpath` to be consistent with `pathlib.Path`."""
-      if not parts:
-        return self
-      else:
-        return super().joinpath(os.path.join(*parts))  # pylint: disable=no-value-for-parameter  # pytype: disable=bad-return-type  # py39-upgrade
+      next_ = posixpath.join(self.at, *other)  # pytype: disable=attribute-error
+      return self._next(self.root.resolve_dir(next_))  # pytype: disable=attribute-error
 
 
 def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:

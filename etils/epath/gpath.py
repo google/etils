@@ -133,6 +133,7 @@ class _GPath(abstract_path.Path):
 
   def resolve(self: _P, strict: bool = False) -> _P:
     """Returns the abolute path."""
+    # TODO(epot): In pathlib, `resolve` also resolve the symlinks
     return self._new(self._PATH.abspath(self._path_str))
 
   def glob(self: _P, pattern: str) -> Iterator[_P]:

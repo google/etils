@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import dataclasses
 import functools
+import inspect
 import reprlib
 import typing
 from typing import Any, Callable, TypeVar
@@ -196,7 +197,8 @@ def has_default_repr(cls: _Cls) -> bool:
       # Use `cls.__dict__` and not `hasattr` to ignore parent classes
       '__repr__' not in cls.__dict__
       # `__repr__` exists but is the default dataclass implementation
-      or cls.__repr__.__qualname__ == '__create_fn__.<locals>.__repr__'
+      or inspect.unwrap(cls.__repr__).__qualname__
+      == '__create_fn__.<locals>.__repr__'
   )
 
 

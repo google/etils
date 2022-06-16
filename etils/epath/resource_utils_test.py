@@ -50,6 +50,8 @@ def _make_zip_file() -> zipfile.ZipFile:
 def test_resource_path():
   path = epath.resource_utils.ResourcePath(_make_zip_file())
   assert isinstance(path, os.PathLike)
+  assert path.joinpath('b/c.txt') == path / 'b' / 'c.txt'
+  assert hash(path.joinpath('b/c.txt')) == hash(path / 'b' / 'c.txt')
   assert path.joinpath('b/c.txt').read_text() == 'content of c'
   sub_dirs = list(path.joinpath('b').iterdir())
   assert len(sub_dirs) == 3
