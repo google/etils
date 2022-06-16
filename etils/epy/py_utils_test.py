@@ -17,6 +17,7 @@
 import enum
 
 from etils import epy
+import pytest
 
 
 def test_str_enum():
@@ -33,3 +34,8 @@ def test_str_enum():
   assert MyEnum.MY_ATTR == 'MY_ATTR'
 
   assert hash(MyEnum.MY_ATTR) == hash('my_attr')
+
+  with pytest.raises(ValueError, match='Expected one of'):
+    MyEnum('non-existing')
+
+  assert [e.value for e in MyEnum] == ['my_other_attr', 'my_attr']

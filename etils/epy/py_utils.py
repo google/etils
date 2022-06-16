@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import enum
+import typing
 from typing import Any, Union
 
 
@@ -43,9 +44,12 @@ class StrEnum(str, enum.Enum):
 
   @classmethod
   def _missing_(cls, value: str) -> StrEnum:
-    if isinstance(value, str):
+    if isinstance(value, str) and not value.islower():
       return cls(value.lower())
-    return super()._missing_(value)
+    # Could also add `did you meant yy ?`
+    all_values = [e.value for e in cls]
+    raise ValueError(f'{value!r} is not a valid {cls.__qualname__}. '
+                     f'Expected one of {all_values}')
 
   def __eq__(self, other: str) -> bool:
     return super().__eq__(other.lower())
@@ -54,6 +58,13 @@ class StrEnum(str, enum.Enum):
     # Somehow `hash` is not defined automatically (maybe because of
     # the `__eq__`, so define it explicitly.
     return super().__hash__()
+
+  # Pytype is confused by EnumMeta.__iter__ vs str.__iter__
+  if typing.TYPE_CHECKING:
+
+    @classmethod
+    def __iter__(cls):
+      return type(enum.Enum).__iter__(cls)
 
 
 def issubclass_(
