@@ -28,6 +28,10 @@ Changelog follow https://keepachangelog.com/ format.
     *   Changed: Add `__eq__` and `__hash__` for resource path.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
+*   `enp`:
+    *   Added: `enp.linalg.normalize` util.
+    *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry
+        utils.
 *   Other:
     *   Added: Guide on
         [API design principles](https://github.com/google/etils/blob/main/docs/api-design.md).

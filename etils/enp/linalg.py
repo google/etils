@@ -27,6 +27,17 @@ if typing.TYPE_CHECKING:
 lazy = numpy_utils.lazy
 
 
+# ================ Utils (not present in numpy) ================
+
+
+def normalize(x: FloatArray['*d'], axis: int = -1) -> FloatArray['*d']:
+  """Normalize the vector to the unit norm."""
+  return x / norm(x, axis=axis, keepdims=True)
+
+
+# ================ Compat utils (between TF/Jax/np) ================
+
+
 def norm(
     x: FloatArray['*d'],
     axis: Optional[int] = None,
