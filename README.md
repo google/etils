@@ -7,7 +7,8 @@ etils (eclectic utils) is an open-source collection of utils for python.
 
 Each top-level submodule is a **self-contained independent** module (with its
 own `BUILD` rule), meant to be imported individually. To avoid collisions with
-other modules/variables, module names are prefixed by `e` (arbitrary convention):
+other modules/variables, module names are prefixed by `e` (arbitrary
+convention):
 
 ```python
 from etils import epath  # Path utils
