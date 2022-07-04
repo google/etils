@@ -260,6 +260,7 @@ _STANDARD_MODULE_NAMES = [
     'builtins',
     'collections',
     'colorsys',
+    'copy',
     # 'concurrent.futures',
     'contextlib',
     'contextvars',
@@ -324,6 +325,8 @@ _MODULE_NAMES = dict(
     # ====== Common third party ======
     app='absl.app',
     flags='absl.flags',
+    colabtools='colabtools',
+    interactive_forms='colabtools.interactive_forms',
     chex='chex',
     einops='einops',
     flax='flax',
