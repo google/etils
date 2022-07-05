@@ -8,9 +8,9 @@ Running:
 from etils.ecolab.lazy_imports import *
 ```
 
-Will lazilly import in the namespace many common Python packages (jax, tfds,
-numpy,...). This has 0 overhead cost as modules are only imported during first
-usage.
+Will lazily import in the namespace 100+ common Python packages (jax, tfds,
+numpy, functools,...). This has 0 overhead cost as modules are only imported at
+first usage.
 
 Some notes:
 
@@ -26,18 +26,29 @@ Some notes:
 
 To get the list of available modules:
 
-```python
-lazy_imports.__all__  # List of all modules aliases
-lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
-```
+*   List of all module aliases
 
-To print the active imports (e.g. to convert lazy imports into real ones before
-publishing a notebook), uses `lazy_imports.print_current_imports()`.
+    ```python
+    lazy_imports.__all__
+    ```
+
+*   Mapping `<module_alias>`: `<lazy_module info>`
+
+    ```python
+    lazy_imports.LAZY_MODULES
+    ```
+
+*   Print the active imports statements (e.g. to convert lazy imports into real
+    ones before publishing a notebook)
+
+    ```python
+    lazy_imports.print_current_imports()
+    ```
 
 Code at:
 [lazy_imports.py](https://github.com/google/etils/tree/main/etils/ecolab/lazy_imports.py).
 
-### Display arrays/tensors as images
+### Display arrays/tensors as images/videos
 
 By running:
 
@@ -45,8 +56,9 @@ By running:
 ecolab.auto_plot_array()
 ```
 
-All `(h, w[, c])` jax/numpy/TF arrays bigger than `(10, 10)` will be displayed
-as image, without having to manually call `pyplot` .
+All `([n, ]h, w[, c])` jax/numpy/TF arrays bigger than `(10, 10)` will be
+displayed as image(s)/video (if `n > video_min_num_frames` args, default to 15),
+without having to manually call `pyplot` .
 
 ![https://i.imgur.com/9XxBUlD.png](https://i.imgur.com/9XxBUlD.png){height="500"}
 
