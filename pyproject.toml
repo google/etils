@@ -50,6 +50,7 @@ enp = [
 ]
 epath = [
     "importlib_resources",
+    "typing_extensions",
     "zipp",
     "etils[epy]",
 ]

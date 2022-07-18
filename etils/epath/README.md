@@ -28,3 +28,21 @@ In addition of the pathlib methods, `epath.Path` has the additional methods:
 
 There are some [discussions](https://github.com/python/cpython/issues/92771)
 about adding those methods nativelly in pathlib.
+
+### FLAGS
+
+`absl.flags` support is provided to define `FLAGS` parsed as `epath.Path`:
+
+```python
+from absl import app
+from etils import epath
+
+_PATH = epath.DEFINE_path('path', None, 'Path to input file.')
+
+
+def main(_):
+  content = _PATH.value.read_text()
+
+if __name__ == "__main__":
+  app.run(main)
+```

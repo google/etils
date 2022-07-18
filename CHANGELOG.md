@@ -25,6 +25,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epy.groupby`, like `itertools.groupby` but returns a `dict`.
     *   Fixed: `epy.StrEnum` raises better error message if invalid input.
 *   `epath`
+    *   Added: `epath.DEFINE_path` for `absl.flags` support
     *   Changed: Add `__eq__` and `__hash__` for resource path.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)

@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Public API."""
+"""Tests for flags."""
 
-from __future__ import annotations
+from absl import flags
+from etils import epath
 
-from etils.epath import testing
-from etils.epath.abstract_path import Path
-from etils.epath.flags import DEFINE_path
-from etils.epath.register import register_path_cls
-from etils.epath.resource_utils import resource_path
-from etils.epath.resource_utils import to_write_path
-from etils.epath.typing import PathLike
-from etils.epath.typing import PathLikeCls
+
+def test_parse_with_value():
+  flagvalues = flags.FlagValues()
+  epath.DEFINE_path('mypath', None, 'a path', flagvalues)
+  flagvalues(['binary', '--mypath=/hello/world'])
+  assert epath.Path('/hello/world') == flagvalues.mypath
