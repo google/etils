@@ -23,6 +23,7 @@ import sys
 
 from etils.enp import linalg
 from etils.enp.array_spec import ArraySpec
+from etils.enp.checking import check_arrays
 from etils.enp.geo_utils import project_onto_plane
 from etils.enp.geo_utils import project_onto_vector
 from etils.enp.interp_utils import interp
