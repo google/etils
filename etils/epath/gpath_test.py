@@ -359,6 +359,14 @@ def test_format():
   assert template_path == epath.Path('/home/adibou/foo.py')
 
 
+def test_rglob():
+  with pytest.raises(NotImplementedError, match='Recursive'):
+    list(epath.Path('/tmp/nonexisting/test').rglob('img.jpg'))
+
+  with pytest.raises(NotImplementedError, match='Recursive'):
+    list(epath.Path('/tmp/nonexisting/test').glob('folder/**/img.jpg'))
+
+
 def test_default():
   path = epath.Path()
   assert isinstance(path, epath.Path)

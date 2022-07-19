@@ -26,6 +26,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Fixed: `epy.StrEnum` raises better error message if invalid input.
 *   `epath`
     *   Added: `epath.DEFINE_path` for `absl.flags` support
+    *   Changed (breaking): Recursive glob (`rglob`, `glob('**/')`) now raise
+        an error rather than being silently ignored.
     *   Changed: Add `__eq__` and `__hash__` for resource path.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)

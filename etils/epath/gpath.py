@@ -138,7 +138,15 @@ class _GPath(abstract_path.Path):
 
   def glob(self: _P, pattern: str) -> Iterator[_P]:
     """Yielding all matching files (of any kind)."""
-    for f in self._backend.glob(self._PATH.join(self._path_str, pattern)):
+    pattern = self._PATH.join(self._path_str, pattern)
+
+    if '**' in pattern:
+      raise NotImplementedError(
+          'Recursive `**` pattern not supported as this could trigger '
+          'thoushands of RPC requests on GCS. Use `*` instead. '
+          f'Got: {pattern!r}')
+
+    for f in self._backend.glob(pattern):
       yield self._new(f)
 
   def mkdir(
