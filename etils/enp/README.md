@@ -16,6 +16,10 @@ my_function(np.array([1, 2]))  # Returns np.ndarray
 my_function(jnp.array([1, 2]))  # Returns jnp.ndarray
 ```
 
+### Runtime dtype/shape checking
+
+See [`array_types`](https://github.com/google/etils/blob/main/etils/array_types/README.md).
+
 ### Interpolation util
 
 `enp.interp` linearly scale an array. API is:
