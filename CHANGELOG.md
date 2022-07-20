@@ -31,6 +31,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Changed: Add `__eq__` and `__hash__` for resource path.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
+    *   Fixed: `dc.frozen()` compatibility with autograd.
 *   `enp`:
     *   Added: `enp.linalg.normalize` util.
     *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry

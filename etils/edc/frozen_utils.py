@@ -62,29 +62,30 @@ class _MutableProxy(Generic[_T]):
   """Proxy which mutate the dataclass.
 
   Note: To avoid attribute collisions with the wrapped class, the actual
-  implementation is moved inside the `__impl` attribute.
+  implementation is moved inside a `_edc_impl` attribute. We cannot use mangled
+  names due to compatibility issues with autograph.
 
   This module only expose the public API.
 
   """
 
   def __init__(self, impl: _MutableProxyImpl):
-    super().__setattr__('_MutableProxy__impl', impl)
+    super().__setattr__('_edc_impl', impl)
 
   def unfrozen(self) -> NoReturn:
     raise ValueError('Object is already unfrozen. Cannot call `.unfrozen()`.')
 
   def frozen(self) -> _T:
-    return self.__impl.frozen()
+    return self._edc_impl.frozen()
 
   def __getattr__(self, name: str) -> Any:
-    return self.__impl.getattr(name)
+    return self._edc_impl.getattr(name)
 
   def __setattr__(self, name: str, value: Any) -> None:
-    return self.__impl.setattr(name, value)
+    return self._edc_impl.setattr(name, value)
 
   def __repr__(self) -> str:
-    return f'{self.__class__.__name__}({self.__impl.obj})'
+    return f'{self.__class__.__name__}({self._edc_impl.obj})'
 
 
 @dataclasses.dataclass
@@ -167,7 +168,7 @@ class _MutableProxyImpl(Generic[_T]):
 
     # Trying to set another mutable mapping
     if isinstance(value, _MutableProxy):
-      value = value._MutableProxy__impl  # pylint: disable=protected-access
+      value = value._edc_impl  # pylint: disable=protected-access
       if value.common is not self.common:
         raise ValueError(
             f'Trying to mix `unfrozen` attributes. For: {name}={value}')
@@ -189,7 +190,7 @@ class _MutableProxyImpl(Generic[_T]):
   # pytype: disable=invalid-annotation
   @epy.cached_property
   def resolved(self) -> _T:
-  # pytype: enable=invalid-annotation
+    # pytype: enable=invalid-annotation
     """Recursivelly call `.replace` on instances which were mutated."""
     # Cached property, so that the same object is only resolved once
     new_vals = {}
