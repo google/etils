@@ -33,6 +33,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
     *   Fixed: `dc.frozen()` compatibility with autograd.
 *   `enp`:
+    *   Added: `enp.check_arrays` util to dynamically validate array
+        dtype/shape from typing annotations.
     *   Added: `enp.linalg.normalize` util.
     *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry
         utils.
