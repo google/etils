@@ -16,26 +16,24 @@
 
 from __future__ import annotations
 
-import typing
+from etils.array_types import FloatArray
+from etils.enp import checking
 from etils.enp import linalg
-from etils.enp.numpy_utils import lazy
-
-if typing.TYPE_CHECKING:
-  from etils.array_types import FloatArray
+from etils.enp import numpy_utils
 
 
-def project_onto_vector(u: FloatArray[3], v: FloatArray[3]) -> FloatArray[3]:
+@checking.check_arrays(strict=False)
+def project_onto_vector(
+    u: FloatArray[3],
+    v: FloatArray[3],
+    *,
+    xnp: numpy_utils.NpModule = ...,
+) -> FloatArray[3]:
   """Project `u` onto `v`."""
-  xnp = lazy.get_xnp(u, strict=False)
-  u = xnp.asarray(u)
-  v = xnp.asarray(v)
   return xnp.dot(u, v) / linalg.norm(v)**2 * v
 
 
+@checking.check_arrays(strict=False)
 def project_onto_plane(u: FloatArray[3], n: FloatArray[3]) -> FloatArray[3]:
   """Project `u` onto the plane `n` (orthogonal vector)."""
-  xnp = lazy.get_xnp(u, strict=False)
-  u = xnp.asarray(u)
-  n = xnp.asarray(n)
-
   return u - project_onto_vector(u, n)
