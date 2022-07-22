@@ -34,6 +34,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
     *   Fixed: `dc.frozen()` compatibility with autograd.
+    *   Changed: `dc.unfrozen()`now supports `jax.tree_map`.
     *   Changed: Better `dc.unfrozen()` repr which display overwritten fields.
 *   `enp`:
     *   Added: `enp.linalg.normalize` util.

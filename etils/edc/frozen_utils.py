@@ -17,12 +17,15 @@
 from __future__ import annotations
 
 import dataclasses
+import sys
 from typing import Any, Generic, NoReturn, TypeVar, Union
 
 from etils import epy
 
 _Cls = TypeVar('_Cls')
 _T = TypeVar('_T')
+
+_is_tree_registered = False
 
 
 def add_unfrozen(cls: _Cls) -> _Cls:
@@ -51,6 +54,13 @@ def frozen(self: _T) -> _T:
 
 def unfrozen(self: _T) -> _T:
   """Returns a lazy deep-copy of the dataclass."""
+  global _is_tree_registered
+  if not _is_tree_registered:
+    jax = sys.modules.get('jax', None)
+    if jax is not None:
+      jax.tree_util.register_pytree_node_class(_MutableProxy)
+    _is_tree_registered = True
+
   impl = _MutableProxyImpl(obj=self, common=_Common(), is_root=True)
   return impl.public_api
 
@@ -85,7 +95,25 @@ class _MutableProxy(Generic[_T]):
     return self._edc_impl.setattr(name, value)
 
   def __repr__(self) -> str:
-    return self._edc_impl.obj_repr()
+    return f'{type(self).__name__}({self._edc_impl.resolve()!r})'
+
+  def tree_flatten(self) -> tuple[list[Any], Any]:
+    """`jax.tree_utils` support."""
+    import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    obj = self._edc_impl.resolve()
+    # Not if the wrapped object do not support tree_map, then it will be
+    # returned as expected
+    return jax.tree_util.tree_flatten(obj)
+
+  @classmethod
+  def tree_unflatten(
+      cls,
+      metadata: Any,
+      flattened: list[Any],
+  ) -> Any:
+    """`jax.tree_utils` support."""
+    import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    return jax.tree_util.tree_unflatten(metadata, flattened)
 
 
 @dataclasses.dataclass
@@ -94,13 +122,23 @@ class _Common:
 
   Attributes:
     cache: Global mapping `id(_MutableProxyImpl) -> _MutableProxyImpl` to avoid
-      duplicating the same object proxy  ```python a = a.unfrozen() a.x = x a.y
-      = x  # `a.x` and `a.y` point to the same object a = a.frozen() assert a.x
-      is a.y ```
+      duplicating the same object proxy
+
+      ```python
+      a = a.unfrozen()
+      a.x = x
+      a.y = x  # `a.x` and `a.y` point to the same object
+      a = a.frozen()
+      assert a.x is a.y
+      ```
+
+    resolved: Cache of the objects after they have been frozen (to avoid
+      evaluating the object twice.
     is_frozen: Become `True` after `.frozen()` is called. After which all
       Mutable are invalid
   """
   cache: dict[int, _MutableProxyImpl] = dataclasses.field(default_factory=dict)
+  resolved: dict[int, Any] = dataclasses.field(default_factory=dict)
   is_frozen: bool = False
 
   def get_proxy(self, value: Any) -> _MutableProxyImpl:
@@ -184,53 +222,33 @@ class _MutableProxyImpl(Generic[_T]):
     if not self.is_root:
       raise ValueError('Only the top-level dataclass can be `.frozen`')
     self.common.is_frozen = True
+    return self.resolve()
 
-    return self.resolved
-
-  # pytype: disable=invalid-annotation
-  @epy.cached_property
-  def resolved(self) -> _T:
-    # pytype: enable=invalid-annotation
+  def resolve(self) -> _T:
     """Recursivelly call `.replace` on instances which were mutated."""
-    # Cached property, so that the same object is only resolved once
-    new_vals = {}
-    for k, v in self.attrs.items():
-      if isinstance(v, _MutableProxyImpl):
-        if v.obj is v.resolved:  # Skip attributes which were not mutated
-          continue
-        v = v.resolved
-      new_vals[k] = v
-    if not new_vals:  # Object wasn't mutated
-      return self.obj
-    return dataclasses.replace(self.obj, **new_vals)
+    self.common.resolved.clear()  # Clear the resolved cache
+    return self._resolve_inner()
 
-  def obj_repr(self) -> str:
-    """Returns the object representation."""
-    # Note that this overwrite the dataclass `__repr__`, so might lead to
-    # issue if the dataclass has a very custom `__repr__`
+  def _resolve_inner(self) -> _T:
+    """Recursivelly call `.replace` on instances which were mutated."""
+    id_ = id(self)
 
-    # We could resolve at the point the nested representation, but
-    # might be tricky to correctly merge the obj.__repr__ with the proxy one
-    # especially if the obj has a custom `__repr__`.
-
-    fields = {}
-    for k, field in self._fields.items():
-      if not field.repr:
-        continue
-
-      if k in self.attrs:
-        v = self.attrs[k]
+    # Cache resolved object, to handle cycle & cie
+    if id_ not in self.common.resolved:
+      # Cached property, so that the same object is only resolved once
+      new_vals = {}
+      for k, v in self.attrs.items():
         if isinstance(v, _MutableProxyImpl):
-          v = v.obj_repr()
-        else:
-          v = repr(v)
-      else:
-        v = getattr(self.obj, k)
-        v = repr(v)
-      fields[k] = v
+          v = v._resolve_inner()  # pylint: disable=protected-access
+          # For optimization, we could skip attributes which were read-only
+          # and not mutated (but careful as `dc.attr = A()` will wrap A() in
+          # a mapping proxy
+        new_vals[k] = v
 
-    return epy.Lines.make_block(
-        f'_MutableProxy({type(self.obj).__name__}',
-        content=fields,
-        braces=('(', '))'),
-    )
+      if not new_vals:  # Object wasn't mutated
+        resolved = self.obj
+      else:
+        resolved = dataclasses.replace(self.obj, **new_vals)
+
+      self.common.resolved[id_] = resolved
+    return self.common.resolved[id_]

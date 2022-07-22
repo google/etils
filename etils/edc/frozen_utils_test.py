@@ -20,6 +20,7 @@ from typing import Any
 import chex
 from etils import edc
 from etils import epy
+import jax
 import pytest
 
 
@@ -71,14 +72,13 @@ def test_unfrozen_call_twice():
   y = x.y
   x.x = 123
 
-  print(x)
   assert repr(x) == epy.dedent("""
       _MutableProxy(A(
           x=123,
-          y=_MutableProxy(A(
+          y=A(
               x=456,
               y=None,
-          )),
+          ),
       ))""")
 
   # Attribute still accessible
@@ -171,6 +171,18 @@ def test_unfrozen_inheritance():
   assert x_origin == C(x=B(x=A(x=123)))
 
 
+def test_unfrozen_assigned_object():
+  x_origin = A(x=A(x=123))
+
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+
+  x.x = A(x=456)
+  x.x.y = 567
+  x = x.frozen()
+  assert x == A(x=A(x=456, y=567))
+  assert x_origin == A(x=A(x=123))
+
+
 def test_unfrozen_same_object():
   a = A(x=1, y=2)
   x_origin = A(x=a, y=a)
@@ -206,6 +218,9 @@ def test_unfrozen_chex():
   assert x_origin == E(x=E(x=A(y=E(x=123))))
 
 
+# Could try to optimize read access. Currently, any `getattr` will trigger
+# a replace, even if the attribute was not updated.
+@pytest.mark.xfail
 def test_unfrozen_no_updates():
   x_origin = A(x=A(x=A(x=123)), y=A(y=A(y=456)))
 
@@ -234,6 +249,22 @@ def test_unfrozen_no_updates():
   assert x_origin.y.y.y is x.y.y.y
   assert x_origin.y.y is x.y.y
   assert x_origin.y is x.y
+
+
+def test_unfrozen_tree_map():
+  x_origin = E(x=E(x=456))
+  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+
+  y = jax.tree_util.tree_map(lambda v: v * 10, x.x)
+  assert isinstance(y, E)
+  assert y == E(x=4560)
+  x.x = y
+
+  x = x.frozen()
+
+  # x origin should be not mutated
+  assert x_origin == E(x=E(x=456))
+  assert x == E(x=E(x=4560))
 
 
 # TODO(epot): Support circles
