@@ -85,7 +85,7 @@ class _MutableProxy(Generic[_T]):
     return self._edc_impl.setattr(name, value)
 
   def __repr__(self) -> str:
-    return f'{self.__class__.__name__}({self._edc_impl.obj})'
+    return self._edc_impl.obj_repr()
 
 
 @dataclasses.dataclass
@@ -127,7 +127,7 @@ class _MutableProxyImpl(Generic[_T]):
     return _MutableProxy(self)
 
   @epy.cached_property
-  def _fields(self) -> dict[str, dataclasses.Field]:
+  def _fields(self) -> dict[str, dataclasses.Field[Any]]:
     # Could also filter only init=True fields
     return {f.name: f for f in dataclasses.fields(self.obj)}
 
@@ -203,3 +203,34 @@ class _MutableProxyImpl(Generic[_T]):
     if not new_vals:  # Object wasn't mutated
       return self.obj
     return dataclasses.replace(self.obj, **new_vals)
+
+  def obj_repr(self) -> str:
+    """Returns the object representation."""
+    # Note that this overwrite the dataclass `__repr__`, so might lead to
+    # issue if the dataclass has a very custom `__repr__`
+
+    # We could resolve at the point the nested representation, but
+    # might be tricky to correctly merge the obj.__repr__ with the proxy one
+    # especially if the obj has a custom `__repr__`.
+
+    fields = {}
+    for k, field in self._fields.items():
+      if not field.repr:
+        continue
+
+      if k in self.attrs:
+        v = self.attrs[k]
+        if isinstance(v, _MutableProxyImpl):
+          v = v.obj_repr()
+        else:
+          v = repr(v)
+      else:
+        v = getattr(self.obj, k)
+        v = repr(v)
+      fields[k] = v
+
+    return epy.Lines.make_block(
+        f'_MutableProxy({type(self.obj).__name__}',
+        content=fields,
+        braces=('(', '))'),
+    )

@@ -23,15 +23,18 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epy.issubclass` (like `issubclass` but does not raises error for
         non-types)
     *   Added: `epy.groupby`, like `itertools.groupby` but returns a `dict`.
+    *   Added: `epy.Lines.make_block` helper to create code blocks (function
+        calls,...)
     *   Fixed: `epy.StrEnum` raises better error message if invalid input.
 *   `epath`
     *   Added: `epath.DEFINE_path` for `absl.flags` support
-    *   Changed (breaking): Recursive glob (`rglob`, `glob('**/')`) now raise
-        an error rather than being silently ignored.
+    *   Changed (breaking): Recursive glob (`rglob`, `glob('**/')`) now raise an
+        error rather than being silently ignored.
     *   Changed: Add `__eq__` and `__hash__` for resource path.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
     *   Fixed: `dc.frozen()` compatibility with autograd.
+    *   Changed: Better `dc.unfrozen()` repr which display overwritten fields.
 *   `enp`:
     *   Added: `enp.linalg.normalize` util.
     *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry

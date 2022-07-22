@@ -19,7 +19,13 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import textwrap
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Union
+
+_BRACE_TO_BRACES = {
+    '(': ('(', ')'),
+    '[': ('[', ']'),
+    '{': ('{', '}'),
+}
 
 
 @dataclasses.dataclass
@@ -118,6 +124,61 @@ class Lines:
     else:
       token = '\n'
     return token.join(lines)
+
+  @classmethod
+  def make_block(
+      cls,
+      header: str,
+      content: dict[str, str],
+      *,
+      braces: Union[str, tuple[str, str]] = '(',
+  ) -> str:
+    """Util function to create a code block.
+
+    Example:
+
+    ```python
+    epy.Lines.make_block('A', {}) == 'A()'
+    epy.Lines.make_block('A', {'x': '1'}) == 'A(x=1)'
+    epy.Lines.make_block('A', {'x': '1', 'y': '2'}) == '''A(
+        x=1,
+        y=2,
+    )'''
+    ```
+
+    Pattern is as:
+
+    ```
+    {header}{braces[0]}
+        {k}={v},
+        ...
+    {braces[1]}
+    ```
+
+    Args:
+      header: Prefix before the brace
+      content: Dict of key to values. One line will be displayed per item if
+        `len(content) > 1`. Otherwise the code is collapsed
+      braces: Brace type (`(`, `[`, `{`), can be tuple for custom open/close.
+
+    Returns:
+      The block string
+    """
+    collapse = len(content) <= 1
+    trailing = '' if collapse else ','
+
+    if isinstance(braces, str):
+      braces = _BRACE_TO_BRACES[braces]
+    brace_start, brace_end = braces
+
+    lines = cls()
+    lines += f'{header}{brace_start}'
+    with lines.indent():
+      for k, v in content.items():
+        lines += f'{k}={v}{trailing}'
+    lines += f'{brace_end}'
+
+    return lines.join(collapse=collapse)
 
 
 def dedent(text: str) -> str:

@@ -19,6 +19,7 @@ from typing import Any
 
 import chex
 from etils import edc
+from etils import epy
 import pytest
 
 
@@ -69,6 +70,16 @@ def test_unfrozen_call_twice():
 
   y = x.y
   x.x = 123
+
+  print(x)
+  assert repr(x) == epy.dedent("""
+      _MutableProxy(A(
+          x=123,
+          y=_MutableProxy(A(
+              x=456,
+              y=None,
+          )),
+      ))""")
 
   # Attribute still accessible
   assert x.not_a_dataclass_attr() == 123
