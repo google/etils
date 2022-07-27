@@ -22,7 +22,9 @@ both numpy and jax.numpy.
 import sys
 
 from etils.enp import linalg
+from etils.enp import typing
 from etils.enp.array_spec import ArraySpec
+from etils.enp.array_types import dtypes
 from etils.enp.geo_utils import project_onto_plane
 from etils.enp.geo_utils import project_onto_vector
 from etils.enp.interp_utils import interp

@@ -16,7 +16,7 @@
 
 from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
-from etils.array_types import dtypes
+from etils.enp.array_types import dtypes
 import numpy as np
 
 _T = TypeVar('_T')

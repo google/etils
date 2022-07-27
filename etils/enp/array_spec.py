@@ -14,19 +14,17 @@
 
 """Array spec utils."""
 
+# Is there a way of merging this with array_types ?
+
 from __future__ import annotations
 
 import functools
-import typing
 from typing import Any, Optional
 
-from etils import array_types
 from etils.enp import numpy_utils
+from etils.enp.array_types import typing as array_types
+from etils.enp.typing import Array
 import numpy as np
-
-if typing.TYPE_CHECKING:
-  from etils.array_types import Array
-
 
 lazy = numpy_utils.lazy
 

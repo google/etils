@@ -14,7 +14,7 @@
 
 """Tests for typing."""
 
-from etils import array_types
+from etils import enp
 from etils.array_types import Array, f32, ui8  # pylint: disable=g-multiple-import
 import jax.numpy as jnp
 import numpy as np
@@ -22,7 +22,7 @@ import pytest
 
 # TODO(epot): Add `bfloat16` to array_types. Not this might require some
 # LazyDType to lazy-load jax.
-bf16 = array_types.ArrayAliasMeta(shape=None, dtype=np.dtype(jnp.bfloat16))
+bf16 = enp.typing.ArrayAliasMeta(shape=None, dtype=np.dtype(jnp.bfloat16))
 
 
 # Make sure annotations do not trigger pytype errors
@@ -63,9 +63,9 @@ def test_array_alias(alias, repr_, shape, dtype):
   assert repr(alias) == repr_
   assert str(alias) == repr_
   assert alias.shape == shape
-  assert isinstance(alias.dtype, array_types.dtypes.DType)
+  assert isinstance(alias.dtype, enp.dtypes.DType)
   assert alias.__name__ == alias.dtype.array_cls_name
-  assert alias.dtype == array_types.dtypes.DType.from_value(dtype)
+  assert alias.dtype == enp.dtypes.DType.from_value(dtype)
 
 
 def test_array_dtype():

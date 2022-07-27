@@ -16,12 +16,10 @@
 
 from __future__ import annotations
 
-import typing
 from etils.enp import linalg
 from etils.enp.numpy_utils import lazy
 
-if typing.TYPE_CHECKING:
-  from etils.array_types import FloatArray
+from etils.enp.typing import FloatArray
 
 
 def project_onto_vector(u: FloatArray[3], v: FloatArray[3]) -> FloatArray[3]:

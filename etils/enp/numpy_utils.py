@@ -28,7 +28,7 @@ from etils import epy
 import numpy as np
 
 if typing.TYPE_CHECKING:
-  from etils.array_types import Array
+  from etils.enp.typing import Array
 
 _T = TypeVar('_T')
 

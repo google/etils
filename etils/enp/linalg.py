@@ -16,13 +16,10 @@
 
 from __future__ import annotations
 
-import typing
 from typing import Optional
 
 from etils.enp import numpy_utils
-
-if typing.TYPE_CHECKING:
-  from etils.array_types import Array, FloatArray  # pylint: disable=g-multiple-import
+from etils.enp.typing import Array, FloatArray  # pylint: disable=g-multiple-import
 
 lazy = numpy_utils.lazy
 

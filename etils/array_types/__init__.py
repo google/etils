@@ -12,62 +12,48 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Typing utils."""
+"""Typing utils for arrays.
 
-from etils.array_types import dtypes
-from etils.array_types.typing import ArrayAliasMeta
-from etils.array_types.typing import ArrayLike
-import numpy as np
+See doc at: https://github.com/google/etils/blob/main/etils/array_types/README.md
 
-Array = ArrayAliasMeta(shape=None, dtype=dtypes.AnyDType())
-FloatArray = ArrayAliasMeta(shape=None, dtype=dtypes.AnyFloat())
-IntArray = ArrayAliasMeta(shape=None, dtype=dtypes.AnyInt())
-BoolArray = ArrayAliasMeta(shape=None, dtype=np.bool_)
-StrArray = ArrayAliasMeta(shape=None, dtype=np.dtype('O'))
+"""
 
-ui8 = ArrayAliasMeta(shape=None, dtype=np.uint8)
-ui16 = ArrayAliasMeta(shape=None, dtype=np.uint16)
-ui32 = ArrayAliasMeta(shape=None, dtype=np.uint32)
-ui64 = ArrayAliasMeta(shape=None, dtype=np.uint64)
-i8 = ArrayAliasMeta(shape=None, dtype=np.int8)
-i16 = ArrayAliasMeta(shape=None, dtype=np.int16)
-i32 = ArrayAliasMeta(shape=None, dtype=np.int32)
-i64 = ArrayAliasMeta(shape=None, dtype=np.int64)
-f16 = ArrayAliasMeta(shape=None, dtype=np.float16)
-f32 = ArrayAliasMeta(shape=None, dtype=np.float32)
-f64 = ArrayAliasMeta(shape=None, dtype=np.float64)
-complex64 = ArrayAliasMeta(shape=None, dtype=np.complex64)
-complex128 = ArrayAliasMeta(shape=None, dtype=np.complex128)
-bool_ = ArrayAliasMeta(shape=None, dtype=np.bool_)
+# This is an alias for `enp.typing`.
 
+from etils import enp
+
+ArrayAliasMeta = enp.typing.ArrayAliasMeta
+ArrayLike = enp.typing.ArrayLike
+
+Array = enp.typing.Array
+FloatArray = enp.typing.FloatArray
+IntArray = enp.typing.IntArray
+BoolArray = enp.typing.BoolArray
+StrArray = enp.typing.StrArray
+
+ui8 = enp.typing.ui8
+ui16 = enp.typing.ui16
+ui32 = enp.typing.ui32
+ui64 = enp.typing.ui64
+i8 = enp.typing.i8
+i16 = enp.typing.i16
+i32 = enp.typing.i32
+i64 = enp.typing.i64
+f16 = enp.typing.f16
+f32 = enp.typing.f32
+f64 = enp.typing.f64
+complex64 = enp.typing.complex64
+complex128 = enp.typing.complex128
+bool_ = enp.typing.bool_
 
 # Random number generator jax key
-PRNGKey = ui32[2]
+PRNGKey = enp.typing.PRNGKey
+
+# TODO(epot): Those aliases should be deprecated. Should remame usage
+dtypes = enp.dtypes
+typing = enp.array_types.typing
+
+__all__ = enp.typing.__all__
 
 # Keep API clean
-del np
-
-__all__ = [
-    'ArrayAliasMeta',
-    'ArrayLike',
-    'Array',
-    'FloatArray',
-    'IntArray',
-    'BoolArray',
-    'StrArray',
-    'bool_',
-    'ui8',
-    'ui16',
-    'ui32',
-    'ui64',
-    'i8',
-    'i16',
-    'i32',
-    'i64',
-    'f16',
-    'f32',
-    'f64',
-    'complex64',
-    'complex128',
-    'PRNGKey',
-]
+del enp
