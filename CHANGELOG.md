@@ -37,6 +37,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Changed: `dc.unfrozen()`now supports `jax.tree_map`.
     *   Changed: Better `dc.unfrozen()` repr which display overwritten fields.
 *   `enp`:
+    *   Added: `enp.check_and_normalize_arrays` util to dynamically validate array
+        dtype/shape from typing annotations.
     *   Added: `enp.linalg.normalize` util.
     *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry
         utils.
