@@ -180,6 +180,11 @@ class _LazyImporter:
       raise TypeError(
           f'Cannot infer the numpy module from array: {type(x).__name__}')
 
+  @property
+  def is_tnp_enabled(self) -> bool:
+    """Returns `True` if numpy mode is enabled."""
+    return self.has_tf and hasattr(self.tf.Tensor, 'reshape')
+
 
 lazy = _LazyImporter()
 
