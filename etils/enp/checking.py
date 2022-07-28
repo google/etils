@@ -35,6 +35,7 @@ _Fn = TypeVar('_Fn')
 # TODO(epot): Support:
 # * return annotations
 # * Tuple,...
+# * Union
 # * shape checking
 
 
@@ -136,7 +137,7 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
     array_args = {
         k: v
         for k, v in bound_args.arguments.items()
-        if k in state.array_params or v is not None
+        if k in state.array_params and v is not None
     }
 
     # Extract the xnp (either explicitly passed, or auto-infered)
@@ -156,7 +157,6 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
     bound_args.arguments.update(array_args)
 
     # Eventually add `xnp` kwarg
-    print(fn, state.has_xnp_kwargs)
     if state.has_xnp_kwargs:
       bound_args.arguments['xnp'] = xnp
 

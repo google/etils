@@ -15,7 +15,7 @@
 """Tests for checking."""
 
 from etils import enp
-from etils.array_types import IntArray, f32  # pylint: disable=g-multiple-import
+from etils.array_types import IntArray, FloatArray, f32  # pylint: disable=g-multiple-import
 import numpy as np
 import pytest
 
@@ -90,3 +90,16 @@ def test_type(xnp: enp.NpModule, fn):
   # Raise an error when mixing both jnp and TF
   with pytest.raises(ValueError, match='Conflicting numpy types'):
     fn(enp.lazy.jnp.asarray(x), enp.lazy.tnp.asarray(y))
+
+
+def test_non_array_annotations():
+
+  @enp.check_and_normalize_arrays(strict=False)
+  def fn_non_array_args(x: int, y: FloatArray, z):
+    # Non-array typing annotations are preserved
+    assert isinstance(x, int)
+    assert isinstance(z, str)
+    assert enp.lazy.get_xnp(y) is enp.lazy.jnp
+    return y + x
+
+  _assert_out(fn_non_array_args(1, [2], 'abc', xnp=enp.lazy.jnp), enp.lazy.jnp)  # pytype: disable=wrong-keyword-args
