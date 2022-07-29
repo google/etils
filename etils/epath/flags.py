@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import typing
 from typing import Optional
 
@@ -26,6 +27,13 @@ from typing_extensions import Literal
 
 if typing.TYPE_CHECKING:
   from absl import flags
+
+if 'absl.flags' in sys.modules:
+  from absl import flags  # pylint: disable=g-import-not-at-top]
+  # Skip this module when detecting in which module the flag is defined.
+  # This is required to avoid duplicate flag issues when reloading adhoc
+  # imports.
+  flags.disclaim_key_flags()  # pylint: disable=used-before-assignment
 
 
 # required=True -> Path
