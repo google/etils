@@ -114,6 +114,11 @@ class _GPath(abstract_path.Path):
   def __repr__(self) -> str:
     return f'{type(self).__name__}({self._path_str!r})'
 
+  def as_uri(self) -> str:
+    if self._uri_scheme:  # s3://,...
+      return self._path_str
+    return super().as_uri()
+
   def exists(self) -> bool:
     """Returns True if self exists."""
     return self._backend.exists(self._path_str)
