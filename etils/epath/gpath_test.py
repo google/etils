@@ -72,6 +72,7 @@ def test_repr_gcs():
   assert repr(path) == f'PosixGPath(\'{_GCS_SCHEME}bucket/dir\')'
   assert str(path) == f'{_GCS_SCHEME}bucket/dir'
   assert os.fspath(path) == f'{_GCS_SCHEME}bucket/dir'
+  assert path.as_uri() == 'gs://bucket/dir'
 
   path = path.parent / 'some/other/file.json'
   assert isinstance(path, epath.Path)
@@ -88,6 +89,7 @@ def test_repr_s3():
   assert repr(path) == "PosixGPath('s3://bucket/dir')"
   assert str(path) == 's3://bucket/dir'
   assert os.fspath(path) == 's3://bucket/dir'
+  assert path.as_uri() == 's3://bucket/dir'
 
   path = path.parent / 'some/other/file.json'
   assert isinstance(path, epath.Path)
@@ -103,6 +105,7 @@ def test_repr_windows():
   assert isinstance(path, epath.gpath.WindowsGPath)
   assert str(path) == 'C:\\Program Files\\Directory'
   assert os.fspath(path) == 'C:\\Program Files\\Directory'
+  assert path.as_uri() == 'file:///C:/Program%20Files/Directory'
 
   path = path.parent / 'other/file.json'
   assert isinstance(path, epath.gpath.WindowsGPath)

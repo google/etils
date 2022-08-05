@@ -33,6 +33,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epath.DEFINE_path` for `absl.flags` support
     *   Changed (breaking): Recursive glob (`rglob`, `glob('**/')`) now raise an
         error rather than being silently ignored.
+    *   Changed: `path.as_uri()` returns `gs://` and `s3://` (rather than
+        `file:///gs/`)
     *   Changed: Add `__eq__` and `__hash__` for resource path.
 *   `edc`
     *   Fixed: `__repr__` is correctly added in Python 3.10 (#143)
@@ -40,8 +42,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Changed: `dc.unfrozen()`now supports `jax.tree_map`.
     *   Changed: Better `dc.unfrozen()` repr which display overwritten fields.
 *   `enp`:
-    *   Added: `enp.check_and_normalize_arrays` util to dynamically validate array
-        dtype/shape from typing annotations.
+    *   Added: `enp.check_and_normalize_arrays` util to dynamically validate
+        array dtype/shape from typing annotations.
     *   Added: `enp.linalg.normalize` util.
     *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry
         utils.
