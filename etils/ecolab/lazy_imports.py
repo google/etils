@@ -242,6 +242,7 @@ def _current_import_statements() -> str:
 
 # Modules here are imported from head (missing from the Brain Kernel)
 _PACKAGE_RESTRICT = [
+    'dataclass_array',
     'etils',
     'lark',
     'sunds',
@@ -328,6 +329,7 @@ _MODULE_NAMES = dict(
     colabtools='colabtools',
     interactive_forms='colabtools.interactive_forms',
     chex='chex',
+    dca='dataclass_array',
     einops='einops',
     flax='flax',
     nn='flax.linen',

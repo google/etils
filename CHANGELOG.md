@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [0.7.1] - 2022-08-09
+
+*   `ecolab`: Added `dataclass_array` to lazy_imports.
+
 ## [0.7.0] - 2022-08-08
 
 *   `array_types`:
@@ -119,8 +123,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v0.7.0...HEAD
-[0.6.0]: https://github.com/google/etils/compare/v0.6.0...v0.7.0
+[Unreleased]: https://github.com/google/etils/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/google/etils/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/google/etils/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/google/etils/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/google/etils/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/google/etils/compare/v0.4.0...v0.5.0
