@@ -11,6 +11,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Added: `from etils.lazy_imports import *` alias of `from
         etils.ecolab.lazy_imports import *`.
+*   `edc`:
+    *    Changed: `.replace` only added once (not in subclasses).
 
 ## [0.7.1] - 2022-08-09
 
