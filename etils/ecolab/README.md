@@ -5,7 +5,7 @@
 Running:
 
 ```python
-from etils.ecolab.lazy_imports import *
+from etils.lazy_imports import *
 ```
 
 Will lazily import in the namespace 100+ common Python packages (jax, tfds,

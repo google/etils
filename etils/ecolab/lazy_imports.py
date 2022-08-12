@@ -48,6 +48,7 @@ def __dir__() -> list[str]:  # pylint: disable=invalid-name
   Returns:
     public symbols
   """
+  # If modifying this, also update the `lazy_imports/__init__.py``
   return [
       '__all__',
       'LAZY_MODULES',

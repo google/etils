@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   Added: `from etils.lazy_imports import *` alias of `from
+        etils.ecolab.lazy_imports import *`.
+
 ## [0.7.1] - 2022-08-09
 
 *   `ecolab`: Added `dataclass_array` to lazy_imports.

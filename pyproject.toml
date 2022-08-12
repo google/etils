@@ -80,6 +80,9 @@ etree-tf = [
     "tf-nightly",
     "etils[etree]",
 ]
+lazy-imports = [
+    "etils[ecolab]",
+]
 all = [
     "etils[array-types]",
     "etils[ecolab]",
