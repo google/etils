@@ -181,8 +181,8 @@ def _make_kw_only(cls: _ClsT) -> _ClsT:
 
 def _add_replace(cls: _ClsT) -> _ClsT:
   """Add a `.replace` method to the class, if not already present."""
-  # Use `cls.__dict__` and not `hasattr` to ignore parent classes
-  if 'replace' not in cls.__dict__:
+  # Only add replace if not present
+  if not hasattr(cls, 'replace'):
     cls.replace = replace
   return cls
 
