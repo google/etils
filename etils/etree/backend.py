@@ -116,7 +116,7 @@ class DmTree(Backend):
   """`tree` backend."""
 
   def import_module(self):
-    import tree  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import tree  # pylint: disable=g-import-not-at-top  # type: ignore
     return tree
 
   def map(self, map_fn, *trees):
