@@ -292,7 +292,7 @@ def test_mkdir(gcs_mocked_path: pathlib.Path):
   g_path.mkdir()
   assert g_path.exists()
 
-  with pytest.raises(FileExistsError, match='already exists'):
+  with pytest.raises(FileExistsError, match='exists'):
     g_path.mkdir()
 
   assert gcs_mocked_path.joinpath('bucket').exists()
