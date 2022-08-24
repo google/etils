@@ -66,14 +66,10 @@ class _MockBackend(_backend_cls):
   def glob(self, path: PathLike) -> list[str]:
     return self._get_fn('glob')(path)
 
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
-    if exist_ok and self.exists(path):
-      raise FileExistsError(f'{path} already exists.')
+  def makedirs(self, path: PathLike) -> None:
     return self._get_fn('makedirs')(path)
 
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
-    if exist_ok and self.exists(path):
-      raise FileExistsError(f'{path} already exists.')
+  def mkdir(self, path: PathLike) -> None:
     return self._get_fn('mkdir')(path)
 
   def rmtree(self, path: PathLike) -> None:

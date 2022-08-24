@@ -161,15 +161,13 @@ class _GPath(abstract_path.Path):
       exist_ok: bool = False,
   ) -> None:
     """Create a new directory at this given path."""
-    if mode != 0o777:
-      # tf.io.gfile do not support setting `mode=`
-      raise NotImplementedError(
-          'mkdir with custom `mode=` not supported. Please open an issue.')
+    if self.exists() and not exist_ok:
+      raise FileExistsError(f'{self._path_str} already exists.')
 
     if parents:
-      self._backend.makedirs(self._path_str, exist_ok=exist_ok)
+      self._backend.makedirs(self._path_str)
     else:
-      self._backend.mkdir(self._path_str, exist_ok=exist_ok)
+      self._backend.mkdir(self._path_str)
 
   def rmdir(self) -> None:
     """Remove the empty directory."""

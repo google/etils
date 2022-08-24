@@ -55,11 +55,11 @@ class Backend(abc.ABC):
     raise NotImplementedError
 
   @abc.abstractmethod
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def makedirs(self, path: PathLike) -> None:
     raise NotImplementedError
 
   @abc.abstractmethod
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def mkdir(self, path: PathLike) -> None:
     raise NotImplementedError
 
   @abc.abstractmethod
@@ -110,18 +110,15 @@ class _OsPathBackend(Backend):
   def glob(self, path: PathLike) -> list[str]:
     return glob_lib.glob(path)
 
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
-    os.makedirs(path, exist_ok=exist_ok)
+  def makedirs(self, path: PathLike) -> None:
+    os.makedirs(path, exist_ok=True)
 
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def mkdir(self, path: PathLike) -> None:
     try:
       os.mkdir(path)
     except FileExistsError:
       if self.isdir(path):  # No-op if directory already exists
-        if exist_ok:
-          pass
-        else:  # Overwriting file raise an error
-          raise
+        pass
       else:
         raise
 
@@ -196,12 +193,7 @@ class _TfBackend(Backend):
   def glob(self, path: PathLike) -> list[str]:
     return self.gfile.glob(path)
 
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
-    # TF do not have a `exist_ok=` kwargs, so have to first check existence.
-    # This has performance impact but can be disabled with `exist_ok=True`.
-    if not exist_ok and self.exists(path):
-      raise FileExistsError(f'{path} already exists.')
-
+  def makedirs(self, path: PathLike) -> None:
     try:
       self.gfile.makedirs(path)
     except self.tf.errors.FailedPreconditionError as e:
@@ -210,10 +202,7 @@ class _TfBackend(Backend):
       else:
         raise OSError(str(e)) from None
 
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
-    if not exist_ok and self.exists(path):
-      raise FileExistsError(f'{path} already exists.')
-
+  def mkdir(self, path: PathLike) -> None:
     try:
       self.gfile.mkdir(path)
     except self.tf.errors.NotFoundError as e:
