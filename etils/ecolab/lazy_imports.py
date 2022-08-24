@@ -142,24 +142,26 @@ class LazyModuleState:
     for attr_name in _MODULE_ATTR_NAMES:
       attr_value = getattr(self.module, attr_name, missing)
       if attr_value is not missing:
-        setattr(self.host, attr_name, attr_value)
+        object.__setattr__(self.host, attr_name, attr_value)
 
 
 # Class name has to be `module` for Colab compatibility (colab hardcodes class
 # name instead of checking the instance)
 class module(types_.ModuleType):  # pylint: disable=invalid-name
   """Lazy module which auto-loads on first attribute call."""
+  _etils_state: LazyModuleState
 
   def __init__(self, module_name: str, *, alias: str):
     # We set `__file__` to None, to avoid `colab_import.reload_package(etils)`
     # to trigger a full reload of all modules here.
-    self.__file__ = None
+    object.__setattr__(self, '__file__', None)
 
-    self._etils_state = LazyModuleState(
+    state = LazyModuleState(
         module_name=module_name,
         alias=alias,
         host=self,
     )
+    object.__setattr__(self, '_etils_state', state)
 
   def __getattr__(self, name: str) -> Any:
     if not self._etils_state.module_loaded and name in {
@@ -173,6 +175,10 @@ class module(types_.ModuleType):  # pylint: disable=invalid-name
       # common cases.
       raise AttributeError
     return getattr(self._etils_state.module, name)
+
+  def __setattr__(self, name: str, value: Any) -> None:
+    # Overwrite the module attribute
+    setattr(self._etils_state.module, name, value)
 
   def __dir__(self) -> list[str]:  # Used for Colab auto-completion
     return dir(self._etils_state.module)
@@ -371,7 +377,6 @@ _MODULE_NAMES = dict(sorted(_MODULE_NAMES.items(), key=lambda x: x[1]))
 LAZY_MODULES: dict[str, LazyModule] = {
     k: LazyModule(v, alias=k) for k, v in _MODULE_NAMES.items()
 }
-
 globals().update(LAZY_MODULES)
 
 

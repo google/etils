@@ -63,6 +63,20 @@ def test_lazy_imports():
       """)
 
 
+def test_lazy_imports_mutate():
+  from etils.lazy_imports import enp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+  assert not enp._etils_state.module_loaded
+  _ = enp.NpModule
+  assert enp._etils_state.module_loaded
+
+  enp.some_value = 123
+
+  # Mutating lazy import is propagated to the shared instance.
+  from etils import enp as enp2  # pylint: disable=g-import-not-at-top
+  assert enp2.some_value == 123  # pytype: disable=module-attr
+
+
 def test_lazy_imports_built_in():
   from etils.ecolab.lazy_imports import gc  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
