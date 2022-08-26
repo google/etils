@@ -351,6 +351,7 @@ _MODULE_NAMES = dict(
     matplotlib='matplotlib',
     plt='matplotlib.pyplot',
     media='mediapy',
+    ml_collections='ml_collections',
     np='numpy',
     pd='pandas',
     pycolmap='pycolmap',
