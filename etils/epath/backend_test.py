@@ -163,7 +163,7 @@ def _test_makedirs(
 ):
   for name in _DIR_NAMES:
     p = tmp_path / name / 'nested/other'
-    backend.makedirs(p)
+    backend.makedirs(p, exist_ok=True)
     assert backend.isdir(p)
 
   # Should be no-op when the directory already exists
@@ -171,7 +171,7 @@ def _test_makedirs(
     p = tmp_path / name / 'nested'
     assert backend.isdir(p)
     assert backend.isdir(p / 'other')
-    backend.makedirs(p)
+    backend.makedirs(p, exist_ok=True)
     assert backend.isdir(p)
     assert backend.isdir(p / 'other')
 
@@ -180,7 +180,35 @@ def _test_makedirs(
     p = tmp_path / name
     p.touch()
     with pytest.raises(FileExistsError):
-      backend.makedirs(p)
+      backend.makedirs(p, exist_ok=True)
+    assert not backend.isdir(p)
+
+
+def _test_makedirs_exists_not_ok(
+    backend: epath.backend.Backend,
+    tmp_path: pathlib.Path,
+):
+  for name in _DIR_NAMES:
+    p = tmp_path / name / 'nested/other'
+    backend.makedirs(p, exist_ok=False)
+    assert backend.isdir(p)
+
+  # Should raise error when the directory already exists
+  for name in _DIR_NAMES:
+    p = tmp_path / name / 'nested'
+    assert backend.isdir(p)
+    assert backend.isdir(p / 'other')
+    with pytest.raises(FileExistsError):
+      backend.makedirs(p, exist_ok=False)
+    assert backend.isdir(p)
+    assert backend.isdir(p / 'other')
+
+  # Raise error when the directory is a file
+  for name in _FILE_NAMES:
+    p = tmp_path / name
+    p.touch()
+    with pytest.raises(FileExistsError):
+      backend.makedirs(p, exist_ok=False)
     assert not backend.isdir(p)
 
 
@@ -190,13 +218,13 @@ def _test_mkdir(
 ):
   for name in _DIR_NAMES:
     p = tmp_path / name
-    backend.mkdir(p)
+    backend.mkdir(p, exist_ok=True)
     assert backend.isdir(p)
 
   # When the file already exists
   for name in _DIR_NAMES:
     p = tmp_path / name
-    backend.mkdir(p)
+    backend.mkdir(p, exist_ok=True)
     assert backend.isdir(p)
 
   # Raise error when the directory is a file
@@ -204,12 +232,39 @@ def _test_mkdir(
     p = tmp_path / name
     p.touch()
     with pytest.raises(FileExistsError):
-      print(backend, p)
-      backend.mkdir(p)
+      backend.mkdir(p, exist_ok=True)
     assert not backend.isdir(p)
 
   with pytest.raises(FileNotFoundError, match='No such file or directory'):
-    backend.mkdir(tmp_path / 'nested/non-existing')
+    backend.mkdir(tmp_path / 'nested/non-existing', exist_ok=True)
+
+
+def _test_mkdir_exists_not_ok(
+    backend: epath.backend.Backend,
+    tmp_path: pathlib.Path,
+):
+  for name in _DIR_NAMES:
+    p = tmp_path / name
+    backend.mkdir(p, exist_ok=False)
+    assert backend.isdir(p)
+
+  # When the file already exists
+  for name in _DIR_NAMES:
+    p = tmp_path / name
+    with pytest.raises(FileExistsError):
+      backend.mkdir(p, exist_ok=False)
+    assert backend.isdir(p)
+
+  # Raise error when the directory is a file
+  for name in _FILE_NAMES:
+    p = tmp_path / name
+    p.touch()
+    with pytest.raises(FileExistsError):
+      backend.mkdir(p, exist_ok=False)
+    assert not backend.isdir(p)
+
+  with pytest.raises(FileNotFoundError, match='No such file or directory'):
+    backend.mkdir(tmp_path / 'nested/non-existing', exist_ok=False)
 
 
 def _test_rmtree(
@@ -398,7 +453,9 @@ def _test_copy_with_overwrite(
     _test_listdir,
     _test_glob,
     _test_makedirs,
+    _test_makedirs_exists_not_ok,
     _test_mkdir,
+    _test_mkdir_exists_not_ok,
     _test_rmtree,
     _test_remove,
     _test_rename,

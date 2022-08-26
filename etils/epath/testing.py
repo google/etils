@@ -66,11 +66,11 @@ class _MockBackend(_backend_cls):
   def glob(self, path: PathLike) -> list[str]:
     return self._get_fn('glob')(path)
 
-  def makedirs(self, path: PathLike) -> None:
-    return self._get_fn('makedirs')(path)
+  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
+    return self._get_fn('makedirs')(path, exist_ok=exist_ok)
 
-  def mkdir(self, path: PathLike) -> None:
-    return self._get_fn('mkdir')(path)
+  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+    return self._get_fn('mkdir')(path, exist_ok=exist_ok)
 
   def rmtree(self, path: PathLike) -> None:
     return self._get_fn('rmtree')(path)

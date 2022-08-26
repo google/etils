@@ -40,8 +40,8 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
 
   def _call(fn):
 
-    def new_fn(_, p):
-      return fn(_norm_path(p))
+    def new_fn(_, p, **kwargs):
+      return fn(_norm_path(p), **kwargs)
 
     return new_fn
 
@@ -292,7 +292,7 @@ def test_mkdir(gcs_mocked_path: pathlib.Path):
   g_path.mkdir()
   assert g_path.exists()
 
-  with pytest.raises(FileExistsError, match='already exists'):
+  with pytest.raises(FileExistsError, match='exists'):
     g_path.mkdir()
 
   assert gcs_mocked_path.joinpath('bucket').exists()
