@@ -298,6 +298,7 @@ _STANDARD_MODULE_NAMES = [
     'queue',
     'random',
     're',
+    'stat',
     'string',
     'subprocess',
     'sys',

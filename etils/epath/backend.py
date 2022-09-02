@@ -20,9 +20,11 @@ import abc
 import glob as glob_lib
 import os
 import shutil
+import stat as stat_lib
 import typing
 from typing import NoReturn, Union
 
+from etils.epath import stat_utils
 from etils.epath.typing import PathLike
 
 
@@ -80,6 +82,10 @@ class Backend(abc.ABC):
 
   @abc.abstractmethod
   def copy(self, path: PathLike, dst: PathLike, overwrite: bool) -> None:
+    raise NotImplementedError
+
+  @abc.abstractmethod
+  def stat(self, path: PathLike) -> stat_utils.StatResult:
     raise NotImplementedError
 
 
@@ -158,6 +164,15 @@ class _OsPathBackend(Backend):
     if not overwrite and self.exists(dst):
       raise FileExistsError(f'{dst} already exists. Cannot copy {path}.')
     shutil.copyfile(path, dst)
+
+  def stat(self, path: PathLike) -> stat_utils.StatResult:
+    st = os.stat(path)
+
+    return stat_utils.StatResult(
+        is_directory=stat_lib.S_ISDIR(st.st_mode),
+        length=st.st_size,
+        mtime=int(st.st_mtime),
+    )
 
 
 class _TfBackend(Backend):
@@ -277,6 +292,14 @@ class _TfBackend(Backend):
       raise FileNotFoundError(e_msg) from None
     else:
       raise  # pylint: disable=misplaced-bare-raise
+
+  def stat(self, path: PathLike) -> stat_utils.StatResult:
+    st = self.gfile.stat(path)
+    return stat_utils.StatResult(
+        is_directory=st.is_directory,
+        length=st.length,
+        mtime=st.mtime_nsec // 1_000_000_000,
+    )
 
 tf_backend = _TfBackend()
 os_backend = _OsPathBackend()

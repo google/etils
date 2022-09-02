@@ -27,6 +27,7 @@ from typing import Any, ClassVar, Iterator, Optional, Type, TypeVar, Union
 from etils import epy
 from etils.epath import abstract_path
 from etils.epath import backend as backend_lib
+from etils.epath import stat_utils
 from etils.epath.typing import PathLike
 
 _P = TypeVar('_P')
@@ -242,6 +243,10 @@ class _GPath(abstract_path.Path):
     backend = _get_backend(self, dst)
     backend.copy(self._path_str, os.fspath(dst), overwrite=overwrite)
     return dst
+
+  def stat(self) -> stat_utils.StatResult:
+    """Returns metadata for the file/directory."""
+    raise self._backend.stat(self._path_str)
 
 
 def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:

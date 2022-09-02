@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `epath`:
+    *   Added: `path.stat()`
     *   Fix performance issues for `path.mkdir`.
 *   `ecolab`:
     *   Added: `from etils.lazy_imports import *` alias of `from

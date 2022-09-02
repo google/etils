@@ -25,6 +25,7 @@ from unittest import mock
 
 from etils.epath import backend
 from etils.epath import gpath
+from etils.epath import stat_utils
 from etils.epath.typing import PathLike
 
 _MockFn = Callable[..., Any]
@@ -87,6 +88,9 @@ class _MockBackend(_backend_cls):
   def copy(self, path: PathLike, dst: PathLike, *, overwrite: bool) -> None:
     return self._get_fn('copy')(path, dst, overwrite=overwrite)
 
+  def stat(self, path: PathLike) -> stat_utils.StatResult:
+    return self._get_fn('stat')(path)
+
 
 @contextlib.contextmanager
 def mock_epath(
@@ -103,6 +107,7 @@ def mock_epath(
     rename: Optional[_MockFn] = None,
     replace: Optional[_MockFn] = None,
     rmtree: Optional[_MockFn] = None,
+    stat: Optional[_MockFn] = None,
 ) -> Iterator[None]:
   """Mock epath.
 
@@ -124,6 +129,7 @@ def mock_epath(
     rename: New function (after mocking)
     replace: New function (after mocking)
     rmtree: New function (after mocking)
+    stat: New function (after mocking)
 
   Yields:
     None
@@ -141,7 +147,7 @@ def mock_epath(
       remove=remove,
       replace=replace,
       rmtree=rmtree,
-      # 'stat',
+      stat=stat,
       # 'walk',
   )
   mock_backend = _MockBackend(mock_fns=mock_fns)

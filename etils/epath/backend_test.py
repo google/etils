@@ -445,6 +445,29 @@ def _test_copy_with_overwrite(
     )
 
 
+def _test_stat(
+    backend: epath.backend.Backend,
+    tmp_path: pathlib.Path,
+):
+  _make_default_path(tmp_path)
+
+  for name in _DIR_NAMES:
+    p = tmp_path / name
+    st_gt = os.stat(p)
+    st = backend.stat(p)
+    assert st.is_directory
+    assert st.length == st_gt.st_size
+    assert st.mtime == int(st_gt.st_mtime)
+
+  for name in _FILE_NAMES:
+    p = tmp_path / name
+    st_gt = os.stat(p)
+    st = backend.stat(p)
+    assert not st.is_directory
+    assert st.length == st_gt.st_size
+    assert st.mtime == int(st_gt.st_mtime)
+
+
 @pytest.mark.usefixtures('with_subtests')
 @pytest.mark.parametrize('test_fn', [
     _test_open,
@@ -462,6 +485,7 @@ def _test_copy_with_overwrite(
     _test_replace,
     _test_copy,
     _test_copy_with_overwrite,
+    _test_stat,
 ])
 def test_backend(
     test_fn,

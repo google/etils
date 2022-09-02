@@ -21,6 +21,7 @@ import pathlib
 import typing
 from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar
 
+from etils.epath import stat_utils
 from etils.epath.typing import PathLike
 
 T = TypeVar('T')
@@ -141,6 +142,11 @@ class Path(pathlib.PurePosixPath):
     """Reads contents of self as bytes."""
     with self.open('r', encoding=encoding) as f:
       return f.read()
+
+  @abstractmethod
+  def stat(self) -> stat_utils.StatResult:
+    """Returns metadata for the file/directory."""
+    raise NotImplementedError
 
   # ====== Write methods ======
 
