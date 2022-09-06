@@ -246,7 +246,7 @@ class _GPath(abstract_path.Path):
 
   def stat(self) -> stat_utils.StatResult:
     """Returns metadata for the file/directory."""
-    raise self._backend.stat(self._path_str)
+    return self._backend.stat(self._path_str)
 
 
 def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
