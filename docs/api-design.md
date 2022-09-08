@@ -13,7 +13,8 @@ It's also helpful to work with a real use-case. Take an existing code, and
 rewrite it with your imaginary ideal API to see whether this will actually make
 things simpler.
 
-Don't start implementing before having an idea of the final end-user API.
+Don't start implementing before having some idea of the end-user API (it does
+not need to be final).
 
 ### Limit entry points
 
