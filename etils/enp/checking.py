@@ -121,45 +121,51 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
 
   @functools.wraps(fn)
   def decorated_fn(*args, **kwargs):
-    kwargs = dict(kwargs)
-    xnp = kwargs.pop('xnp', None)
+    try:
+      kwargs = dict(kwargs)
+      xnp = kwargs.pop('xnp', None)
 
-    # First time the function is called, precompute & cache the info
-    if fn._array_types_state is None:  # pylint: disable=protected-access
-      fn._array_types_state = _parse_signature(fn)  # pylint: disable=protected-access
+      # First time the function is called, precompute & cache the info
+      if fn._array_types_state is None:  # pylint: disable=protected-access
+        fn._array_types_state = _parse_signature(fn)  # pylint: disable=protected-access
 
-    state: _FnSignatureCache = fn._array_types_state  # pylint: disable=protected-access
+      state: _FnSignatureCache = fn._array_types_state  # pylint: disable=protected-access
 
-    bound_args = state.sig.bind(*args, **kwargs)
+      bound_args = state.sig.bind(*args, **kwargs)
 
-    # Filter the non-array args
-    # TODO(epot): Should raise an error for non-optional when v is None
-    array_args = {
-        k: v
-        for k, v in bound_args.arguments.items()
-        if k in state.array_params and v is not None
-    }
+      # Filter the non-array args
+      # TODO(epot): Should raise an error for non-optional when v is None
+      array_args = {
+          k: v
+          for k, v in bound_args.arguments.items()
+          if k in state.array_params and v is not None
+      }
 
-    # Extract the xnp (either explicitly passed, or auto-infered)
-    xnp = xnp or _get_xnp(array_args, strict=strict)
-    _maybe_set_tnp_casting(xnp)
+      # Extract the xnp (either explicitly passed, or auto-infered)
+      xnp = xnp or _get_xnp(array_args, strict=strict)
+      _maybe_set_tnp_casting(xnp)
 
-    # Normalize all arrays:
-    # * Convert to xnp
-    # * Check dtype
-    array_args = {
-        k: state.array_params[k].asarray(v, xnp=xnp)
-        for k, v in array_args.items()
-    }
+      # Normalize all arrays:
+      # * Convert to xnp
+      # * Check dtype
+      array_args = {
+          k: state.array_params[k].asarray(v, xnp=xnp)
+          for k, v in array_args.items()
+      }
 
-    # TODO(epot): Check the shape
+      # TODO(epot): Check the shape
 
-    # Update the arguments after normalization
-    bound_args.arguments.update(array_args)
+      # Update the arguments after normalization
+      bound_args.arguments.update(array_args)
 
-    # Eventually add `xnp` kwarg
-    if state.has_xnp_kwargs:
-      bound_args.arguments['xnp'] = xnp
+      # Eventually add `xnp` kwarg
+      if state.has_xnp_kwargs:
+        bound_args.arguments['xnp'] = xnp
+    except Exception as e:  # pylint: disable=broad-except
+      epy.reraise(
+          e,
+          prefix=f'@enp.check_and_normalize_arrays error for {fn.__qualname__}: ',
+      )
 
     return fn(*bound_args.args, **bound_args.kwargs)
 
