@@ -30,6 +30,7 @@ jax,...)
 * [`etils.array_types`](https://github.com/google/etils/tree/main/etils/array_types): Typing annotations for jax, numpy,... arrays
 * [`etils.edc`](https://github.com/google/etils/tree/main/etils/edc): Dataclasses utils.
 * [`etils.epy`](https://github.com/google/etils/tree/main/etils/epy): Collection of generic python utils.
+* [`etils.eapp`](https://github.com/google/etils/tree/main/etils/eapp): Absl flags/app utils.
 *  [API design guide](https://github.com/google/etils/tree/main/docs/api-design.md).
 
 ## Installation

@@ -34,6 +34,10 @@ array-types = [
     # Do not add anything here. `array_types` is an alias for `enp`
     "etils[enp]",
 ]
+eapp = [
+    "absl-py",
+    "simple_parsing",
+]
 ecolab = [
     "jupyter",
     "numpy",
@@ -85,6 +89,7 @@ lazy-imports = [
 ]
 all = [
     "etils[array-types]",
+    "etils[eapp]",
     "etils[ecolab]",
     "etils[edc]",
     "etils[enp]",
