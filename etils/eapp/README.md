@@ -10,6 +10,10 @@ dataclasses.
 Usage:
 
 ```python
+from absl import app
+from etils import eapp
+
+
 @dataclasses.dataclass
 class Args:  # Define `--user=some_user --verbose` CLI flags
   user: str
