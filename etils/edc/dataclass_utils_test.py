@@ -23,7 +23,6 @@ import pytest
 
 
 def test_kw_only():
-
   @edc.dataclass(kw_only=True)
   @dataclasses.dataclass(frozen=True)
   class KwOnly:
@@ -94,18 +93,19 @@ class R2(R):
 
 @edc.dataclass
 @dataclasses.dataclass
-class R0Field():
+class R0Field:
   pass
 
 
 @edc.dataclass
 @dataclasses.dataclass
-class R1Field():
+class R1Field:
   x: Any = None
 
 
 def test_repr():
-  assert repr(R(123, R11(y='abc'))) == epy.dedent("""
+  assert repr(R(123, R11(y='abc'))) == epy.dedent(
+      """
   R(
       x=123,
       y=R11(
@@ -114,7 +114,8 @@ def test_repr():
           z=None,
       ),
   )
-  """)
+  """
+  )
 
   # Curstom __repr__
   assert repr(R2()) == 'R2 repr'
@@ -126,9 +127,11 @@ def test_repr():
   # Recursive
   x = R()
   x.x = x
-  assert repr(x) == epy.dedent("""
+  assert repr(x) == epy.dedent(
+      """
   R(
       x=...,
       y=None,
   )
-  """)
+  """
+  )

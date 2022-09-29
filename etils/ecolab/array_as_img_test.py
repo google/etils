@@ -34,16 +34,19 @@ def test_display_array_as_image():
   assert ipython_mock.call_count == 1
 
 
-@pytest.mark.parametrize('valid_shape', [
-    (28, 28),
-    (28, 28, 1),
-    (28, 28, 3),
-    (28, 28, 4),
-    (4, 28, 28, 1),
-    (4, 28, 28, 3),
-    (4, 28, 28, 4),
-    (1, 28, 28, 3),
-])
+@pytest.mark.parametrize(
+    'valid_shape',
+    [
+        (28, 28),
+        (28, 28, 1),
+        (28, 28, 3),
+        (28, 28, 4),
+        (4, 28, 28, 1),
+        (4, 28, 28, 3),
+        (4, 28, 28, 4),
+        (1, 28, 28, 3),
+    ],
+)
 @enp.testing.parametrize_xnp()
 def test_array_repr_html_valid(
     xnp: enp.NpModule,
@@ -56,9 +59,12 @@ def test_array_repr_html_valid(
   )
 
 
-@pytest.mark.parametrize('valid_shape', [
-    (20, 28, 28, 3),
-])
+@pytest.mark.parametrize(
+    'valid_shape',
+    [
+        (20, 28, 28, 3),
+    ],
+)
 @enp.testing.parametrize_xnp()
 def test_array_repr_video_html_valid(
     xnp: enp.NpModule,
@@ -90,7 +96,10 @@ def test_array_repr_html_invalid(
     xnp: enp.NpModule,
     invalid_shape: tuple[int, ...],
 ):
-  assert array_as_img._array_repr_html(
-      xnp.zeros(invalid_shape),
-      video_min_num_frames=15,
-  ) is None
+  assert (
+      array_as_img._array_repr_html(
+          xnp.zeros(invalid_shape),
+          video_min_num_frames=15,
+      )
+      is None
+  )

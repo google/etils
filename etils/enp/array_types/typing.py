@@ -45,6 +45,7 @@ class ArrayAliasMeta(type):
   same as `f32['... h w c']`.
 
   """
+
   shape: ShapeSpec
   dtype: dtypes.DType
 
@@ -61,10 +62,15 @@ class ArrayAliasMeta(type):
       shape = ' '.join(_normalize_shape_item(x) for x in shape)
     else:
       shape = _normalize_shape_item(shape)
-    return super().__new__(cls, dtype.array_cls_name, (cls,), {
-        'shape': shape,
-        'dtype': dtype,
-    })
+    return super().__new__(
+        cls,
+        dtype.array_cls_name,
+        (cls,),
+        {
+            'shape': shape,
+            'dtype': dtype,
+        },
+    )
 
   def __init__(cls, shape: Optional[ShapeSpec], dtype: Optional[_DType]):
     del shape, dtype
@@ -76,8 +82,11 @@ class ArrayAliasMeta(type):
     return ArrayAliasMeta(shape=shape, dtype=cls.dtype)
 
   def __eq__(cls, other: 'ArrayAliasMeta') -> bool:
-    return (isinstance(other, ArrayAliasMeta) and cls.shape == other.shape and
-            cls.dtype == other.dtype)
+    return (
+        isinstance(other, ArrayAliasMeta)
+        and cls.shape == other.shape
+        and cls.dtype == other.dtype
+    )
 
   def __hash__(cls) -> int:
     return hash((cls.shape, cls.dtype))

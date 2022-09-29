@@ -20,7 +20,6 @@ from etils import epy
 
 
 def test_cached_property():
-
   @dataclasses.dataclass
   class A:
     x: int

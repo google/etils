@@ -68,21 +68,25 @@ class _LazyImporter:
   @property
   def jax(self):
     import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return jax
 
   @property
   def jnp(self):
     import jax.numpy as jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return jnp
 
   @property
   def tf(self):
     import tensorflow  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return tensorflow
 
   @property
   def tnp(self):
     import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return tnp
 
   @property
@@ -115,8 +119,11 @@ class _LazyImporter:
     return self.is_np_dtype(dtype) or check_jax
 
   def is_dtype(self, dtype) -> bool:
-    return (self.is_np_dtype(dtype) or self.is_jax_dtype(dtype) or
-            self.is_tf_dtype(dtype))
+    return (
+        self.is_np_dtype(dtype)
+        or self.is_jax_dtype(dtype)
+        or self.is_tf_dtype(dtype)
+    )
 
   def as_dtype(self, dtype) -> _np.dtype:
     """Normalize to numpy dtype."""
@@ -138,7 +145,8 @@ class _LazyImporter:
     elif strict:  # Not an array and strict mode: error
       raise TypeError(
           f'Cannot extract dtype from non-array {type(array_like)}, '
-          'when strict=True.')
+          'when strict=True.'
+      )
     elif isinstance(array_like, bool):
       dtype = np.bool_
     elif isinstance(array_like, _ARRAY_LIKE_TYPES):  # list, tuple, int, float
@@ -178,7 +186,8 @@ class _LazyImporter:
       return np
     else:
       raise TypeError(
-          f'Cannot infer the numpy module from array: {type(x).__name__}')
+          f'Cannot infer the numpy module from array: {type(x).__name__}'
+      )
 
   @property
   def is_tnp_enabled(self) -> bool:

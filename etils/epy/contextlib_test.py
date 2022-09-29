@@ -34,7 +34,6 @@ class A(epy.ContextManager):
 
 
 def test_contextmanager():
-
   with A(1) as a1:
     assert a1.x == 1
 

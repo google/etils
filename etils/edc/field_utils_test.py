@@ -25,7 +25,6 @@ import pytest
 
 @pytest.mark.parametrize('frozen', [True, False])
 def test_field_no_op(frozen: bool):
-
   @dataclasses.dataclass(frozen=frozen)
   class A:
     x: Any = edc.field()  # pytype: disable=annotation-type-mismatch
@@ -75,8 +74,7 @@ def test_field_multi_instance(frozen: bool):
 @pytest.mark.parametrize('frozen', [True, False])
 @pytest.mark.parametrize(
     'default_kwargs',
-    [{}, dict(default=789),
-     dict(default_factory=lambda: 789)],
+    [{}, dict(default=789), dict(default_factory=lambda: 789)],
 )
 def test_field_validate(
     repr_: bool,

@@ -22,6 +22,7 @@ from etils import eapp
 @dataclasses.dataclass
 class Args:
   """Args."""
+
   user: str
   verbose: bool = False
 

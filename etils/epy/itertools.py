@@ -84,7 +84,6 @@ def groupby(
   return dict(groups)
 
 
-# pyformat: disable
 def zip_dict(  # pytype: disable=invalid-annotation
     *dicts: Unpack[dict[_KeyT, _ValuesT]],
 ) -> Iterator[_KeyT, tuple[Unpack[_ValuesT]]]:
@@ -112,7 +111,6 @@ def zip_dict(  # pytype: disable=invalid-annotation
   Raises:
     KeyError: If dicts does not contain the same keys.
   """
-  # pyformat: enable
   # Set does not keep order like dict, so only use set to compare keys
   all_keys = set(itertools.chain(*dicts))
   d0 = dicts[0]

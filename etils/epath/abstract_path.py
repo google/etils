@@ -57,6 +57,7 @@ class Path(pathlib.PurePosixPath):
       path: The registered path
     """
     from etils.epath import register  # pylint: disable=g-import-not-at-top
+
     if cls == Path:
       if not args:
         return register.make_path('.')

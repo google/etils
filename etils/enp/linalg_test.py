@@ -21,20 +21,22 @@ import numpy as np
 
 @enp.testing.parametrize_xnp()
 def test_normalize(xnp: enp.NpModule):
-  x = xnp.array([3., 0, 0])
+  x = xnp.array([3.0, 0, 0])
   y = enp.linalg.normalize(x)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == x.shape
-  np.testing.assert_allclose(y, [1., 0., 0.])
+  np.testing.assert_allclose(y, [1.0, 0.0, 0.0])
 
 
 @enp.testing.parametrize_xnp()
 def test_normalize_batched(xnp: enp.NpModule):
-  x = xnp.array([
-      [3., 0, 0],
-      [0, 4., 0],
-      [2., 3., 0],
-  ])
+  x = xnp.array(
+      [
+          [3.0, 0, 0],
+          [0, 4.0, 0],
+          [2.0, 3.0, 0],
+      ]
+  )
   y = enp.linalg.normalize(x)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == x.shape
@@ -42,40 +44,42 @@ def test_normalize_batched(xnp: enp.NpModule):
   np.testing.assert_allclose(
       y,
       [
-          [1., 0, 0],
-          [0, 1., 0],
-          [2. / norm, 3. / norm, 0],
+          [1.0, 0, 0],
+          [0, 1.0, 0],
+          [2.0 / norm, 3.0 / norm, 0],
       ],
   )
 
 
 @enp.testing.parametrize_xnp()
 def test_norm(xnp: enp.NpModule):
-  x = xnp.array([3., 0, 0])
+  x = xnp.array([3.0, 0, 0])
   y = enp.linalg.norm(x, axis=-1)
   if xnp is np:
     assert isinstance(y, float)
   else:
     assert isinstance(y, xnp.ndarray)
     assert y.shape == ()  # pylint: disable=g-explicit-bool-comparison
-  np.testing.assert_allclose(y, 3.)
+  np.testing.assert_allclose(y, 3.0)
 
   y = enp.linalg.norm(x, axis=-1, keepdims=True)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == (1,)
-  np.testing.assert_allclose(y, [3.])
+  np.testing.assert_allclose(y, [3.0])
 
 
 @enp.testing.parametrize_xnp()
 def test_norm_batched(xnp: enp.NpModule):
-  x = xnp.array([
-      [3., 0, 0],
-      [0, 4., 0],
-  ])
+  x = xnp.array(
+      [
+          [3.0, 0, 0],
+          [0, 4.0, 0],
+      ]
+  )
   y = enp.linalg.norm(x, axis=-1)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == (2,)
-  np.testing.assert_allclose(y, [3., 4.])
+  np.testing.assert_allclose(y, [3.0, 4.0])
 
   y = enp.linalg.norm(x)
   np.testing.assert_allclose(y, np.sqrt(3**2 + 4**2))

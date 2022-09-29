@@ -43,6 +43,7 @@ class _ArrayItem:
     iscast: If `True`, `dtype.asarray(value, casting='none')` should raise an
       error. (as implicit casting is done)
   """
+
   value: Any
   dtype: np.dtype
   iscast: bool = False
@@ -80,11 +81,12 @@ _ALL_ITEMS = [
             # Bool, int,... casted to float
             _ArrayItem(True, np.float32, iscast=True),
             _ArrayItem(1, np.float32, iscast=False),
-            _ArrayItem(1., np.float32),
+            _ArrayItem(1.0, np.float32),
             _ArrayItem([1], np.float32, iscast=False),
-            _ArrayItem([1.], np.float32),
+            _ArrayItem([1.0], np.float32),
             _ArrayItem(
-                np.array([True], dtype=np.bool_), np.float32, iscast=True),
+                np.array([True], dtype=np.bool_), np.float32, iscast=True
+            ),
             _ArrayItem(np.array(1, dtype=np.uint8), np.float32, iscast=True),
             # Float values not casted
             _ArrayItem(np.array(1, dtype=np.float16), np.float16),
@@ -98,9 +100,9 @@ _ALL_ITEMS = [
             # Casted to int
             _ArrayItem(True, np.int32, iscast=True),
             _ArrayItem(1, np.int32),
-            _ArrayItem(1., np.int32, iscast=False),
+            _ArrayItem(1.0, np.int32, iscast=False),
             _ArrayItem([1], np.int32),
-            _ArrayItem([1.], np.int32, iscast=False),
+            _ArrayItem([1.0], np.int32, iscast=False),
             # Int values not casted
             _ArrayItem(np.array([True], dtype=np.bool_), np.int32, iscast=True),
             _ArrayItem(np.array(1, dtype=np.uint8), np.uint8),
@@ -125,7 +127,7 @@ _ALL_ITEMS = [
         array_items=[
             _ArrayItem(True, np.bool_),
             _ArrayItem(1, np.bool_, iscast=False),
-            _ArrayItem([1.], np.bool_, iscast=False),
+            _ArrayItem([1.0], np.bool_, iscast=False),
             _ArrayItem(np.array([True], dtype=np.bool_), np.bool_),
             _ArrayItem(np.array([1], dtype=np.uint8), np.bool_, iscast=True),
         ],
@@ -136,7 +138,7 @@ _ALL_ITEMS = [
         array_items=[
             _ArrayItem(True, np.uint8, iscast=True),
             _ArrayItem(1, np.uint8),
-            _ArrayItem([1.], np.uint8, iscast=False),
+            _ArrayItem([1.0], np.uint8, iscast=False),
             _ArrayItem(np.array([True], dtype=np.bool_), np.uint8, iscast=True),
             _ArrayItem(np.array([1], dtype=np.int32), np.uint8, iscast=True),
         ],
@@ -215,7 +217,8 @@ def test_dtype(xnp, item: _DTypeTestItem):
         assert_asarray(
             dtype=dtype,
             array_item=array_item,
-            **asarray_kwargs,)
+            **asarray_kwargs,
+        )
 
 
 def assert_asarray(*, dtype, array_item: _ArrayItem, xnp, **asarray_kwargs):

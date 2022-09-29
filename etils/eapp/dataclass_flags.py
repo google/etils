@@ -75,7 +75,6 @@ def make_flags_parser(
     description = __main__.__doc__.split('\n', 1)
 
   def _flag_parser(argv: list[str]) -> _DataclassT:
-
     parser = simple_parsing.ArgumentParser(
         prog=prog,
         description=description,

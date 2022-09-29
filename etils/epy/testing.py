@@ -47,6 +47,7 @@ class _SubtestContext:
     subtests: Reference to the original `subtests` fixture output
     names: Stack of current nested `subtests.test`
   """
+
   subtests: Any
   names: list[str] = dataclasses.field(default_factory=list)
 
@@ -55,8 +56,10 @@ class _SubtestContext:
 def subtest(name: str) -> Iterator[None]:
   """Contextmanager for a new subtest. To use with `with_subtests` fixture."""
   if not _curr_context:
-    raise AssertionError('`epy.testing.subtest` can only be called inside a '
-                         '`with_subtests` context.')
+    raise AssertionError(
+        '`epy.testing.subtest` can only be called inside a '
+        '`with_subtests` context.'
+    )
   name = str(name)
   _curr_context.names.append(name)
   subtest_name = '/'.join(_curr_context.names)

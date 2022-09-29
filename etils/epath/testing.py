@@ -37,6 +37,7 @@ _backend_cls = backend._OsPathBackend  # pylint: disable=protected-access
 @dataclasses.dataclass(eq=False)
 class _MockBackend(_backend_cls):
   """Backend with functions overwritten."""
+
   mock_fns: dict[str, _MockFn]
 
   def _get_fn(self, fn_name):

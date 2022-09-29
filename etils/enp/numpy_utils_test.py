@@ -98,8 +98,8 @@ def test_dtype_from_array_builtins():
 
   assert lazy.dtype_from_array(True, strict=False) == np.dtype('bool')
   assert lazy.dtype_from_array(123, strict=False) is None
-  assert lazy.dtype_from_array(123., strict=False) is None
-  assert lazy.dtype_from_array([123.], strict=False) is None
+  assert lazy.dtype_from_array(123.0, strict=False) is None
+  assert lazy.dtype_from_array([123.0], strict=False) is None
 
   with pytest.raises(TypeError, match='Cannot extract dtype'):
     lazy.dtype_from_array(123)
@@ -108,21 +108,24 @@ def test_dtype_from_array_builtins():
     lazy.dtype_from_array(True)
 
   with pytest.raises(TypeError, match='Cannot extract dtype'):
-    lazy.dtype_from_array(123.)
+    lazy.dtype_from_array(123.0)
 
   with pytest.raises(TypeError, match='Cannot extract dtype'):
-    lazy.dtype_from_array([123.])
+    lazy.dtype_from_array([123.0])
 
 
-@pytest.mark.parametrize('dtype', [
-    np.uint8,
-    np.int32,
-    np.int64,
-    np.float32,
-    np.float64,
-    np.bool_,
-    jnp.bfloat16,
-])
+@pytest.mark.parametrize(
+    'dtype',
+    [
+        np.uint8,
+        np.int32,
+        np.int64,
+        np.float32,
+        np.float64,
+        np.bool_,
+        jnp.bfloat16,
+    ],
+)
 @enp.testing.parametrize_xnp()
 def test_dtype_from_array_xnp(xnp, dtype):
   lazy = enp.numpy_utils.lazy
@@ -131,10 +134,12 @@ def test_dtype_from_array_xnp(xnp, dtype):
   assert not jax.config.jax_enable_x64
   target_dtype = dtype
   if xnp is jnp:
-    target_dtype = ({
-        np.float64: np.float32,
-        np.int64: np.int32,
-    }).get(dtype, dtype)
+    target_dtype = (
+        {
+            np.float64: np.float32,
+            np.int64: np.int32,
+        }
+    ).get(dtype, dtype)
 
   x = xnp.array([1, 2], dtype=dtype)
   assert lazy.dtype_from_array(x) == target_dtype
@@ -194,11 +199,14 @@ def test_is_dtype_str(dtype):
   assert enp.is_dtype_str(dtype)
 
 
-@pytest.mark.parametrize('dtype', [
-    np.dtype(int),
-    np.int64,
-    int,
-])
+@pytest.mark.parametrize(
+    'dtype',
+    [
+        np.dtype(int),
+        np.int64,
+        int,
+    ],
+)
 def test_is_not_dtype_str(dtype):
   assert not enp.is_dtype_str(dtype)
 

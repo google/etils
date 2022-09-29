@@ -48,8 +48,10 @@ class StrEnum(str, enum.Enum):
       return cls(value.lower())
     # Could also add `did you meant yy ?`
     all_values = [e.value for e in cls]
-    raise ValueError(f'{value!r} is not a valid {cls.__qualname__}. '
-                     f'Expected one of {all_values}')
+    raise ValueError(
+        f'{value!r} is not a valid {cls.__qualname__}. '
+        f'Expected one of {all_values}'
+    )
 
   def __eq__(self, other: str) -> bool:
     return super().__eq__(other.lower())

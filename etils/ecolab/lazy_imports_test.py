@@ -29,38 +29,45 @@ from etils import ecolab
 
 def test_lazy_imports():
   from etils.ecolab.lazy_imports import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
   assert repr(jax) == "LazyModule('jax')"
 
   assert jax.numpy.zeros((2, 3)).shape == (2, 3)
-  assert 'jax' in sys.modules
+  assert "jax" in sys.modules
   assert repr(jax).startswith("<lazy_module 'jax'")
   assert jax._etils_state.module_loaded
 
   from etils.ecolab.lazy_imports import jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
   assert not jnp._etils_state.module_loaded
   _ = jnp.array  # Trigger import
   assert jnp._etils_state.module_loaded
   del jnp
 
   from etils.ecolab.lazy_imports import epy  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
   _ = epy.reraise  # Trigger import
 
   # Import os but do not trigger imports
   from etils.ecolab.lazy_imports import os  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
   del os
 
   # lazy_imports can be imported but do not appear in `print_current_imports`
   from etils.ecolab.lazy_imports import lazy_imports  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
   assert not lazy_imports._etils_state.module_loaded
   _ = lazy_imports.print_current_imports  # Trigger import
   assert lazy_imports._etils_state.module_loaded
   del lazy_imports
 
-  assert ecolab.lazy_imports._current_import_statements() == epy.dedent("""
+  assert ecolab.lazy_imports._current_import_statements() == epy.dedent(
+      """
       from etils import epy
       import jax
       import jax.numpy as jnp
-      """)
+      """
+  )
 
 
 def test_lazy_imports_mutate():
@@ -74,6 +81,7 @@ def test_lazy_imports_mutate():
 
   # Mutating lazy import is propagated to the shared instance.
   from etils import enp as enp2  # pylint: disable=g-import-not-at-top
+
   assert enp2.some_value == 123  # pytype: disable=module-attr
 
 
