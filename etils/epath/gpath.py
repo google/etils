@@ -45,9 +45,11 @@ _PREFIX_TO_BACKEND = {
     's3': backend_lib.tf_backend,
     None: backend_lib.os_backend,
 }
-_GCS_BACKENDS = frozenset({
-    backend_lib.tf_backend,
-})
+_GCS_BACKENDS = frozenset(
+    {
+        backend_lib.tf_backend,
+    }
+)
 
 # Available modes (from tensorflow/python/lib/io/file_io.py;l=55)
 # Also exclude `+` as broken in gfile
@@ -81,8 +83,11 @@ class _GPath(abstract_path.Path):
   # raise mutable input error when used with beam).
   @property
   def _uri_scheme(self) -> Optional[str]:
-    if (len(self.parts) >= 2 and self.parts[0] == '/' and
-        self.parts[1] in _URI_SCHEMES):
+    if (
+        len(self.parts) >= 2
+        and self.parts[0] == '/'
+        and self.parts[1] in _URI_SCHEMES
+    ):
       return self.parts[1]
     else:
       return None
@@ -150,7 +155,8 @@ class _GPath(abstract_path.Path):
       raise NotImplementedError(
           'Recursive `**` pattern not supported as this could trigger '
           'thoushands of RPC requests on GCS. Use `*` instead. '
-          f'Got: {pattern!r}')
+          f'Got: {pattern!r}'
+      )
 
     for f in self._backend.glob(pattern):
       yield self._new(f)
@@ -165,7 +171,8 @@ class _GPath(abstract_path.Path):
     if mode != 0o777:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
-          'mkdir with custom `mode=` not supported. Please open an issue.')
+          'mkdir with custom `mode=` not supported. Please open an issue.'
+      )
 
     if parents:
       self._backend.makedirs(self._path_str, exist_ok=exist_ok)
@@ -214,7 +221,8 @@ class _GPath(abstract_path.Path):
       raise ValueError(f'mode={mode_without_b!r} is not one of {_OPEN_MODES}')
     if kwargs:
       raise NotImplementedError(
-          f'kwargs {list(kwargs)}` not supported in `open()`.')
+          f'kwargs {list(kwargs)}` not supported in `open()`.'
+      )
     gfile = self._backend.open(self._path_str, mode)
     gfile = typing.cast(typing.IO[Union[str, bytes]], gfile)
     return gfile
@@ -273,9 +281,11 @@ def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
 
 class PosixGPath(_GPath):
   """Pathlib like api with gs://, s3:// support."""
+
   _PATH = posixpath
 
 
 class WindowsGPath(pathlib.PureWindowsPath, _GPath):
   """Pathlib like api with gs://, s3:// support."""
+
   _PATH = ntpath

@@ -21,7 +21,6 @@ import pytest
 
 
 def test_str_enum():
-
   class MyEnum(epy.StrEnum):
     MY_OTHER_ATTR = enum.auto()
     MY_ATTR = enum.auto()

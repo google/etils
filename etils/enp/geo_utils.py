@@ -30,7 +30,7 @@ def project_onto_vector(
     xnp: numpy_utils.NpModule = ...,
 ) -> FloatArray[3]:
   """Project `u` onto `v`."""
-  return xnp.dot(u, v) / linalg.norm(v)**2 * v
+  return xnp.dot(u, v) / linalg.norm(v) ** 2 * v
 
 
 @checking.check_and_normalize_arrays(strict=False)

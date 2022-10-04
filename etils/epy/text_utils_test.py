@@ -20,16 +20,19 @@ from etils import epy
 
 
 def test_dedent():
-
-  text1 = textwrap.dedent("""\
+  text1 = textwrap.dedent(
+      """\
       A(
          x=1,
-      )""")
-  text2 = epy.dedent("""
+      )"""
+  )
+  text2 = epy.dedent(
+      """
       A(
          x=1,
       )
-      """)
+      """
+  )
   assert text1 == text2
 
 
@@ -44,12 +47,14 @@ def test_lines():
   lines += ')'
   text = lines.join()
 
-  assert text == epy.dedent("""
+  assert text == epy.dedent(
+      """
       dict(
           a=1,
           b=2,
       )
-      """)
+      """
+  )
 
 
 def test_lines_block():
@@ -57,16 +62,17 @@ def test_lines_block():
   assert epy.Lines.make_block('A', {}, braces='[') == 'A[]'
   assert epy.Lines.make_block('A', {'x': '1'}) == 'A(x=1)'
   assert epy.Lines.make_block('A', {'x': '1'}, braces=('<', '>')) == 'A<x=1>'
-  assert epy.Lines.make_block('A', {'x': '1', 'y': '2'}) == epy.dedent("""
+  assert epy.Lines.make_block('A', {'x': '1', 'y': '2'}) == epy.dedent(
+      """
       A(
           x=1,
           y=2,
       )
-      """)
+      """
+  )
 
 
 def test_lines_nested_indent():
-
   lines = epy.Lines(indent=2)
   lines += '['
   with lines.indent():
@@ -78,7 +84,8 @@ def test_lines_nested_indent():
   lines += ']'
   text = lines.join()
 
-  assert text == epy.dedent("""
+  assert text == epy.dedent(
+      """
       [
         a,
         b,
@@ -87,11 +94,11 @@ def test_lines_nested_indent():
           d,
         ],
       ]
-      """)
+      """
+  )
 
 
 def test_lines_collapse():
-
   class A(dict):
 
     def __repr__(self) -> str:
@@ -106,14 +113,17 @@ def test_lines_collapse():
       lines += ')'
       return lines.join(collapse=collapse)
 
-  assert repr(A(a=A(), b=A(a=A(a=None)))) == epy.dedent("""
+  assert repr(A(a=A(), b=A(a=A(a=None)))) == epy.dedent(
+      """
       A(
           a=A(),
           b=A(a=A(a=None)),
       )
-      """)
+      """
+  )
 
-  assert repr(A(a=A(), b=A(a=A(a=None, b=A())))) == epy.dedent("""
+  assert repr(A(a=A(), b=A(a=A(a=None, b=A())))) == epy.dedent(
+      """
       A(
           a=A(),
           b=A(a=A(
@@ -121,4 +131,5 @@ def test_lines_collapse():
               b=A(),
           )),
       )
-      """)
+      """
+  )

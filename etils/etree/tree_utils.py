@@ -57,7 +57,8 @@ class TreeAPI:
     # constant. How to avoid dead locks ?
 
     with concurrent.futures.ThreadPoolExecutor(
-        max_workers=num_threads) as executor:
+        max_workers=num_threads
+    ) as executor:
       launch_worker = functools.partial(executor.submit, map_fn)
       futures = self.backend.map(launch_worker, *trees)
 

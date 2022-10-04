@@ -83,6 +83,7 @@ class LazyModuleState:
   3) `@property`, `epy.cached_property` fail when the class is changed
 
   """
+
   module_name: str
   alias: str
   host: LazyModule = dataclasses_.field(repr=False)
@@ -149,6 +150,7 @@ class LazyModuleState:
 # name instead of checking the instance)
 class module(types_.ModuleType):  # pylint: disable=invalid-name
   """Lazy module which auto-loads on first attribute call."""
+
   _etils_state: LazyModuleState
 
   def __init__(self, module_name: str, *, alias: str):
@@ -205,6 +207,7 @@ del module
 def _load_module(module_name: str) -> types_.ModuleType:
   """Load the module, eventually using adhoc-import."""
   import contextlib  # pylint: disable=g-import-not-at-top
+
   adhoc_cm = contextlib.suppress()
 
   # First time, load the module
@@ -232,7 +235,9 @@ def _current_import_statements() -> str:
   lazy_modules = [m._etils_state for m in LAZY_MODULES.values()]  # pylint: disable=protected-access
   used_lazy_modules = [
       # For convenience, we do not add the `lazy_imports` import
-      m for m in lazy_modules if m.module_loaded and m.alias != 'lazy_imports'
+      m
+      for m in lazy_modules
+      if m.module_loaded and m.alias != 'lazy_imports'
   ]
   std_modules = [m.import_statement for m in used_lazy_modules if m.is_std]
   non_std_modules = [

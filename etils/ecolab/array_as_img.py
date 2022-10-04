@@ -154,7 +154,7 @@ def _array_repr_html_inner(
     if num_channel != 3:
       return None
     # Dynamically compute the frame-rate, capped at 25 FPS
-    fps = min(num_frames // 5, 25.)
+    fps = min(num_frames // 5, 25.0)
     out = media.show_video(
         img,
         fps=fps,

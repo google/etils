@@ -316,7 +316,6 @@ def _test_rename(
     backend: epath.backend.Backend,
     tmp_path: pathlib.Path,
 ):
-
   # for make_src in _make_file, _make_folder, _make_nonempty_folder:
   for test_item in _SRC_DST_ITEMS:
     src_path, dst_path, dst_root_path = test_item.initialize(tmp_path)
@@ -344,7 +343,6 @@ def _test_replace(
     backend: epath.backend.Backend,
     tmp_path: pathlib.Path,
 ):
-
   # for make_src in _make_file, _make_folder, _make_nonempty_folder:
   for test_item in _SRC_DST_ITEMS:
     src_path, dst_path, dst_root_path = test_item.initialize(tmp_path)
@@ -375,7 +373,6 @@ def _test_copy(
     backend: epath.backend.Backend,
     tmp_path: pathlib.Path,
 ):
-
   # for make_src in _make_file, _make_folder, _make_nonempty_folder:
   for test_item in _SRC_DST_ITEMS:
     src_path, dst_path, dst_root_path = test_item.initialize(tmp_path)
@@ -412,7 +409,6 @@ def _test_copy_with_overwrite(
     backend: epath.backend.Backend,
     tmp_path: pathlib.Path,
 ):
-
   # for make_src in _make_file, _make_folder, _make_nonempty_folder:
   for test_item in _SRC_DST_ITEMS:
     src_path, dst_path, dst_root_path = test_item.initialize(tmp_path)
@@ -469,24 +465,27 @@ def _test_stat(
 
 
 @pytest.mark.usefixtures('with_subtests')
-@pytest.mark.parametrize('test_fn', [
-    _test_open,
-    _test_exists,
-    _test_isdir,
-    _test_listdir,
-    _test_glob,
-    _test_makedirs,
-    _test_makedirs_exists_not_ok,
-    _test_mkdir,
-    _test_mkdir_exists_not_ok,
-    _test_rmtree,
-    _test_remove,
-    _test_rename,
-    _test_replace,
-    _test_copy,
-    _test_copy_with_overwrite,
-    _test_stat,
-])
+@pytest.mark.parametrize(
+    'test_fn',
+    [
+        _test_open,
+        _test_exists,
+        _test_isdir,
+        _test_listdir,
+        _test_glob,
+        _test_makedirs,
+        _test_makedirs_exists_not_ok,
+        _test_mkdir,
+        _test_mkdir_exists_not_ok,
+        _test_rmtree,
+        _test_remove,
+        _test_rename,
+        _test_replace,
+        _test_copy,
+        _test_copy_with_overwrite,
+        _test_stat,
+    ],
+)
 def test_backend(
     test_fn,
     tmp_path: pathlib.Path,
@@ -559,6 +558,7 @@ def _make_default_path(tmp_path: pathlib.Path):
 @dataclasses.dataclass
 class _TestItem:
   """Item to test various combinaison of files copy, rename, replace."""
+
   src_file: _FileDict
   dst_file: _FileDict
   expected_rename: Union[Exception, _FileDict]

@@ -23,7 +23,7 @@ from typing import Any, Callable, TypeVar
 from etils import epy
 from etils.etree.typing import Tree
 
-_T = TypeVar('_T')
+_T = TypeVar("_T")
 _Tin = Any  # TypeVar('_Tin')
 _Tout = Any  # TypeVar('_Tout')
 
@@ -47,7 +47,7 @@ class Backend(abc.ABC):
     try:
       module = self.import_module()
     except ImportError as e:
-      epy.reraise(e, suffix=f'etree backend require {self.MODULE_NAME!r}.')
+      epy.reraise(e, suffix=f"etree backend require {self.MODULE_NAME!r}.")
     return module
 
   @abc.abstractmethod
@@ -87,6 +87,7 @@ class Jax(Backend):
 
   def import_module(self):
     import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return jax.tree_util
 
   def map(self, map_fn, *trees):
@@ -109,7 +110,8 @@ class Jax(Backend):
     if treedef0 != treedef1:
       raise ValueError(
           "The two structures don't have the same nested structure.\n"
-          f"Left: {treedef0}\nRight: {treedef1}")
+          f"Left: {treedef0}\nRight: {treedef1}"
+      )
 
 
 class DmTree(Backend):
@@ -117,6 +119,7 @@ class DmTree(Backend):
 
   def import_module(self):
     import tree  # pylint: disable=g-import-not-at-top  # type: ignore
+
     return tree
 
   def map(self, map_fn, *trees):
@@ -141,6 +144,7 @@ class Nest(Backend):
 
   def import_module(self):
     import tensorflow as tf  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return tf.nest
 
   def map(self, map_fn, *trees):

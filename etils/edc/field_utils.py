@@ -45,7 +45,7 @@ def field(
     return dataclasses.field(**kwargs)
   else:
     field_ = _Field(validate=validate, field_kwargs=kwargs)
-    return typing.cast(dataclasses.Field, field_)
+    return typing.cast(dataclasses.Field, field_)  # pylint: disable=g-bare-generic
 
 
 class _Field(Generic[_InT, _OutT]):
@@ -132,7 +132,8 @@ def _getattr(
   if attribute_name not in obj._dataclass_field_values:  # pylint: disable=protected-access
     raise AttributeError(
         f"type object '{type(obj).__qualname__}' has no attribute "
-        f"'{attribute_name}'")
+        f"'{attribute_name}'"
+    )
   else:
     return obj._dataclass_field_values[attribute_name]  # pylint: disable=protected-access
 
@@ -147,7 +148,9 @@ def _setattr(
   # correctly raise a `FrozenInstanceError` before `DataclassField.__set__` is
   # called.
   _init_dataclass_state(obj)
+  # fmt: off
   obj._dataclass_field_values[attribute_name] = value  # pylint: disable=protected-access
+  # fmt: on
 
 
 def _init_dataclass_state(obj: _Dataclass) -> None:

@@ -57,9 +57,10 @@ class ContextManager(abc.ABC, Generic[_T]):
 
     # Check whether the class is already wrapped in a CM
     if not hasattr(cls.__contextmanager__, '_cm_added'):
-
       cls.__contextmanager__ = contextlib.contextmanager(cls.__contextmanager__)
-      cls.__contextmanager__._cm_added = True  # pylint: disable=protected-access
+      cls.__contextmanager__._cm_added = (
+          True  # pylint: disable=protected-access
+      )
 
   @abc.abstractmethod
   def __contextmanager__(self) -> Iterable[_T]:

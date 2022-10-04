@@ -100,6 +100,7 @@ class _MutableProxy(Generic[_T]):
   def tree_flatten(self) -> tuple[list[Any], Any]:
     """`jax.tree_utils` support."""
     import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     obj = self._edc_impl.resolve()
     # Not if the wrapped object do not support tree_map, then it will be
     # returned as expected
@@ -113,6 +114,7 @@ class _MutableProxy(Generic[_T]):
   ) -> Any:
     """`jax.tree_utils` support."""
     import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     return jax.tree_util.tree_unflatten(metadata, flattened)
 
 
@@ -137,6 +139,7 @@ class _Common:
     is_frozen: Become `True` after `.frozen()` is called. After which all
       Mutable are invalid
   """
+
   cache: dict[int, _MutableProxyImpl] = dataclasses.field(default_factory=dict)
   resolved: dict[int, Any] = dataclasses.field(default_factory=dict)
   is_frozen: bool = False
@@ -152,13 +155,15 @@ class _Common:
 @dataclasses.dataclass
 class _MutableProxyImpl(Generic[_T]):
   """Proxy implementation is a separate class to avoid collisions."""
+
   obj: _T
   common: _Common
   is_root: bool = False
 
   # Child info
-  attrs: dict[str, Union[_MutableProxyImpl,
-                         Any]] = dataclasses.field(default_factory=dict)
+  attrs: dict[str, Union[_MutableProxyImpl, Any]] = dataclasses.field(
+      default_factory=dict
+  )
 
   @epy.cached_property
   def public_api(self) -> _MutableProxy:
@@ -197,7 +202,8 @@ class _MutableProxyImpl(Generic[_T]):
     """Set `obj.name`."""
     if self.common.is_frozen:
       raise AttributeError(
-          'Cannot set attributes after the mutable was frozen.')
+          'Cannot set attributes after the mutable was frozen.'
+      )
 
     # TODO(epot): Check that the field we're trying to overwrite is a
     # dataclass field
@@ -209,7 +215,8 @@ class _MutableProxyImpl(Generic[_T]):
       value = value._edc_impl  # pylint: disable=protected-access
       if value.common is not self.common:
         raise ValueError(
-            f'Trying to mix `unfrozen` attributes. For: {name}={value}')
+            f'Trying to mix `unfrozen` attributes. For: {name}={value}'
+        )
 
     # Wrapping dataclasses in proxy objects
     elif dataclasses.is_dataclass(value):

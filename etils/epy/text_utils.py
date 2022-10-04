@@ -31,6 +31,7 @@ _BRACE_TO_BRACES = {
 @dataclasses.dataclass
 class _Line:
   """Line item."""
+
   content: str
   indent_lvl: int
   indent_size: int
@@ -81,7 +82,8 @@ class Lines:
             content=line,
             indent_lvl=self._indent_lvl,
             indent_size=self._indent_size,
-        ),)
+        ),
+    )
 
   def extend(self, iterable: Iterable[str]) -> None:
     """Append all the new line `str` from the iterable."""

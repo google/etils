@@ -39,7 +39,8 @@ def _collapse_std(
   content = html.escape(content)
   content = f'<pre><code>{content}</code></pre>'
   content = IPython.display.HTML(
-      f'<details><summary>{name}</summary>{content}</details>')
+      f'<details><summary>{name}</summary>{content}</details>'
+  )
   IPython.display.display(content)
 
 

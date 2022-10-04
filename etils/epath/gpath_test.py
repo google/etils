@@ -27,9 +27,11 @@ _GCS_SCHEME = 'gs://'
 
 
 # Test mock gpath on each backend
-@pytest.fixture(params=[
-    epath.backend.os_backend,
-])
+@pytest.fixture(
+    params=[
+        epath.backend.os_backend,
+    ]
+)
 def gcs_mocked_path(tmp_path: pathlib.Path, request):
   """Fixture which patch the gfile API to redirect `gs://` calls."""
   backend = request.param  # SubRequest
@@ -39,7 +41,6 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
     return path.replace(_GCS_SCHEME, prefix_path)
 
   def _call(fn):
-
     def new_fn(_, p, **kwargs):
       return fn(_norm_path(p), **kwargs)
 
@@ -47,13 +48,17 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
 
   with epath.testing.mock_epath(
       open=lambda _, p, *args, **kwargs: backend.open(  # pylint: disable=g-long-lambda
-          _norm_path(p), *args, **kwargs),
+          _norm_path(p), *args, **kwargs
+      ),
       copy=lambda _, p1, p2, *args, **kwargs: backend.copy(  # pylint: disable=g-long-lambda
-          _norm_path(p1), _norm_path(p2), **kwargs),
+          _norm_path(p1), _norm_path(p2), **kwargs
+      ),
       rename=lambda _, p1, p2, *args, **kwargs: backend.rename(  # pylint: disable=g-long-lambda
-          _norm_path(p1), _norm_path(p2), **kwargs),
+          _norm_path(p1), _norm_path(p2), **kwargs
+      ),
       replace=lambda _, p1, p2, *args, **kwargs: backend.replace(  # pylint: disable=g-long-lambda
-          _norm_path(p1), _norm_path(p2), **kwargs),
+          _norm_path(p1), _norm_path(p2), **kwargs
+      ),
       exists=_call(backend.exists),
       glob=_call(backend.glob),
       isdir=_call(backend.isdir),
@@ -69,7 +74,7 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
 def test_repr_gcs():
   path = epath.Path('gs://bucket/dir')
   assert isinstance(path, epath.Path)
-  assert repr(path) == f'PosixGPath(\'{_GCS_SCHEME}bucket/dir\')'
+  assert repr(path) == f"PosixGPath('{_GCS_SCHEME}bucket/dir')"
   assert str(path) == f'{_GCS_SCHEME}bucket/dir'
   assert os.fspath(path) == f'{_GCS_SCHEME}bucket/dir'
   assert path.as_uri() == 'gs://bucket/dir'
@@ -188,10 +193,13 @@ def test_gcs(gcs_mocked_path: pathlib.Path):
 
 
 def test_open(gcs_mocked_path: pathlib.Path):
-
   files = [
-      'foo.py', 'bar.py', 'foo_bar.py', 'dataset.json', 'dataset_info.json',
-      'readme.md'
+      'foo.py',
+      'bar.py',
+      'foo_bar.py',
+      'dataset.json',
+      'dataset_info.json',
+      'readme.md',
   ]
   dataset_path = epath.Path('gs://bucket/dataset')
 
@@ -233,7 +241,9 @@ def test_touch():
   assert not file_path.exists()
   file_path.touch()
   assert file_path.exists()
-  assert file_path.read_text() == ''  # File content is empty  # pylint: disable=g-explicit-bool-comparison
+  assert (
+      file_path.read_text() == ''  # pylint: disable=g-explicit-bool-comparison
+  )  # File content is empty
 
   file_path.write_text('Some content')
   file_path.touch()  # Should be a no-op
@@ -245,7 +255,6 @@ def test_touch():
 
 @pytest.mark.usefixtures('gcs_mocked_path')
 def test_read_write():
-
   gpath = epath.Path('gs://file.txt')
 
   with gpath.open('w') as f:
@@ -314,7 +323,6 @@ def test_rename(gcs_mocked_path: pathlib.Path):
 
 
 def test_replace(tmp_path: pathlib.Path):
-
   file_path = epath.Path(os.path.join(tmp_path, 'tfds.py'))
   file_path.write_text('tfds')
 
@@ -336,7 +344,8 @@ def test_replace(tmp_path: pathlib.Path):
   assert len(list(tmp_path.iterdir())) == 2
 
   assert sorted(epath.Path(tmp_path).iterdir()) == [
-      tmp_path / 'mnist-100.py', tmp_path / 'tfds-dataset.py'
+      tmp_path / 'mnist-100.py',
+      tmp_path / 'tfds-dataset.py',
   ]
 
 

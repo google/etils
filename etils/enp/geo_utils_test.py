@@ -25,8 +25,8 @@ set_tnp = enp.testing.set_tnp
 
 @enp.testing.parametrize_xnp(with_none=True)
 def test_project_onto_plane_vector(xnp: Optional[enp.NpModule]):
-  u = [2, 2, 2.]
-  v = [0, 4, 4.]
+  u = [2, 2, 2.0]
+  v = [0, 4, 4.0]
   if xnp is not None:
     u = xnp.asarray(u)
     v = xnp.asarray(v)

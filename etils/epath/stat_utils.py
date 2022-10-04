@@ -26,6 +26,7 @@ class StatResult:
     length: Size in bytes
     mtime: Time since last modification (in sec since the epoch)
   """
+
   is_directory: bool
   length: int
   mtime: int

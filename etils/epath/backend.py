@@ -152,7 +152,8 @@ class _OsPathBackend(Backend):
   def rename(self, path: PathLike, dst: PathLike) -> None:
     if self.exists(dst):
       raise FileExistsError(
-          f'Cannot rename {path}. Destination {dst} already exists.')
+          f'Cannot rename {path}. Destination {dst} already exists.'
+      )
     os.rename(path, dst)
 
   def replace(self, path: PathLike, dst: PathLike) -> None:
@@ -184,8 +185,8 @@ class _TfBackend(Backend):
       import tensorflow  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
     except ImportError as e:
       raise ImportError(
-          f'{e}. To use epath.Path with gs://, TensorFlow should be '
-          'installed.') from None
+          f'{e}. To use epath.Path with gs://, TensorFlow should be installed.'
+      ) from None
     return tensorflow
 
   @property
@@ -266,7 +267,8 @@ class _TfBackend(Backend):
   def copy(self, path: PathLike, dst: PathLike, overwrite: bool) -> None:
     if overwrite and self.isdir(dst):  # For consistency with rename, replace
       raise IsADirectoryError(
-          f'Cannot copy {path}. Destination {dst} is a directory') from None
+          f'Cannot copy {path}. Destination {dst} is a directory'
+      ) from None
     try:
       self.gfile.copy(path, dst, overwrite=overwrite)
     except self.tf.errors.OpError as e:

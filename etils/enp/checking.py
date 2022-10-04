@@ -42,6 +42,7 @@ _Fn = TypeVar('_Fn')
 @dataclasses.dataclass
 class _ArrayParam:
   """Argument matching an array."""
+
   type: array_typing.ArrayAliasMeta
   is_optional: bool
   name: str
@@ -57,6 +58,7 @@ class _ArrayParam:
 @dataclasses.dataclass
 class _FnSignatureCache:
   """Cache of the function signature."""
+
   sig: inspect.Signature
   has_xnp_kwargs: bool
   array_params: dict[str, _ArrayParam]
@@ -164,7 +166,9 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
     except Exception as e:  # pylint: disable=broad-except
       epy.reraise(
           e,
-          prefix=f'@enp.check_and_normalize_arrays error for {fn.__qualname__}: ',
+          prefix=(
+              f'@enp.check_and_normalize_arrays error for {fn.__qualname__}: '
+          ),
       )
 
     return fn(*bound_args.args, **bound_args.kwargs)
@@ -190,7 +194,8 @@ def _get_xnp(
 
 
 def _infer_xnp(
-    xnps: dict[numpy_utils.NpModule, list[str]]) -> numpy_utils.NpModule:
+    xnps: dict[numpy_utils.NpModule, list[str]]
+) -> numpy_utils.NpModule:
   """Extract the `xnp` module."""
   non_np_xnps = set(xnps) - {np}  # jnp, tnp take precedence on `np`
 
@@ -229,16 +234,19 @@ def _maybe_set_tnp_casting(xnp: numpy_utils.NpModule) -> None:
     # creating conflict because TF do fail for operations like:
     # `tf.float64 + tf.float32`
     from tensorflow.python.ops.numpy_ops import np_dtypes  # pylint: disable=g-import-not-at-top,g-direct-tensorflow-import  # pytype: disable=import-error
+
     if not np_dtypes.is_prefer_float32():
       np_dtypes.set_prefer_float32(True)
 
-    msg = epy.dedent("""
+    msg = epy.dedent(
+        """
         WARNING: Using array types for TF but without numpy mode enabled. It
         is recommended to activate numpy mode as:
 
         import tensorflow.experimental.numpy as tnp
         tnp.experimental_enable_numpy_behavior(prefer_float32=True)
-    """)
+    """
+    )
     # Use print otherwise this isn't displayed on Colab
     # Could have a `epy.logging` module which auto-print on Colab.
     print(msg)
@@ -252,8 +260,11 @@ def _parse_signature(fn) -> _FnSignatureCache:
   except Exception as e:  # pylint: disable=broad-except
     epy.reraise(
         e,
-        prefix=f'Could not infer typing annotation of {fn.__qualname__} '
-        f'defined in {fn.__module__}')
+        prefix=(
+            f'Could not infer typing annotation of {fn.__qualname__} '
+            f'defined in {fn.__module__}'
+        ),
+    )
 
   sig = inspect.signature(fn)
 
@@ -269,7 +280,8 @@ def _parse_signature(fn) -> _FnSignatureCache:
     raise ValueError(
         'Error in @enp.check_and_normalize_arrays: '
         f'Could not detect any array type hints in {fn.__qualname__} with '
-        f'signature {sig}.')
+        f'signature {sig}.'
+    )
 
   return _FnSignatureCache(
       sig=sig,
@@ -292,7 +304,8 @@ def _get_array_param(
   def make_err(msg: str) -> Exception:
     return NotImplementedError(
         f'`enp.check_and_normalize_arrays` does not support {msg}. Please open '
-        f'an issue if you need this feature. For `{name}: {hint}`')
+        f'an issue if you need this feature. For `{name}: {hint}`'
+    )
 
   leaf_types = type_parsing.get_leaf_types(hint)
   is_optional = None in leaf_types

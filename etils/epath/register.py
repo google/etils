@@ -32,7 +32,8 @@ _PATHLIKE_CLS: Tuple[Type[abstract_path.Path], ...] = (
 )
 _URI_PREFIXES_TO_CLS: Dict[str, Type[abstract_path.Path]] = {
     # Even on Windows, `gs://`,... are PosixPath
-    uri_prefix: gpath.PosixGPath for uri_prefix in gpath.URI_PREFIXES
+    uri_prefix: gpath.PosixGPath
+    for uri_prefix in gpath.URI_PREFIXES
 }
 
 

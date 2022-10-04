@@ -81,10 +81,12 @@ def test_no_cause():
 
   e = exc_info.value
   assert isinstance(e, CustomWithStrError)
+  assert "Caught2: Caught: custom error: (None, 'message'), {'x': 2}" == str(e)
   assert (
-      "Caught2: Caught: custom error: (None, 'message'), {'x': 2}") == str(e)
-  assert ('CustomWithStrError("Caught2: Caught: custom error: (None, '
-          '\'message\'), {\'x\': 2}")') == repr(e)
+      'CustomWithStrError("Caught2: Caught: custom error: (None, '
+      "'message'), {'x': 2}\")"
+      == repr(e)
+  )
   # Attributes are correctly forwarded
   assert e.custom_args == (None, 'message')
   assert e.custom_kwargs == {'x': 2}

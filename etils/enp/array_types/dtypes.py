@@ -47,6 +47,7 @@ class Casting(epy.StrEnum):
     NONE: No casting allowed for existing `ndarray`. Array-like built-ins (list,
       int,...) are casted to the given dtype.
   """
+
   ALL = enum.auto()
   NONE = enum.auto()
 
@@ -74,6 +75,7 @@ class DType(abc.ABC):
     array_cls_name: Name of the array class associated with the dtype (`f32`,
       `ui8`,...).
   """
+
   name: str
   array_cls_name: str
 
@@ -120,7 +122,8 @@ class DType(abc.ABC):
         pass
       elif from_dtype != to_dtype:
         raise ValueError(
-            f'Cannot cast {from_dtype} to {to_dtype} (casting={casting}).')
+            f'Cannot cast {from_dtype} to {to_dtype} (casting={casting}).'
+        )
     elif casting == casting.ALL:
       pass  # Always try to cast to dtype
     else:

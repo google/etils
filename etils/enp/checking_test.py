@@ -47,14 +47,13 @@ def _assert_out(z, xnp):
   # jnp/np don't have same upcasting rules
   assert z.dtype in (np.float32, np.float64)
   assert z.shape == (1,)
-  assert z[0] == 3.
+  assert z[0] == 3.0
 
 
 @enp.testing.parametrize_xnp()
 @pytest.mark.parametrize('fn', [fn_base, fn_xnp_kwarg, fn_non_strict])
 def test_type(xnp: enp.NpModule, fn):
-
-  x = xnp.array([2.], dtype=np.float32)
+  x = xnp.array([2.0], dtype=np.float32)
   y = xnp.array([1], dtype=np.int32)
 
   _assert_out(fn(x, y), xnp)
@@ -64,20 +63,20 @@ def test_type(xnp: enp.NpModule, fn):
   if fn is fn_non_strict:
     # strict=False and pass non-array
     _assert_out(fn(x, [1]), xnp)
-    _assert_out(fn([2.], y), xnp)
+    _assert_out(fn([2.0], y), xnp)
     _assert_out(fn([2], y), xnp)  # auto int -> float conversion
-    _assert_out(fn([2.], [1]), np)  # Default to np
+    _assert_out(fn([2.0], [1]), np)  # Default to np
   else:
     with pytest.raises(TypeError, match='Expected xnp.ndarray'):
       fn(x, [1])
 
   # Bad dtype
   with pytest.raises(ValueError, match='Cannot cast float16 to float32'):
-    fn(xnp.array(2., dtype=np.float16), y)
+    fn(xnp.array(2.0, dtype=np.float16), y)
 
   # Bad dtype (integer)
   with pytest.raises(ValueError, match='Cannot cast float32 to'):
-    fn(x, xnp.array(2., dtype=np.float32))
+    fn(x, xnp.array(2.0, dtype=np.float32))
 
   # Independently of the original xnp, we can explicitly pass the target xnp
   _assert_out(fn(x, y, xnp=enp.lazy.np), enp.lazy.np)  # pytype: disable=wrong-keyword-args
@@ -93,7 +92,6 @@ def test_type(xnp: enp.NpModule, fn):
 
 
 def test_non_array_annotations():
-
   @enp.check_and_normalize_arrays(strict=False)
   def fn_non_array_args(x: int, y: FloatArray, z):
     # Non-array typing annotations are preserved

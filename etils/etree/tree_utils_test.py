@@ -33,23 +33,19 @@ import tensorflow as tf
         etree_lib.jax,
         etree_lib.tree,
         etree_lib.nest,
-    ],)
+    ],
+)
 def etree_api(request):
   yield request.param
 
 
 def test_tree_parallel_map(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
-  assert etree_api.parallel_map(lambda x: x * 10, {
-      'a': [1, 2, 3],
-      'b': [4, 5]
-  }) == {
-      'a': [10, 20, 30],
-      'b': [40, 50]
-  }
+  assert etree_api.parallel_map(
+      lambda x: x * 10, {'a': [1, 2, 3], 'b': [4, 5]}
+  ) == {'a': [10, 20, 30], 'b': [40, 50]}
 
 
 def test_tree_parallel_map_reraise(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
-
   def fn(x):
     raise ValueError('Bad value')
 
@@ -59,11 +55,17 @@ def test_tree_parallel_map_reraise(etree_api: etree_lib.tree_utils.TreeAPI):  # 
 
 def test_tree_unzip(etree_api):  # pylint: disable=redefined-outer-name
   unflatten = [{'a': 1, 'b': 10}, {'a': 2, 'b': 20}, {'a': 3, 'b': 30}]
-  assert list(
-      etree_api.unzip({
-          'a': np.array([1, 2, 3]),
-          'b': np.array([10, 20, 30]),
-      })) == unflatten
+  assert (
+      list(
+          etree_api.unzip(
+              {
+                  'a': np.array([1, 2, 3]),
+                  'b': np.array([10, 20, 30]),
+              }
+          )
+      )
+      == unflatten
+  )
 
 
 @dataclasses.dataclass
@@ -96,9 +98,7 @@ def test_spec_like(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=
   assert specs == [
       enp.ArraySpec((None,), dtype=np.int32),
       enp.ArraySpec((6,), dtype=np.int32),
-      {
-          'a': enp.ArraySpec((7,), dtype=np.float32)
-      },
+      {'a': enp.ArraySpec((7,), dtype=np.float32)},
       None,
       enp.ArraySpec((2,), dtype=str),
       None,
