@@ -339,6 +339,7 @@ _MODULE_NAMES = dict(
     # ====== Common third party ======
     app='absl.app',
     flags='absl.flags',
+    beam='apache_beam',
     colabtools='colabtools',
     interactive_forms='colabtools.interactive_forms',
     chex='chex',
