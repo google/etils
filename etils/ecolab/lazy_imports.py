@@ -36,7 +36,9 @@ import dataclasses as dataclasses_
 import importlib as importlib_
 import traceback as traceback_
 import types as types_
-from typing import Any, Optional
+from typing import Any, Optional, Union
+
+from etils import epy as epy_
 
 
 def __dir__() -> list[str]:  # pylint: disable=invalid-name
@@ -82,11 +84,21 @@ class LazyModuleState:
   2) Avoid infinite recursion error when typo on a attribute
   3) `@property`, `epy.cached_property` fail when the class is changed
 
+  Attributes:
+    module_name: E.g. `jax.numpy`
+    alias: E.g. `jnp`
+    host: `LazyModule` attached to the state
+    extra_imports: Additional extra imports to trigger (e.g. `concurrent`
+      trigger `concurrent.futures` import)
+    _module: Cached original imported module
+    trace_repr: Track the trace which trigger the import (Helpful to debug)
+      E.g. `Colab` call '.getdoc' on the background, which trigger import.
   """
 
   module_name: str
   alias: str
   host: LazyModule = dataclasses_.field(repr=False)
+  extra_imports: list[str] = dataclasses_.field(default_factory=list)
   _module: Optional[types_.ModuleType] = None
   # Track the trace which trigger the import
   # Helpful to debug.
@@ -104,18 +116,23 @@ class LazyModuleState:
       # the module was never used before.
       self.trace_repr = ''.join(traceback_.format_stack())
 
-      self._module = _load_module(self.module_name)
+      self._module = _load_module(
+          self.module_name,
+          extra_imports=self.extra_imports,
+      )
       # Update the module.__doc__, module.__file__,...
       self._mutate_host()
     return self._module
 
   @property
   def module_loaded(self) -> bool:
+    """Returns `True` if the module is loaded."""
     return self._module is not None
 
   @property
   def is_std(self) -> bool:
     """Returns `True` if the module is in the standard library."""
+    # TODO(epot): Should also contains, `mock`, `concurrent.futures`
     return self.module_name in _STANDARD_MODULE_NAMES
 
   @property
@@ -134,6 +151,7 @@ class LazyModuleState:
       if right_import == self.alias:
         return f'from {left_import} import {right_import}'
 
+    # TODO(epot): Also add extra imports ?
     return f'import {self.module_name} as {self.alias}'
 
   def _mutate_host(self) -> None:
@@ -153,14 +171,22 @@ class module(types_.ModuleType):  # pylint: disable=invalid-name
 
   _etils_state: LazyModuleState
 
-  def __init__(self, module_name: str, *, alias: str):
+  def __init__(self, module_names: Union[str, list[str]], *, alias: str):
     # We set `__file__` to None, to avoid `colab_import.reload_package(etils)`
     # to trigger a full reload of all modules here.
     object.__setattr__(self, '__file__', None)
 
+    if isinstance(module_names, str):
+      module_name = module_names
+      extra_imports = []
+    else:
+      assert isinstance(module_names, list)
+      module_name, *extra_imports = module_names
+
     state = LazyModuleState(
         module_name=module_name,
         alias=alias,
+        extra_imports=extra_imports,
         host=self,
     )
     object.__setattr__(self, '_etils_state', state)
@@ -204,7 +230,11 @@ del module
 
 # TODO(epot): Rather than hardcoding which modules are adhoc-imported, this
 # could be a argument.
-def _load_module(module_name: str) -> types_.ModuleType:
+def _load_module(
+    module_name: str,
+    *,
+    extra_imports: list[str],
+) -> types_.ModuleType:
   """Load the module, eventually using adhoc-import."""
   import contextlib  # pylint: disable=g-import-not-at-top
 
@@ -212,6 +242,11 @@ def _load_module(module_name: str) -> types_.ModuleType:
 
   # First time, load the module
   with adhoc_cm:
+    for extra_import in extra_imports:
+      # Hardcoded hack to not import tqdm.notebook on non-Colab env
+      if extra_import == 'tqdm.notebook' and not epy_.is_notebook():
+        continue
+      importlib_.import_module(extra_import)
     return importlib_.import_module(module_name)
 
 
@@ -274,7 +309,7 @@ _STANDARD_MODULE_NAMES = [
     'collections',
     'colorsys',
     'copy',
-    # 'concurrent.futures',
+    # 'concurrent.futures',  # Added bellow
     'contextlib',
     'contextvars',
     'csv',
@@ -312,6 +347,7 @@ _STANDARD_MODULE_NAMES = [
     'threading',
     'time',
     'timeit',
+    'tomllib',
     'traceback',
     'typing',  # Note: With `__future__.annotations`, no need to import Any & co
     'types',
@@ -325,6 +361,7 @@ _MODULE_NAMES = dict(
     # ====== Python standard lib ======
     **{n: n for n in _STANDARD_MODULE_NAMES},
     mock='unittest.mock',
+    concurrent=['concurrent', 'concurrent.futures'],
     # ====== Etils ======
     etils='etils',
     array_types='etils.array_types',
@@ -368,7 +405,7 @@ _MODULE_NAMES = dict(
     tf='tensorflow',
     tnp='tensorflow.experimental.numpy',
     tfds='tensorflow_datasets',
-    tqdm='tqdm',
+    tqdm=['tqdm', 'tqdm.auto', 'tqdm.notebook'],
     tree='tree',
     typing_extensions='typing_extensions',
     plotly='plotly',
@@ -378,14 +415,16 @@ _MODULE_NAMES = dict(
     v3d='visu3d',
 )
 
-# Sort the lazy modules per their <module_name>
 # Note that this fail with python 3.7, but works with 3.8+
-_MODULE_NAMES = dict(sorted(_MODULE_NAMES.items(), key=lambda x: x[1]))
 
 LAZY_MODULES: dict[str, LazyModule] = {
     k: LazyModule(v, alias=k) for k, v in _MODULE_NAMES.items()
 }
+# Sort the lazy modules per their <module_name>
+LAZY_MODULES: dict[str, LazyModule] = dict(
+    sorted(LAZY_MODULES.items(), key=lambda x: x[1]._etils_state.module_name)  # pylint: disable=protected-access
+)
 globals().update(LAZY_MODULES)
 
 
-__all__ = sorted(_MODULE_NAMES)  # Sorted per alias
+__all__ = sorted(LAZY_MODULES)  # Sorted per alias

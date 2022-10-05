@@ -18,6 +18,8 @@ Changelog follow https://keepachangelog.com/ format.
         etils.ecolab.lazy_imports import *`.
     *   Changed: Mutating a lazy_import module mutate the original one. This
         allow to mutate `builtins` module for example.
+    *   Added: `etils.lazy_imports` supports multi-import (e.g. using
+        `concurrent` also trigger `concurrent.futures` import).
 *   `eapp` (Added):
     *   Added: `.make_flags_parser` to define CLI flags through dataclasses.
 *   `edc`:
