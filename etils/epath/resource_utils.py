@@ -88,7 +88,32 @@ class ResourcePath(zipfile.Path):
 
 
 def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
-  """Returns `importlib.resources.files`."""
+  """Returns read-only root directory path of the module.
+
+  Used to access module resource files.
+
+  Usage:
+
+  ```python
+  path = epath.resource_path('tensorflow_datasets') / 'README.md'
+  content = path.read_text()
+  ```
+
+  This is compatible with everything, including zipapp (`.par`).
+
+  Resource files should be in the `data=` of the `py_library(` (when using
+  bazel).
+
+  To write to your project (e.g. automatically update your code), read-only
+  resource paths can be converted to read-write paths with
+  `epath.to_write_path(path)`.
+
+  Args:
+    package: Module or module name.
+
+  Returns:
+    The read-only path to the root module directory
+  """
   path = importlib_resources.files(package)  # pytype: disable=module-attr
   if isinstance(path, pathlib.Path):
     # TODO(etils): To ensure compatibility with zipfile.Path, we should ensure
@@ -107,5 +132,5 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
 
 
 def to_write_path(path: abstract_path.Path) -> abstract_path.Path:
-  """Cast the path to a read-write Path."""
+  """Cast the `epath.resource_path` to a read-write Path."""
   return path
