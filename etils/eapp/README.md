@@ -35,3 +35,22 @@ for details.
 
 This is compatible with `absl.flags`, so you can mix `dataclasses` with `FLAGS`
 on the same program.
+
+### `eapp.better_logging`
+
+Improve Python logging when running locally.
+
+*   Display Python logs by default (even when user forgot `--logtostderr`),
+    without being polluted by hundreds of C++ logs.
+*   Cleaner minimal log format (e.g. `I 15:04:05 [main.py:24]:`)
+*   Avoid visual artifacts between TQDM & `logging`
+
+Usage:
+
+```python
+if __name__ == '__main__':
+  eapp.better_logging()
+  app.run(main)
+```
+
+Note this has only effect when user run locally and without `--logtostderr`.
