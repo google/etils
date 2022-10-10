@@ -15,3 +15,4 @@
 """Absl app/flag utils."""
 
 from etils.eapp.dataclass_flags import make_flags_parser
+from etils.eapp.logging_utils import better_logging
