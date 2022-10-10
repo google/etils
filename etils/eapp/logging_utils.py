@@ -67,6 +67,9 @@ def _better_logging() -> None:
   if FLAGS.logtostderr or FLAGS.alsologtostderr:
     return
 
+  # Display logs by default
+  absl_logging.use_python_logging(quiet=True)
+
   file_link = '{filename}:{lineno}'
 
   # Using cleaner, less verbose logger
@@ -80,9 +83,6 @@ def _better_logging() -> None:
       style='{',
   )
 
-  absl_logging.use_python_logging(quiet=True)
-  # TODO(epot): Let user control if flag explicitly set
-  absl_logging.set_verbosity(absl_logging.INFO)
   python_handler = absl_logging.get_absl_handler().python_handler
   python_handler.setFormatter(formatter)
 
