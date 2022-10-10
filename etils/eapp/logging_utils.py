@@ -14,6 +14,7 @@
 
 """Logging utils."""
 
+import functools
 import logging as py_logging
 import sys
 
@@ -66,16 +67,19 @@ def _better_logging() -> None:
   if FLAGS.logtostderr or FLAGS.alsologtostderr:
     return
 
+  file_link = '{filename}:{lineno}'
+
   # Using cleaner, less verbose logger
   formatter = py_logging.Formatter(
       # Only display single letter level (`INFO`, `DEBUG`,... -> `I`, `D`,...)
-      '{levelname:1.1} {asctime} [{filename}:{lineno}]: {message}',
+      f'{{levelname:1.1}} {{asctime}} [{file_link}]: {{message}}',
       # Do not display date by default (take a lot of space and is almost
       # never important locally.
       # Also milliseconds feel overkill
       datefmt='%H:%M:%S',
       style='{',
   )
+
   absl_logging.use_python_logging(quiet=True)
   # TODO(epot): Let user control if flag explicitly set
   absl_logging.set_verbosity(absl_logging.INFO)
@@ -89,6 +93,20 @@ def _better_logging() -> None:
     python_handler.setStream(TqdmStream())
 
 
+def _terminal_link(uri: str, text: str) -> str:
+  """Returns a clickable link on the terminal."""
+  parameters = ''
+  # OSC 8 ; params ; URI ST <name> OSC 8 ;; ST
+  return f'\033]8;{parameters};{uri}\033\\{text}\033]8;;\033\\'
+
+
+def _new_factory(old_factory, *args, **kwargs) -> py_logging.LogRecord:
+  """Update the logs."""
+  # TODO(epot): Add color ?
+  record = old_factory(*args, **kwargs)
+  return record
+
+
 def better_logging():
   """Improve Python logging when running locally.
 
@@ -96,6 +114,7 @@ def better_logging():
     without being polluted by hundreds of C++ logs.
   * Cleaner minimal log format (e.g. `I 15:04:05 [main.py:24]:`)
   * Avoid visual artifacts between TQDM & `logging`
+  * Clickable hyperlinks redirecting to code search (require terminal support)
 
   Usage:
 

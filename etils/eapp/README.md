@@ -44,6 +44,8 @@ Improve Python logging when running locally.
     without being polluted by hundreds of C++ logs.
 *   Cleaner minimal log format (e.g. `I 15:04:05 [main.py:24]:`)
 *   Avoid visual artifacts between TQDM & `logging`
+*   Clickable `file.py` hyperlinks redirecting to code search (require
+    [terminal support](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda))
 
 Usage:
 
