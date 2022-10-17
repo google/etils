@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Added: `@epy.frozen` class decorator to make class immutable
+
 ## [0.8.0] - 2022-09-12
 
 *   `epath`:
@@ -22,7 +25,8 @@ Changelog follow https://keepachangelog.com/ format.
         `concurrent` also trigger `concurrent.futures` import).
 *   `eapp` (Added):
     *   Added: `.make_flags_parser` to define CLI flags through dataclasses.
-    *   Added: `.better_logging` to display logs by default, tqdm compatibility,...
+    *   Added: `.better_logging` to display logs by default, tqdm
+        compatibility,...
 *   `edc`:
     *   Changed: `.replace` only added once (not in subclasses).
 

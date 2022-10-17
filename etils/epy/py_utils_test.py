@@ -38,3 +38,70 @@ def test_str_enum():
     MyEnum('non-existing')
 
   assert [e.value for e in MyEnum] == ['my_other_attr', 'my_attr']
+
+
+@epy.frozen
+class A:
+
+  def __init__(self):
+    self.x = 123
+    self.y = 456
+
+
+def test_frozen():
+  a = A()
+  assert a.x == 123
+  with pytest.raises(AttributeError):
+    a.x = 456
+
+  with pytest.raises(AttributeError):
+    a.w = 456
+
+
+def test_frozen_inheritance_no_init():
+  class B(A):
+    pass
+
+  a = B()
+  assert a.x == 123
+  with pytest.raises(AttributeError):
+    a.x = 456
+
+  with pytest.raises(AttributeError):
+    a.w = 456
+
+
+def test_frozen_inheritance_missing_frozen():
+  class B(A):
+
+    def __init__(self):
+      # Before, raise an error
+      with pytest.raises(ValueError, match='Child of `@epy.frozen`'):
+        self.x = 456
+      super().__init__()
+      # After, default error is raised
+      with pytest.raises(AttributeError):
+        self.x = 456
+
+  b = B()
+  assert b.x == 123
+
+  with pytest.raises(AttributeError):
+    b.w = 456
+
+
+def test_frozen_inheritance_new_init():
+  @epy.frozen
+  class B(A):
+
+    def __init__(self):
+      self.x2 = 123
+      super().__init__()
+      self.x3 = 123
+
+  b = B()
+  assert b.x == 123
+  assert b.x2 == 123
+  assert b.x3 == 123
+  with pytest.raises(AttributeError):
+    b.w = 456

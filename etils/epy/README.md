@@ -28,3 +28,21 @@ Exception().with_traceback(tb)`, this function will:
     exception occurred`. Only the single original stacktrace is displayed.
 
 This result in cleaner and more compact error messages.
+
+### `epy.frozen`
+
+Class decorator to make it immutable (except in `__init__`).
+
+```python
+@epy.frozen
+class A:
+
+  def __init__(self):
+    self.x = 123
+
+a = A()
+a.x = 456  # AttributeError
+```
+
+Supports inheritance, child classes should explicitly be marked as `@epy.frozen`
+if they mutate additional attributes in `__init__`.

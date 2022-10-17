@@ -17,8 +17,11 @@
 from __future__ import annotations
 
 import enum
+import functools
 import typing
-from typing import Any, Union
+from typing import Any, TypeVar, Union
+
+_Cls = TypeVar('_Cls')
 
 
 class StrEnum(str, enum.Enum):
@@ -34,7 +37,6 @@ class StrEnum(str, enum.Enum):
   ```
 
   `StrEnum` is case insensitive.
-
   """
 
   # `issubclass(StrEnum, str)`, so can annotate `str` instead of `str | StrEnum`
@@ -75,3 +77,72 @@ def issubclass_(
 ) -> bool:
   """Like `issubclass`, but do not raise error if value is not `type`."""
   return isinstance(cls, type) and issubclass(cls, types)
+
+
+def _wrap_init(init_fn):
+  """`__init__` wrapper."""
+
+  @functools.wraps(init_fn)
+  def new_init(self, *args, **kwargs):
+    if hasattr(self, '_epy_is_init_done'):
+      # `_epy_is_init_done` already created, so it means we're
+      # a `super().__init__` call.
+      return init_fn(self, *args, **kwargs)
+    object.__setattr__(self, '_epy_is_init_done', False)
+    init_fn(self, *args, **kwargs)
+    object.__setattr__(self, '_epy_is_init_done', True)
+
+  return new_init
+
+
+def _wrap_setattr(setattr_fn):
+  """`__setattr__` wrapper."""
+
+  @functools.wraps(setattr_fn)
+  def new_setattr(self, name, value):
+    if not hasattr(self, '_epy_is_init_done'):
+      raise ValueError(
+          'Child of `@epy.frozen` class should be `@epy.frozen` too. (Error'
+          f' raised by {type(self)})'
+      )
+    if not self._epy_is_init_done:  # pylint: disable=protected-access
+      return setattr_fn(self, name, value)
+    else:
+      raise AttributeError(
+          f'Cannot assign {name!r} in `@epy.frozen` class {type(self)}'
+      )
+
+  return new_setattr
+
+
+def frozen(cls: _Cls) -> _Cls:
+  """Class decorator which prevent mutating attributes after `__init__`.
+
+  Example:
+
+  ```python
+  @epy.frozen
+  class A:
+
+    def __init__(self):
+      self.x = 123
+
+  a = A()
+  a.x = 456  # AttributeError
+  ```
+
+  Supports inheritance, child classes should explicitly be marked as
+  `@epy.frozen` if they mutate additional attributes in `__init__`.
+
+  Args:
+    cls: The class to freeze.
+
+  Returns:
+    cls: The class object
+  """
+  if not isinstance(cls, type):
+    raise TypeError(f'{cls.__name__} is not')
+
+  cls.__init__ = _wrap_init(cls.__init__)
+  cls.__setattr__ = _wrap_setattr(cls.__setattr__)
+  return cls
