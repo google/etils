@@ -10,6 +10,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epy`:
     *   Added: `@epy.frozen` class decorator to make class immutable
+*   `edc`:
+    *   Added: Attributes of `@edc.dataclass` can be annotated with
+        `x: edc.AutoCast[T]` (for auto-normalization).
 
 ## [0.8.0] - 2022-09-12
 

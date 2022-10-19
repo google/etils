@@ -14,5 +14,6 @@
 
 """Dataclasses utils."""
 
+from etils.edc.cast_utils import AutoCast
 from etils.edc.dataclass_utils import dataclass
 from etils.edc.field_utils import field

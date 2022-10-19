@@ -46,6 +46,7 @@ ecolab = [
     "etils[epy]",
 ]
 edc = [
+    "typing_extensions",
     "etils[epy]",
 ]
 enp = [

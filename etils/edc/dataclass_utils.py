@@ -24,6 +24,7 @@ import typing
 from typing import Any, Callable, TypeVar
 
 from etils import epy
+from etils.edc import cast_utils
 from etils.edc import frozen_utils
 
 _Cls = Any
@@ -38,6 +39,7 @@ def dataclass(
     kw_only: bool = ...,
     replace: bool = ...,  # pylint: disable=redefined-outer-name
     repr: bool = ...,  # pylint: disable=redefined-builtin
+    auto_cast: bool = ...,
     allow_unfrozen: bool = ...,
 ) -> Callable[[_ClsT], _ClsT]:
   ...
@@ -50,6 +52,7 @@ def dataclass(
     kw_only: bool = ...,
     replace: bool = ...,  # pylint: disable=redefined-outer-name
     repr: bool = ...,  # pylint: disable=redefined-builtin
+    auto_cast: bool = ...,
     allow_unfrozen: bool = ...,
 ) -> _ClsT:
   ...
@@ -61,9 +64,30 @@ def dataclass(
     kw_only=False,
     replace=True,  # pylint: disable=redefined-outer-name
     repr=True,  # pylint: disable=redefined-builtin
+    auto_cast=True,
     allow_unfrozen=False,
 ):
   """Augment a dataclass with additional features.
+
+  `auto_cast`: Auto-convert init assignements to the annotated class.
+
+  ```python
+  @edc.dataclass
+  class A:
+    path: edc.AutoCast[epath.Path]
+    some_enum: edc.AutoCast[MyEnum]
+    x: edc.AutoCast[str]
+
+  a = A(
+      path='/some/path',
+      some_enum='A',
+      x=123
+  )
+  # Fields annotated with `AutoCast` are automatically casted to their type
+  assert a.path == epath.Path('/some/path')
+  assert a.some_enum is MyEnum.A
+  assert a.x == '123'
+  ```
 
   `allow_unfrozen`: allow nested dataclass to be updated. This add two methods:
 
@@ -127,6 +151,8 @@ def dataclass(
     replace: If `True`, add a `.replace(` alias of `dataclasses.replace`.
     repr: If `True`, the class `__repr__` will return a pretty-printed `str`
       (one attribute per line)
+    auto_cast: If `True`, field annotated as `x: edc.AutoCast[Cls]` will be
+      converted to `x: Cls = edc.field(validator=Cls)`.
     allow_unfrozen: If `True`, add `.frozen`, `.unfrozen` methods.
 
   Returns:
@@ -139,6 +165,7 @@ def dataclass(
         kw_only=kw_only,
         replace=replace,
         repr=repr,
+        auto_cast=auto_cast,
         allow_unfrozen=allow_unfrozen,
     )
 
@@ -153,6 +180,9 @@ def dataclass(
 
   if allow_unfrozen:
     cls = frozen_utils.add_unfrozen(cls)
+
+  if auto_cast:
+    cls = cast_utils.apply_auto_cast_to_field(cls)
 
   return cls
 
