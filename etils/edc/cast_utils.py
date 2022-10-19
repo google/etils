@@ -34,7 +34,17 @@ _IS_NORMALIZED = object()
 
 
 if typing.TYPE_CHECKING:
-  AutoCast = typing.Any
+
+  # TODO(b/254514368): Remove hack
+  class _AutoCastMeta(type):
+
+    def __getitem__(cls, value):
+      return value
+
+  class AutoCast(metaclass=_AutoCastMeta):
+    pass
+
+
 else:
   AutoCast = Annotated[_T, _IS_NORMALIZED]  # pytype: disable=invalid-typevar
 
