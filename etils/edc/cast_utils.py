@@ -33,10 +33,9 @@ _ClsT = TypeVar('_ClsT')
 _IS_NORMALIZED = object()
 
 
-if typing.TYPE_CHECKING:
-  AutoCast = typing.Any
-else:
-  AutoCast = Annotated[_T, _IS_NORMALIZED]  # pytype: disable=invalid-typevar
+AutoCast = Annotated[_T, _IS_NORMALIZED]  # pytype: disable=invalid-typevar
+
+IntCast = AutoCast[int]
 
 
 def apply_auto_cast_to_field(cls: _ClsT) -> _ClsT:
