@@ -21,6 +21,7 @@ import functools
 import typing
 from typing import TypeVar
 
+from etils import epy
 from etils.edc import field_utils
 import typing_extensions
 from typing_extensions import Annotated
@@ -89,7 +90,7 @@ def _apply_auto_cast(cls):
     # This class is already processed
     return
 
-  hints = typing_extensions.get_type_hints(cls, include_extras=True)
+  hints = _get_type_hints(cls, include_extras=True)
   fields = {f.name: f for f in dataclasses.fields(cls)}
 
   for name, hint in hints.items():
@@ -115,3 +116,20 @@ def _apply_auto_cast(cls):
     cast_field = field_utils.field(validate=hint_cls)
     setattr(cls, name, cast_field)  # cls.__dict__[name] = cast_field
     cast_field.__set_name__(cls, name)  # Notify the descriptor
+
+
+# Could merge this function with the one in `dataclass_array` in a util.
+def _get_type_hints(cls, *, include_extras: bool = False):
+  """`get_type_hints` with better error reporting."""
+  # At this point, `ForwardRef` should have been resolved.
+  try:
+    return typing_extensions.get_type_hints(cls, include_extras=include_extras)
+  except Exception as e:  # pylint: disable=broad-except
+    msg = (
+        f'Could not infer typing annotation of {cls.__qualname__} '
+        f'defined in {cls.__module__}:\n'
+    )
+    lines = [f' * {k}: {v!r}' for k, v in cls.__annotations__.items()]
+    lines = '\n'.join(lines)
+
+    epy.reraise(e, prefix=msg + lines + '\n')
