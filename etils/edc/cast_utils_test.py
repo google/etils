@@ -39,7 +39,9 @@ def test_edc(frozen: bool):
   @edc.dataclass
   @dataclasses.dataclass(frozen=frozen)
   class D(C):
-    d: edc.AutoCast[int] = '888'  # Default arg
+    d: edc.AutoCast[
+        int
+    ] = '888'  # Default arg  # pytype: disable=annotation-type-mismatch
 
   d = D(c='123', c_non_autocast='456')  # pytype: disable=wrong-arg-types
 
