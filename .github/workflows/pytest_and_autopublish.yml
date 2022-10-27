@@ -13,7 +13,7 @@ jobs:
       with:
         access_token: ${{ github.token }}
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     # Install deps
     - uses: actions/setup-python@v2
