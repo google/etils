@@ -16,6 +16,7 @@
 
 from etils.ecolab.array_as_img import auto_plot_array
 from etils.ecolab.colab_utils import collapse
+from etils.ecolab.module_utils import clear_cached_modules
 
 __all__ = [
     'auto_plot_array',

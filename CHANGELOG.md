@@ -11,8 +11,11 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`:
     *   Added: `@epy.frozen` class decorator to make class immutable
 *   `edc`:
-    *   Added: Attributes of `@edc.dataclass` can be annotated with
-        `x: edc.AutoCast[T]` (for auto-normalization).
+    *   Added: Attributes of `@edc.dataclass` can be annotated with `x:
+        edc.AutoCast[T]` (for auto-normalization).
+*   `ecolab`:
+    *   Added: `ecolab.clear_cached_modules` to reload modules (useful for
+        interactive development)
 
 ## [0.8.0] - 2022-09-12
 

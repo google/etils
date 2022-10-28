@@ -78,3 +78,17 @@ with ecolab.collapse('Json content:'):  # Capture both stderr/stdout
 Example:
 
 ![https://i.imgur.com/KOjUlOg.png](https://i.imgur.com/KOjUlOg.png){height="180"}
+
+### Clear cache
+
+Helpful for interactive development to reload from Jupyter notebook the code
+we're currently editing (without having to restart the notebook kernel).
+
+Usage:
+
+```python
+ecolab.clear_cached_modules(['visu3d', 'other_module.submodule'])
+
+import visu3d
+import other_module.submodule
+```
