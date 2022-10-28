@@ -8,6 +8,14 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+<!-- --------- Do not add anything bellow this line --------- -->
+
+## [0.9.0] - 2022-10-28
+
+*   `eapp` (Added):
+    *   Added: `.make_flags_parser` to define CLI flags through dataclasses.
+    *   Added: `.better_logging` to display logs by default, tqdm
+        compatibility,...
 *   `epy`:
     *   Added: `@epy.frozen` class decorator to make class immutable
 *   `edc`:
@@ -16,6 +24,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Added: `ecolab.clear_cached_modules` to reload modules (useful for
         interactive development)
+    *   Added: `etils.lazy_imports` supports multi-import (e.g. using
+        `concurrent` also trigger `concurrent.futures` import).
 
 ## [0.8.0] - 2022-09-12
 
@@ -27,12 +37,6 @@ Changelog follow https://keepachangelog.com/ format.
         etils.ecolab.lazy_imports import *`.
     *   Changed: Mutating a lazy_import module mutate the original one. This
         allow to mutate `builtins` module for example.
-    *   Added: `etils.lazy_imports` supports multi-import (e.g. using
-        `concurrent` also trigger `concurrent.futures` import).
-*   `eapp` (Added):
-    *   Added: `.make_flags_parser` to define CLI flags through dataclasses.
-    *   Added: `.better_logging` to display logs by default, tqdm
-        compatibility,...
 *   `edc`:
     *   Changed: `.replace` only added once (not in subclasses).
 
