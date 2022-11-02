@@ -385,6 +385,7 @@ _MODULE_NAMES = dict(
     flax='flax',
     nn='flax.linen',
     gin='gin',
+    graphviz='graphviz',
     imageio='imageio',
     # Even though `import ipywidgets as widgets` is the common alias, widget
     # is likely too ambiguous.
@@ -396,6 +397,7 @@ _MODULE_NAMES = dict(
     plt='matplotlib.pyplot',
     media='mediapy',
     ml_collections='ml_collections',
+    nx='networkx',
     np='numpy',
     pd='pandas',
     pycolmap='pycolmap',

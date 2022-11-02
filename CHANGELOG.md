@@ -11,7 +11,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Added: `ecolab.patch_graphviz` to fix Colab display with `graphviz`.
     *   Added: `ecolab.set_verbose` to activate stderr logging on Colab.
-
+    *   Changed: `ecolab.clear_cached_modules` accept single `str`
 
 <!-- --------- Do not add anything bellow this line --------- -->
 

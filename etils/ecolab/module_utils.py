@@ -19,11 +19,13 @@ from __future__ import annotations
 import sys
 import types
 import typing
-from typing import NoReturn
+from typing import Sequence, NoReturn, Optional, Union
+
+StrOrStrList = Union[str, Sequence[str]]
 
 
 def clear_cached_modules(
-    modules: list[str],
+    modules: StrOrStrList,
     *,
     verbose: bool = False,
 ) -> None:
@@ -45,6 +47,7 @@ def clear_cached_modules(
     modules: List of modules to clear (all submodules cleared too)
     verbose: Whether to display the list of modules cleared.
   """
+  modules = normalize_str_to_list(modules)
   assert all('/' not in module for module in modules)
 
   # List all the currently loaded modules matching `modules`
@@ -101,3 +104,14 @@ def _invalidate_module(module: types.ModuleType) -> None:
 
   module.__dict__.clear()
   module.__getattr__ = __getattr__
+
+
+def normalize_str_to_list(x: Optional[StrOrStrList]) -> list[str]:
+  if x is None:
+    return []
+  elif isinstance(x, str):
+    return [v.strip() for v in x.split(',')]
+  elif not isinstance(x, (list, tuple)):
+    raise TypeError(f'Expected list. Got: {x!r}')
+  else:  # list/tuple
+    return list(x)
