@@ -79,6 +79,12 @@ Example:
 
 ![https://i.imgur.com/KOjUlOg.png](https://i.imgur.com/KOjUlOg.png){height="180"}
 
+### Others
+
+*   `ecolab.set_verbose()`: Log stderr & `absl.logging` (which are hidden by
+    default)
+*   `ecolab.patch_graphviz()`: Make `graphviz` display work on Colab
+
 ### Clear cache
 
 Helpful for interactive development to reload from Jupyter notebook the code

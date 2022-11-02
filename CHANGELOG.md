@@ -8,6 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   Added: `ecolab.patch_graphviz` to fix Colab display with `graphviz`.
+    *   Added: `ecolab.set_verbose` to activate stderr logging on Colab.
+
+
 <!-- --------- Do not add anything bellow this line --------- -->
 
 ## [0.9.0] - 2022-10-28

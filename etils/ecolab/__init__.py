@@ -17,9 +17,13 @@
 from etils.ecolab.array_as_img import auto_plot_array
 from etils.ecolab.colab_utils import collapse
 from etils.ecolab.module_utils import clear_cached_modules
+from etils.ecolab.patch_utils import patch_graphviz
+from etils.ecolab.patch_utils import set_verbose
 
 __all__ = [
     'auto_plot_array',
-    'auto_plot_array',
     'collapse',
+    'clear_cached_modules',
+    'patch_graphviz',
+    'set_verbose',
 ]
