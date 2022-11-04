@@ -126,7 +126,7 @@ class TreeAPI:
         if ignore_other:
           return array
         else:
-          raise TypeError(f'Unknown array type: {array!r}')
+          raise TypeError(f'Unknown array type: {type(array)}')
       else:
         return enp.ArraySpec.from_array(array)
 

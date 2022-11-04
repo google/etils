@@ -99,6 +99,6 @@ class ArraySpec:
     elif lazy.has_tf and isinstance(array, type(_get_none_spec())):
       return None  # Special case for `NoneTensorSpec()`
     else:
-      raise UnknownArrayError(f'Unknown array-like type: {array!r}')
+      raise UnknownArrayError(f'Unknown array-like type: {type(array)}')
     # Should we also handle `bytes` case ?
     return cls(shape=shape, dtype=dtype)
