@@ -245,16 +245,12 @@ def add_repr(cls: _ClsT) -> _ClsT:
 def __repr__(self) -> str:  # pylint: disable=invalid-name
   """Pretty-print `repr`."""
   all_fields = dataclasses.fields(self)
-  collapse = len(all_fields) <= 1
 
-  trailing = '' if collapse else ','
-
-  lines = epy.Lines()
-  lines += f'{self.__class__.__name__}('
-  with lines.indent():
-    for field in all_fields:
-      if not field.repr:
-        continue
-      lines += f'{field.name}={getattr(self, field.name)!r}{trailing}'
-  lines += ')'
-  return lines.join(collapse=collapse)
+  return epy.Lines.make_block(
+      header=self.__class__.__name__,
+      content={
+          field.name: repr(getattr(self, field.name))
+          for field in all_fields
+          if field.repr
+      },
+  )

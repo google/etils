@@ -12,6 +12,9 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `ecolab.patch_graphviz` to fix Colab display with `graphviz`.
     *   Added: `ecolab.set_verbose` to activate stderr logging on Colab.
     *   Changed: `ecolab.clear_cached_modules` accept single `str`
+*   `edc`:
+    *   Added: Expose `edc.repr`, for functional use or directly assign class
+        members (e.g. `__repr__ = edc.repr`)
 
 <!-- --------- Do not add anything bellow this line --------- -->
 

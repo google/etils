@@ -121,12 +121,14 @@ def test_repr():
   assert repr(R2()) == 'R2 repr'
 
   # When 1 or 0 field, print in a single line
+  assert repr(R0Field()) == edc.repr(R0Field())
   assert repr(R0Field()) == 'R0Field()'
   assert repr(R1Field()) == 'R1Field(x=None)'
 
   # Recursive
   x = R()
   x.x = x
+  assert repr(x) == edc.repr(x)
   assert repr(x) == epy.dedent(
       """
   R(
