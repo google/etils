@@ -28,6 +28,7 @@ def clear_cached_modules(
     modules: StrOrStrList,
     *,
     verbose: bool = False,
+    invalidate: bool = True,
 ) -> None:
   """Clear the `sys.modules` cache.
 
@@ -46,6 +47,8 @@ def clear_cached_modules(
   Args:
     modules: List of modules to clear (all submodules cleared too)
     verbose: Whether to display the list of modules cleared.
+    invalidate: If `True` (default), the instances of the module will raise an
+      error when used (to avoid using 2 versions of a module at the same time)
   """
   modules = normalize_str_to_list(modules)
   assert all('/' not in module for module in modules)
@@ -54,9 +57,6 @@ def clear_cached_modules(
 
   modules = tuple(modules)
   modules_to_clear = [m for m in sys.modules if m.startswith(modules)]
-  modules_to_clear = [  # Do not reload ecolab :)
-      m for m in modules_to_clear if not m.startswith('etils.ecolab')
-  ]
 
   # TODO(epot): Make it work with ecolab.lazy_imports
   for module_name in modules_to_clear:
@@ -65,10 +65,13 @@ def clear_cached_modules(
     # Clear the parent ref to the module
     _clear_parent_module_attr(module_name)
 
-    module = sys.modules[module_name]
-
-    # Mutate the existing modules to raise an error if accessed
-    _invalidate_module(module)
+    # We do not invalidate ecolab
+    # Note that `reload=['etils']` will still clear `ecolab` from `sys.modules`
+    # even if it is not reloaded. In practice, this is fine as `ecolab`
+    # should only be imported once in the colab.
+    if invalidate and not module_name.startswith('etils.ecolab'):
+      # Mutate the existing modules to raise an error if accessed
+      _invalidate_module(sys.modules[module_name])
 
     del sys.modules[module_name]
 
