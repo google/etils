@@ -95,6 +95,33 @@ class TreeAPI:
     for leaf_elems in zip(*leaves):  # TODO(py310): check=True
       yield self.backend.unflatten(treedef, leaf_elems)
 
+  def stack(
+      self, trees: Iterable[Tree[Array['*s']]]
+  ) -> Tree[Array['n_trees *s']]:
+    """Stack a tree of `Iterable[Array]`.
+
+    Supports `jax`, `tf`, `np`.
+
+    Example:
+
+    ```python
+    etree.stack([
+        {'a': np.array([1])},
+        {'a': np.array([2])},
+        {'a': np.array([3])},
+    ]) == {
+        'a': np.array([[1], [2], [3]])
+    }
+    ```
+
+    Args:
+      trees: The list of tree to stack
+
+    Returns:
+      Tree of arrays.
+    """
+    return self.backend.map(_stack, *trees)
+
   def spec_like(
       self,
       tree: Tree[Array],
@@ -131,3 +158,9 @@ class TreeAPI:
         return enp.ArraySpec.from_array(array)
 
     return self.backend.map(_to_spec_array, tree)
+
+
+def _stack(*arrs: Array) -> Array:
+  """Stack arrays together."""
+  xnp = enp.lazy.get_xnp(arrs[0])
+  return xnp.stack(arrs)

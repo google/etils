@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `etree`:
+    *   Added: `etree.stack` to stack/batch multiple trees of arrays together.
 *   `ecolab`:
     *   Added: `ecolab.patch_graphviz` to fix Colab display with `graphviz`.
     *   Added: `ecolab.set_verbose` to activate stderr logging on Colab.

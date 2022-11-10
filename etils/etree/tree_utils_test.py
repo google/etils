@@ -23,6 +23,7 @@ import numpy as np
 import pytest
 
 # pylint: disable=g-bad-import-order,g-import-not-at-top
+import chex
 import jax.numpy as jnp
 import tensorflow as tf
 # pylint: enable=g-bad-import-order,g-import-not-at-top
@@ -66,6 +67,20 @@ def test_tree_unzip(etree_api):  # pylint: disable=redefined-outer-name
       )
       == unflatten
   )
+
+
+@enp.testing.parametrize_xnp()
+def test_tree_stack(etree_api, xnp: enp.NpModule):  # pylint: disable=redefined-outer-name
+  x = etree_api.stack([
+      {'a': xnp.array([1]), 'b': xnp.array([10])},
+      {'a': xnp.array([2]), 'b': xnp.array([20])},
+      {'a': xnp.array([3]), 'b': xnp.array([30])},
+  ])
+  y = {
+      'a': xnp.array([[1], [2], [3]]),
+      'b': xnp.array([[10], [20], [30]]),
+  }
+  chex.assert_tree_all_close(x, y)
 
 
 @dataclasses.dataclass
