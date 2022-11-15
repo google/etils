@@ -19,6 +19,9 @@ Changelog follow https://keepachangelog.com/ format.
 *   `edc`:
     *   Added: Expose `edc.repr`, for functional use or directly assign class
         members (e.g. `__repr__ = edc.repr`)
+*   `eapp`:
+    *   Fixed: `eapp.better_logging()` do not raise `is_borg` `AttributeError`
+        anymore.
 
 <!-- --------- Do not add anything bellow this line --------- -->
 

@@ -60,9 +60,6 @@ def _better_logging() -> None:
   # If `absl.run` was not called (e.g. open source `pytest` tests)
   if not FLAGS.is_parsed():
     return
-  # On borg, use default logs
-  if epy.is_borg():
-    return
   # User explicitly set --logtostderr, use default behavior
   if FLAGS.logtostderr or FLAGS.alsologtostderr:
     return
