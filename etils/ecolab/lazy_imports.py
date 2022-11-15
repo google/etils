@@ -394,6 +394,7 @@ _MODULE_NAMES = dict(
     jnp='jax.numpy',
     lark='lark',
     matplotlib='matplotlib',
+    mpl='matplotlib',  # Standard alias
     plt='matplotlib.pyplot',
     media='mediapy',
     ml_collections='ml_collections',
