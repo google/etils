@@ -24,16 +24,19 @@ from etils.enp.typing import FloatArray
 
 @checking.check_and_normalize_arrays(strict=False)
 def project_onto_vector(
-    u: FloatArray[3],
+    u: FloatArray[..., 3],
     v: FloatArray[3],
     *,
     xnp: numpy_utils.NpModule = ...,
-) -> FloatArray[3]:
+) -> FloatArray[..., 3]:
   """Project `u` onto `v`."""
-  return xnp.dot(u, v) / linalg.norm(v) ** 2 * v
+  return xnp.dot(u, v)[..., None] / linalg.norm(v, keepdims=True) ** 2 * v
 
 
 @checking.check_and_normalize_arrays(strict=False)
-def project_onto_plane(u: FloatArray[3], n: FloatArray[3]) -> FloatArray[3]:
+def project_onto_plane(
+    u: FloatArray[..., 3],
+    n: FloatArray[3],
+) -> FloatArray[..., 3]:
   """Project `u` onto the plane `n` (orthogonal vector)."""
   return u - project_onto_vector(u, n)

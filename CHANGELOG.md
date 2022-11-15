@@ -10,6 +10,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `etree`:
     *   Added: `etree.stack` to stack/batch multiple trees of arrays together.
+*   `enp`:
+    *   Changed: `enp.project_onto_vector`, `enp.project_onto_plane` supports
+        broadcasting.
 *   `ecolab`:
     *   Added: `ecolab.patch_graphviz` to fix Colab display with `graphviz`.
     *   Added: `ecolab.set_verbose` to activate stderr logging on Colab.

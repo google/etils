@@ -18,24 +18,40 @@ from typing import Optional
 
 from etils import enp
 import numpy as np
+import pytest
 
 # Activate the fixture
 set_tnp = enp.testing.set_tnp
 
 
 @enp.testing.parametrize_xnp(with_none=True)
-def test_project_onto_plane_vector(xnp: Optional[enp.NpModule]):
+@pytest.mark.parametrize('u_shape', [(3,), (2, 1, 3)])
+@pytest.mark.parametrize('v_shape', [(3,)])  # TODO(epot): Support `(2, 1, 3)`
+def test_project_onto_plane_vector(
+    xnp: Optional[enp.NpModule], u_shape, v_shape
+):
+  expected_shape = np.broadcast_shapes(u_shape, v_shape)
+
   u = [2, 2, 2.0]
   v = [0, 4, 4.0]
   if xnp is not None:
     u = xnp.asarray(u)
     v = xnp.asarray(v)
+    u = xnp.broadcast_to(u, u_shape)
+    v = xnp.broadcast_to(v, v_shape)
   else:
     xnp = np
+    if expected_shape != (3,):  # pylint: disable=g-explicit-bool-comparison
+      return
+
   out = enp.project_onto_vector(u, v)
   assert enp.lazy.get_xnp(out) is xnp
-  np.testing.assert_allclose(out, [0, 2, 2], atol=1e-6, rtol=1e-6)
+  assert out.shape == expected_shape
+  expected_out = np.broadcast_to([0, 2, 2], expected_shape)
+  np.testing.assert_allclose(out, expected_out, atol=1e-6, rtol=1e-6)
 
   out = enp.project_onto_plane(u, v)
   assert enp.lazy.get_xnp(out) is xnp
-  np.testing.assert_allclose(out, [2, 0, 0], atol=1e-6, rtol=1e-6)
+  assert out.shape == expected_shape
+  expected_out = np.broadcast_to([2, 0, 0], expected_shape)
+  np.testing.assert_allclose(out, expected_out, atol=1e-6, rtol=1e-6)
