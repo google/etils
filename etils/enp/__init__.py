@@ -21,22 +21,31 @@ both numpy and jax.numpy.
 
 import sys
 
-from etils.enp import linalg
+# pylint: disable=g-bad-import-order
+
+# Lazy, array types and xnp utils
 from etils.enp import typing
 from etils.enp.array_spec import ArraySpec
 from etils.enp.array_types import dtypes
 from etils.enp.checking import check_and_normalize_arrays
-from etils.enp.geo_utils import project_onto_plane
-from etils.enp.geo_utils import project_onto_vector
-from etils.enp.interp_utils import interp
-from etils.enp.numpy_utils import get_np_module
-from etils.enp.numpy_utils import is_array
+from etils.enp.numpy_utils import get_np_module  # DEPRECATED: Use `lazy`
+from etils.enp.numpy_utils import is_array  # DEPRECATED: Use `lazy` instead
+from etils.enp.numpy_utils import lazy
+from etils.enp.numpy_utils import NpModule
+
+# Str compatibility
 from etils.enp.numpy_utils import is_array_str
 from etils.enp.numpy_utils import is_dtype_str
-from etils.enp.numpy_utils import lazy
 from etils.enp.numpy_utils import normalize_bytes2str
-from etils.enp.numpy_utils import NpModule
+
+# Additional numpy ops
+from etils.enp import linalg
+from etils.enp.interp_utils import interp
 from etils.enp.numpy_utils import tau
+from etils.enp.geo_utils import angle_between
+from etils.enp.geo_utils import batch_dot
+from etils.enp.geo_utils import project_onto_plane
+from etils.enp.geo_utils import project_onto_vector
 
 # Inside tests, can use `enp.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import

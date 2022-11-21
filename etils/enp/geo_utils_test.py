@@ -24,34 +24,58 @@ import pytest
 set_tnp = enp.testing.set_tnp
 
 
-@enp.testing.parametrize_xnp(with_none=True)
-@pytest.mark.parametrize('u_shape', [(3,), (2, 1, 3)])
-@pytest.mark.parametrize('v_shape', [(3,)])  # TODO(epot): Support `(2, 1, 3)`
+def _array(xnp, value, batch_shape):
+  x = xnp.asarray(value)
+  x = xnp.broadcast_to(x, batch_shape + x.shape)
+  return x
+
+
+def _assert_equal(x0, x1, xnp):
+  assert enp.lazy.get_xnp(x0) is xnp
+  np.testing.assert_allclose(x0, x1, atol=1e-6, rtol=1e-6)
+
+
+@enp.testing.parametrize_xnp(restrict=['np'])
+@pytest.mark.parametrize(
+    'u, v, expected',
+    [
+        ([0, 0, 1.0], [0, 10, 0.0], 1 / 4 * enp.tau),
+        ([0, 0, 1.0], [0, 0, 2.0], 0.0),
+        ([0, 0, 1.0], [0, 0, -2.0], 1 / 2 * enp.tau),
+        ([0, 2, 2.0], [0, 0, 1.0], 1 / 8 * enp.tau),
+    ],
+)
+@pytest.mark.parametrize('u_shape', [(), (2, 1)])
+@pytest.mark.parametrize('v_shape', [(), (2, 1)])
+def test_angle_between(
+    xnp: enp.NpModule,
+    u,
+    v,
+    expected,
+    u_shape,
+    v_shape,
+):
+  u = _array(xnp, u, u_shape)
+  v = _array(xnp, v, v_shape)
+  expected_shape = np.broadcast_shapes(u_shape, v_shape)
+  expected = _array(xnp, expected, expected_shape)
+
+  _assert_equal(enp.angle_between(u, v), expected, xnp)
+
+
+@enp.testing.parametrize_xnp()
+@pytest.mark.parametrize('u_shape', [(), (2, 1)])
+@pytest.mark.parametrize('v_shape', [(), (2, 1)])
 def test_project_onto_plane_vector(
     xnp: Optional[enp.NpModule], u_shape, v_shape
 ):
   expected_shape = np.broadcast_shapes(u_shape, v_shape)
 
-  u = [2, 2, 2.0]
-  v = [0, 4, 4.0]
-  if xnp is not None:
-    u = xnp.asarray(u)
-    v = xnp.asarray(v)
-    u = xnp.broadcast_to(u, u_shape)
-    v = xnp.broadcast_to(v, v_shape)
-  else:
-    xnp = np
-    if expected_shape != (3,):  # pylint: disable=g-explicit-bool-comparison
-      return
+  u = _array(xnp, [2, 2, 2.0], u_shape)
+  v = _array(xnp, [0, 4, 4.0], v_shape)
 
-  out = enp.project_onto_vector(u, v)
-  assert enp.lazy.get_xnp(out) is xnp
-  assert out.shape == expected_shape
-  expected_out = np.broadcast_to([0, 2, 2], expected_shape)
-  np.testing.assert_allclose(out, expected_out, atol=1e-6, rtol=1e-6)
+  expected = _array(xnp, [0, 2, 2], expected_shape)
+  _assert_equal(enp.project_onto_vector(u, v), expected, xnp)
 
-  out = enp.project_onto_plane(u, v)
-  assert enp.lazy.get_xnp(out) is xnp
-  assert out.shape == expected_shape
-  expected_out = np.broadcast_to([2, 0, 0], expected_shape)
-  np.testing.assert_allclose(out, expected_out, atol=1e-6, rtol=1e-6)
+  expected = _array(xnp, [2, 0, 0], expected_shape)
+  _assert_equal(enp.project_onto_plane(u, v), expected, xnp)
