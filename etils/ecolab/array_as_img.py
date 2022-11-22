@@ -29,9 +29,15 @@ import traceback
 from typing import Any, Optional, Tuple
 
 from etils import enp
-import IPython
-import IPython.display
-import mediapy as media
+
+from etils.epy import _internal
+
+with _internal.check_missing_deps():
+  # pylint: disable=g-import-not-at-top
+  import IPython
+  import IPython.display
+  import mediapy as media
+  # pylint: enable=g-import-not-at-top
 
 
 Array = Any

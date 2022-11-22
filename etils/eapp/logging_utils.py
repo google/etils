@@ -18,10 +18,15 @@ import functools
 import logging as py_logging
 import sys
 
-from absl import app
-from absl import flags
-from absl import logging as absl_logging
 from etils import epy
+from etils.epy import _internal
+
+with _internal.check_missing_deps():
+  # pylint: disable=g-import-not-at-top
+  from absl import app
+  from absl import flags
+  from absl import logging as absl_logging
+  # pylint: enable=g-import-not-at-top
 
 FLAGS = flags.FLAGS
 

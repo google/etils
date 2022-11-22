@@ -20,8 +20,13 @@ from collections.abc import Callable
 from typing import Optional, TypeVar
 
 import __main__
-from absl import flags
-import simple_parsing
+from etils.epy import _internal
+
+with _internal.check_missing_deps():
+  # pylint: disable=g-import-not-at-top
+  from absl import flags
+  import simple_parsing
+  # pylint: enable=g-import-not-at-top
 
 _DataclassT = TypeVar('_DataclassT')
 

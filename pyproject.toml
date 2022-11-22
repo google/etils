@@ -37,6 +37,7 @@ array-types = [
 eapp = [
     "absl-py",
     "simple_parsing",
+    "etils[epy]",
 ]
 ecolab = [
     "jupyter",

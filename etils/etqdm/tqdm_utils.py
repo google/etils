@@ -17,9 +17,14 @@
 import typing
 from typing import TypeVar
 
-from absl import logging
 from etils import epy
-import tqdm as tqdm_base
+from etils.epy import _internal
+
+with _internal.check_missing_deps():
+  # pylint: disable=g-import-not-at-top
+  from absl import logging
+  import tqdm as tqdm_base
+  # pylint: enable=g-import-not-at-top
 
 _IterableT = TypeVar('_IterableT')
 
@@ -37,6 +42,8 @@ class _LogFile:
     pass
 
 
+# TODO(epot): Mock the original `tqdm`, (in `__main__`), rather than
+# having to change the import.
 def tqdm(iterable: _IterableT, **kwargs) -> _IterableT:
   """Add a progressbar to the iterable."""
   return tqdm_base.tqdm(iterable, **kwargs)
