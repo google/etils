@@ -29,6 +29,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `eapp`:
     *   Fixed: `eapp.better_logging()` do not raise `is_borg` `AttributeError`
         anymore.
+*   All:
+    *   Changed: Better error message when missing import.
 
 <!-- --------- Do not add anything bellow this line --------- -->
 

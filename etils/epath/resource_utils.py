@@ -114,7 +114,18 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
   Returns:
     The read-only path to the root module directory
   """
-  path = importlib_resources.files(package)  # pytype: disable=module-attr
+  try:
+    path = importlib_resources.files(package)  # pytype: disable=module-attr
+  except AttributeError as e:
+    # TODO(b/260333695): Adhoc import fail with adhoc imports
+    # Currently, hack around to add support for it
+    # Note this is not the true path (`/google_src/` vs
+    # `/export/.../server/ml_notebook.runfiles`), but should be equivalent.
+    if 'submodule_search_locations' not in str(e):
+      raise
+    path = pathlib.Path(sys.modules[package].__file__)
+    if path.name == '__init__.py':
+      path = path.parent
   if isinstance(path, pathlib.Path):
     # TODO(etils): To ensure compatibility with zipfile.Path, we should ensure
     # that the returned `pathlib.Path` isn't missused. More specifically:
