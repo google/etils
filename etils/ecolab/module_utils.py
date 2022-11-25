@@ -29,6 +29,7 @@ def clear_cached_modules(
     *,
     verbose: bool = False,
     invalidate: bool = True,
+    keep_proto: bool = False,
 ) -> None:
   """Clear the `sys.modules` cache.
 
@@ -49,6 +50,8 @@ def clear_cached_modules(
     verbose: Whether to display the list of modules cleared.
     invalidate: If `True` (default), the instances of the module will raise an
       error when used (to avoid using 2 versions of a module at the same time)
+    keep_proto: If `True`, `_pb2` proto files are not removed from the cache.
+      This allow to adhoc import reload projects with protos.
   """
   modules = normalize_str_to_list(modules)
   assert all('/' not in module for module in modules)
@@ -57,6 +60,8 @@ def clear_cached_modules(
 
   modules = tuple(modules)
   modules_to_clear = [m for m in sys.modules if m.startswith(modules)]
+  if keep_proto:  # Filter proto modules
+    modules_to_clear = [m for m in modules_to_clear if not _is_proto(m)]
 
   # TODO(epot): Make it work with ecolab.lazy_imports
   for module_name in modules_to_clear:
@@ -107,6 +112,12 @@ def _invalidate_module(module: types.ModuleType) -> None:
 
   module.__dict__.clear()
   module.__getattr__ = __getattr__
+
+
+def _is_proto(module_name: str) -> bool:
+  """Returns `True` if the module is a proto."""
+  # Could use more complex heuristic, but is likely good enough
+  return module_name.endswith('_pb2')
 
 
 def normalize_str_to_list(x: Optional[StrOrStrList]) -> list[str]:
