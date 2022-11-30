@@ -156,10 +156,10 @@ eventually to provide a default implementation/behavior.
 
 ### Reduce friction
 
-If you notice writing over the same boilerplate code snippet, it likely mean it
-should wrapped in an higher abstraction.
+If you notice yourself writing the same boilerplate code snippet over and over,
+it likely means it should wrapped in a higher-level abstraction.
 
-Reducing friction was the motivation around many abstractions:
+Reducing friction was the motivation for many abstractions:
 
 *   Individual colab imports boilerplate replaced by `from
     etils.ecolab.lazy_imports import *`
@@ -168,7 +168,7 @@ Reducing friction was the motivation around many abstractions:
 *   Manual GitHub release automated with `etils-actions/pypi-auto-publish`
     [https://github.com/marketplace/actions/pypi-github-auto-release](https://github.com/marketplace/actions/pypi-github-auto-release)
 
-One limitation is that too much “magic” abstractions can hurt new users to
+One limitation is that too many “magic” abstractions can hurt new users to
 understand the code. For uncommon operations, it is sometimes best to be more
 verbose / explicit.
 
@@ -176,13 +176,14 @@ verbose / explicit.
 
 Do not rely on people reading the docstring.
 
-Caveat/ambiguity should be made explicit by the API, or raise an explicit error.
+Caveats/ambiguities should be made explicit by the API, or raise an explicit
+error.
 
-If reading the code do not match user expectation, this should be a bug.
+If reading the code does not match user expectations, this should be a bug.
 
 ### The first time is never the good one
 
-When designing an API, there will be use-cases that wasn't anticipated, or
+When designing an API, there will be use-cases that weren't anticipated, or
 issues which will conflict with design choices.
 
 API design is an iterative process. The perfect API do not exists. It often
@@ -194,7 +195,7 @@ new ones:
 
 ### There is no absolute rule
 
-All rules in this docs should be context dependent and have many exception.
+All rules in this doc should be context dependent and have many exceptions.
 
 ## Low level
 
@@ -234,10 +235,10 @@ readable.
 
 ### Use `__init__.py`
 
-The public user API should be explicitly defined in your project `__init__.py`
+The public user API should be explicitly defined in your project's `__init__.py`
 file.
 
-Having an explicit API has many benefit:
+Having an explicit API has many benefits:
 
 *   Limit entry points: users only have a single import, it makes it obvious how
     to start using the API.
@@ -257,7 +258,7 @@ Having an explicit API has many benefit:
 Unless the function has some obvious argument order or some main argument,
 always use kwargs-only signature.
 
-*   This force users to write more explicit / readable code
+*   This forces users to write more explicit / readable code
 *   This makes it much easier to update the signature (add, reorder, remove
     argument)
 
@@ -314,12 +315,12 @@ make the API worse by adding verbosity without giving more information.
 
 Example:
 
-*   Names can be shorten to avoid redundancy, or that one part does not bring
+*   Names can be shortened to avoid redundancy, or that one part does not bring
     information:
     *   `tree.tree_map` -> `tree.map`
     *   `tfds.features.FeatureConnector` -> `tfds.features.Feature`
 *   Function arguments which accept a verbose explicit form can sometimes be
-    updated to additionally accept a more user-friendly shorten form. For
+    updated to additionally accept a more user-friendly shortened form. For
     example:
 
     *   `enum` to also accept their `str` equivalent:
@@ -341,7 +342,7 @@ Example:
 
 ### A bad error message is a bug
 
-Just by looking at the error, user should understand why they got the error and
+Just by looking at the error, users should understand why they got the error and
 how to solve it.
 
 *   When the error is raised deeply inside the codebase,
@@ -370,7 +371,7 @@ class MyModel:
     self._predict()
     return self.y
 
-# Someone which inspect the code will have a hard time understanding what is happening
+# Someone who inspects the code will have a hard time understanding what is happening
 # It's best to use explicit input/outputs, making it obvious what each function does
 
 class MyModel:
