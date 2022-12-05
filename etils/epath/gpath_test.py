@@ -391,6 +391,19 @@ def test_default():
   assert path == epath.Path('a/x/y/z')
 
 
+def test_use_backend():
+  gs_path = epath.Path('gs://tfds-data/datasets')
+  loc_path = epath.Path('/local/tfds-data/datasets')
+
+  gs_backend = epath.backend.tf_backend
+  loc_backend = epath.backend.os_backend
+
+  assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
+  assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pytype: disable=wrong-arg-types
+  assert epath.gpath._get_backend(loc_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
+  assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pytype: disable=wrong-arg-types
+
+
 @epy.testing.non_hermetic
 def test_public_access():
   # Test a public bucket

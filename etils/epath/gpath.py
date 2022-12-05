@@ -272,7 +272,7 @@ def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
   # pylint: disable=protected-access
   if p0._backend in _GCS_BACKENDS:
     return p0._backend
-  elif p0._backend in _GCS_BACKENDS:
+  elif p1._backend in _GCS_BACKENDS:
     return p1._backend
   else:
     return p0._backend

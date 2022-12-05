@@ -29,6 +29,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `eapp`:
     *   Fixed: `eapp.better_logging()` do not raise `is_borg` `AttributeError`
         anymore.
+*   `epath`:
+    *   Fixed: `local_path.copy('gs://')` uses the correct backend.
 *   All:
     *   Changed: Better error message when missing import.
 
