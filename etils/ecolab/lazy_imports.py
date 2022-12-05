@@ -417,6 +417,8 @@ _MODULE_NAMES = dict(
     go='plotly.graph_objects',
     sunds='sunds',
     v3d='visu3d',
+    xmflow='xmanager.contrib.flow',
+    xm='xmanager.xm',
 )
 
 # Note that this fail with python 3.7, but works with 3.8+
