@@ -133,6 +133,9 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
 
       state: _FnSignatureCache = fn._array_types_state  # pylint: disable=protected-access
 
+      # In case `xnp` do not have default value
+      if state.has_xnp_kwargs:
+        kwargs['xnp'] = ...
       bound_args = state.sig.bind(*args, **kwargs)
 
       # Filter the non-array args
@@ -278,7 +281,6 @@ def _parse_signature(fn) -> _FnSignatureCache:
 
   if not array_params:
     raise ValueError(
-        'Error in @enp.check_and_normalize_arrays: '
         f'Could not detect any array type hints in {fn.__qualname__} with '
         f'signature {sig}.'
     )

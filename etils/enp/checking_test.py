@@ -101,3 +101,12 @@ def test_non_array_annotations():
     return y + x
 
   _assert_out(fn_non_array_args(1, [2], 'abc', xnp=enp.lazy.jnp), enp.lazy.jnp)  # pytype: disable=wrong-keyword-args
+
+
+def test_missing_xnp_default():
+  @enp.check_and_normalize_arrays(strict=False)
+  def fn_missing_default(x: FloatArray, *, xnp: enp.NpModule):
+    del xnp
+    return x
+
+  fn_missing_default(1.0)  # pytype: disable=missing-parameter  # pylint: disable=missing-kwoa
