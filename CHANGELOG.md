@@ -21,6 +21,7 @@ Changelog follow https://keepachangelog.com/ format.
         vectors.
     *   Changed: `enp.project_onto_vector`, `enp.project_onto_plane` supports
         broadcasting.
+    *   Fixed: `TF` accidentally imported when using `enp.linalg` functions.
 *   `ecolab`:
     *   Added: `ecolab.patch_graphviz` to fix Colab display with `graphviz`.
     *   Added: `ecolab.set_verbose` to activate stderr logging on Colab.
