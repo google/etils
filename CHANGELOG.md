@@ -10,6 +10,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `etree`:
     *   Added: `etree.stack` to stack/batch multiple trees of arrays together.
+    *   Added: `etils.etree.py` backend (pure Python implementation to avoid
+        installing extra deps).
 *   `enp`:
     *   Added: `enp.batch_dot`: Always dot product on the last axis with
         broadcasting support (while `np.dot` is inconsistent 1-D vs 2-D).
