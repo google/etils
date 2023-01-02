@@ -34,6 +34,7 @@ import tensorflow as tf
         etree_lib.jax,
         etree_lib.tree,
         etree_lib.nest,
+        etree_lib.py,
     ],
 )
 def etree_api(request):
