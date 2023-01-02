@@ -35,6 +35,22 @@ class TreeAPI:
   def __init__(self, backend: backend_lib.Backend):
     self.backend = backend
 
+  def map(
+      self,
+      map_fn: Callable[..., _Tout],  # Callable[[_Tin0, _Tin1,...], Tout]
+      *trees: Tree[_Tin],  # _Tin0, _Tin1,...
+  ) -> Tree[_Tout]:
+    """Same as `tree.map_structure`.
+
+    Args:
+      map_fn: Worker function
+      *trees: Nested input to pass to the `map_fn`
+
+    Returns:
+      The nested structure after `map_fn` has been applied.
+    """
+    return self.backend.map(map_fn, *trees)
+
   def parallel_map(
       self,
       map_fn: Callable[..., _Tout],  # Callable[[_Tin0, _Tin1,...], Tout]

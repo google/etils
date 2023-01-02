@@ -17,13 +17,15 @@
 from __future__ import annotations
 
 import abc
+import collections.abc
+import itertools
 import types
 from typing import Any, Callable, TypeVar
 
 from etils import epy
 from etils.etree.typing import Tree
 
-_T = TypeVar("_T")
+_T = TypeVar('_T')
 _Tin = Any  # TypeVar('_Tin')
 _Tout = Any  # TypeVar('_Tout')
 
@@ -47,7 +49,7 @@ class Backend(abc.ABC):
     try:
       module = self.import_module()
     except ImportError as e:
-      epy.reraise(e, suffix=f"etree backend require {self.MODULE_NAME!r}.")
+      epy.reraise(e, suffix=f'etree backend require {self.MODULE_NAME!r}.')
     return module
 
   @abc.abstractmethod
@@ -162,3 +164,97 @@ class Nest(Backend):
       tree1: Tree[Any],
   ):
     self.module.assert_same_structure(tree0, tree1)
+
+
+# TODO(epot): Also support custom `cls` like `register_pytree_node` in Jax
+_SEQUENCE_TYPES = (list, tuple)
+_MAPPING_TYPES = (dict, collections.abc.Mapping)
+_ALL_TYPES = _SEQUENCE_TYPES + _MAPPING_TYPES
+
+
+class Python(Backend):
+  """Pure `Python` backend."""
+
+  def import_module(self):
+    raise AssertionError('Python backend do not have module')
+
+  def map(self, map_fn, *trees):
+    tree0 = trees[0]
+    if isinstance(tree0, _SEQUENCE_TYPES):
+      return type(tree0)(self.map(map_fn, *v) for v in zip(*trees))
+    elif isinstance(tree0, _MAPPING_TYPES):
+      return type(tree0)(
+          (k, self.map(map_fn, *v)) for k, v in epy.zip_dict(*trees)
+      )
+    else:  # leaf
+      return map_fn(*trees)
+
+  def flatten(self, tree):
+    return list(self._flatten(tree)), tree
+
+  def _flatten(self, tree):
+    if isinstance(tree, _SEQUENCE_TYPES):
+      return itertools.chain.from_iterable(self._flatten(v) for v in tree)
+    elif isinstance(tree, _MAPPING_TYPES):
+      return itertools.chain.from_iterable(
+          self._flatten(v) for _, v in sorted(tree.items())
+      )
+    else:  # leaf
+      return [tree]
+
+  def unflatten(self, structure, flat_sequence):
+    return self._unflatten(structure, iter(flat_sequence))
+
+  def _unflatten(self, structure, flat_iter):
+    if isinstance(structure, _SEQUENCE_TYPES):
+      return type(structure)(self._unflatten(v, flat_iter) for v in structure)
+    elif isinstance(structure, _MAPPING_TYPES):
+      # Flatten sort the keys, so reconstruct the ordered sorted
+      ordered_items = {
+          k: self._unflatten(v, flat_iter) for k, v in sorted(structure.items())
+      }
+      # Restore original dict order
+      return type(structure)((k, ordered_items[k]) for k in structure)
+    else:  # leaf
+      return next(flat_iter)
+
+  def assert_same_structure(
+      self,
+      tree0: Tree[Any],
+      tree1: Tree[Any],
+  ):
+    try:
+      self._assert_same_structure(tree0, tree1)
+    except Exception as e:  # pylint: disable=broad-except
+      epy.reraise(e, prefix="The two structures don't match: ")
+
+  def _assert_same_structure(
+      self,
+      tree0: Tree[Any],
+      tree1: Tree[Any],
+  ):
+    """`assert_same_structure` recursive implementation."""
+    if isinstance(tree0, _ALL_TYPES):
+      if type(tree0) != type(tree1):  # pylint: disable=unidiomatic-typecheck
+        raise ValueError(f'{type(tree0)} != {type(tree1)}')
+    if isinstance(tree0, _SEQUENCE_TYPES):
+      if len(tree0) != len(tree1):
+        raise ValueError(f'{len(tree0)} != {len(tree1)}')
+      for i, (v0, v1) in enumerate(zip(tree0, tree1)):
+        try:
+          self._assert_same_structure(v0, v1)
+        except Exception as e:  # pylint: disable=broad-except
+          epy.reraise(e, prefix=f'In {i}: ')
+    elif isinstance(tree0, _MAPPING_TYPES):
+      k0 = sorted(tree0)
+      k1 = sorted(tree1)
+      if k0 != k1:
+        raise ValueError(f'dict keys do not match: {k0} != {k1}')
+      # Flatten sort the keys, so reconstruct the ordered sorted
+      for k, (v0, v1) in epy.zip_dict(tree0, tree1):
+        try:
+          self._assert_same_structure(v0, v1)
+        except Exception as e:  # pylint: disable=broad-except
+          epy.reraise(e, prefix=f'In {k}: ')
+    else:  # leaf
+      return

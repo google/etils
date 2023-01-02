@@ -18,7 +18,8 @@ from etils.etree import backend
 from etils.etree import tree_utils
 from etils.etree.typing import Tree
 
-# Expose 3 variants of the API depending on which backend is used.
+# Expose 4 variants of the API depending on which backend is used.
 jax = tree_utils.TreeAPI(backend.Jax())  # jax.tree_utils
 tree = tree_utils.TreeAPI(backend.DmTree())  # tree (DeepMind)
 nest = tree_utils.TreeAPI(backend.Nest())  # tf.nest
+py = tree_utils.TreeAPI(backend.Python())  # Pure Python API
