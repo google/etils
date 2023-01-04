@@ -241,12 +241,8 @@ def is_array_str(x: Any) -> bool:
 
 def is_array(x: Any) -> bool:
   """Returns `True` if array is np or `jnp` array."""
-  if isinstance(x, np.ndarray):
-    return True
-  elif lazy.has_jax and isinstance(x, lazy.jnp.ndarray):
-    return True
-  else:
-    return False
+  return isinstance(x, np.ndarray) or (lazy.has_jax and isinstance(x, lazy.jnp.ndarray))
+
 
 
 @np.vectorize
