@@ -1,11 +1,12 @@
 ## Tree utils
 
-`etree` can be used with 3 different backends, depending on usage:
+`etree` can be used with 4 different backends, depending on usage:
 
 ```python
 from etils.etree import jax as etree  # Backend: jax.tree_utils
 from etils.etree import nest as etree  # Backend: tf.nest
 from etils.etree import tree as etree  # Backend: tree (DeepMind)
+from etils.etree import py as etree  # Backend: Pure Python (no extra deps)
 ```
 
 ### parallel_map

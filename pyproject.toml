@@ -83,7 +83,7 @@ etree-jax = [
     "etils[etree]",
 ]
 etree-tf = [
-    "tf-nightly",
+    "tensorflow",
     "etils[etree]",
 ]
 lazy-imports = [
