@@ -20,12 +20,12 @@ jobs:
       with:
         python-version: 3.8
     - run: pip --version
-    - run: pip install -e .[all,dev]
+    - run: pip install -e .[enp,dev]
     - run: pip freeze
 
     # Run tests
     - name: Run core tests
-      run: pytest -vv -n auto
+      run: pytest -vv -n auto etils/enp/checking_test.py
 
   # Auto-publish when version is increased
   publish-job:

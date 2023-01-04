@@ -83,7 +83,6 @@ etree-jax = [
     "etils[etree]",
 ]
 etree-tf = [
-    "tensorflow",
     "etils[etree]",
 ]
 lazy-imports = [
@@ -109,8 +108,10 @@ dev = [
     "pytest-subtests",
     "pytest-xdist",
     "pylint>=2.6.0",
-    "yapf",
-    "chex",
+    "tf-nightly",
+    "jax[cpu]",
+    # "yapf",
+    # "chex",
 ]
 
 [build-system]
