@@ -59,4 +59,7 @@ def det(x: FloatArray['*d m m']) -> FloatArray['*d']:
 
 def _tf_or_xnp(x: Array['*d']):
   xnp = lazy.get_xnp(x)
-  return lazy.tf if xnp is lazy.tnp else xnp
+  if lazy.has_tf and xnp is lazy.tnp:
+    return lazy.tf
+  else:
+    return xnp
