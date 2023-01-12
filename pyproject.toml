@@ -108,10 +108,15 @@ dev = [
     "pytest",
     "pytest-subtests",
     "pytest-xdist",
+    "pyink",
     "pylint>=2.6.0",
-    "yapf",
     "chex",
 ]
+
+[tool.pyink]
+# Formatting configuration to follow Google style-guide
+pyink-indentation = 2
+pyink-use-majority-quotes = true
 
 [build-system]
 requires = ["flit_core >=3.5,<4"]
