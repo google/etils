@@ -85,7 +85,7 @@ Example:
     default)
 *   `ecolab.patch_graphviz()`: Make `graphviz` display work on Colab
 
-### Clear cache
+### Reload modules
 
 Helpful for interactive development to reload from Jupyter notebook the code
 we're currently editing (without having to restart the notebook kernel).

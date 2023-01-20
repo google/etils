@@ -107,7 +107,9 @@ def _invalidate_module(module: types.ModuleType) -> None:
     """All module attribute access will raise error."""
     raise AttributeError(
         f'Cannot access {module_name}.{name} on the old module instance.\n'
-        f'{module_name} was reloaded, so the new module should be used instead.'
+        f'{module_name} was reloaded, so the new module should be used '
+        'instead.\n'
+        'You can pass `invalidate=False` to keep both old and reloaded modules.'
     )
 
   module.__dict__.clear()
