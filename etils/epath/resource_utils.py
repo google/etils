@@ -23,21 +23,11 @@ import sys
 import types
 import typing
 from typing import Union
+import zipfile
 
 from etils.epath import abstract_path
 from etils.epath import register
-
-# pylint: disable=g-import-not-at-top
-if sys.version_info >= (3, 9):  # `importlib.resources.files` was added in 3.9
-  import importlib.resources as importlib_resources
-else:
-  import importlib_resources
-
-if sys.version_info >= (3, 8):  # `zipfiles.Path` was added in 3.8
-  import zipfile
-else:
-  import zipp as zipfile  # Before 3.8, importlib_resources uses backport
-# pylint: enable=g-import-not-at-top
+import importlib_resources
 
 
 @register.register_path_cls
