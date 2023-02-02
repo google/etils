@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 
 # Activate fixture
-set_tnp = enp.testing.set_tnp
+enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 
 
 @enp.check_and_normalize_arrays
@@ -45,7 +45,7 @@ def fn_xnp_kwarg(x: f32, y: IntArray, *, xnp: enp.NpModule = ...):
 def _assert_out(z, xnp):
   assert isinstance(z, xnp.ndarray)
   # jnp/np don't have same upcasting rules
-  assert z.dtype in (np.float32, np.float64)
+  assert enp.lazy.as_dtype(z.dtype) in (np.float32, np.float64)
   assert z.shape == (1,)
   assert z[0] == 3.0
 
@@ -82,13 +82,15 @@ def test_type(xnp: enp.NpModule, fn):
   _assert_out(fn(x, y, xnp=enp.lazy.np), enp.lazy.np)  # pytype: disable=wrong-keyword-args
   _assert_out(fn(x, y, xnp=enp.lazy.jnp), enp.lazy.jnp)  # pytype: disable=wrong-keyword-args
   _assert_out(fn(x, y, xnp=enp.lazy.tnp), enp.lazy.tnp)  # pytype: disable=wrong-keyword-args
+  # TODO(epot): `torch.asarray` do not work with `tf` / `jax`
+  # _assert_out(fn(x, y, xnp=enp.lazy.torch), enp.lazy.torch)  # pytype: disable=wrong-keyword-args
 
   # Pass a xnp and np yield xnp
   _assert_out(fn(x, np.asarray(y)), xnp)
 
   # Raise an error when mixing both jnp and TF
   with pytest.raises(ValueError, match='Conflicting numpy types'):
-    fn(enp.lazy.jnp.asarray(x), enp.lazy.tnp.asarray(y))
+    fn(enp.lazy.jnp.asarray([2.0]), enp.lazy.tnp.asarray([1]))
 
 
 def test_non_array_annotations():

@@ -23,11 +23,6 @@ from etils.ecolab import array_as_img
 import pytest
 
 
-# Skip the test because it require a more recent mediapy version.
-# TODO(epot): Restore tests
-pytest.skip(allow_module_level=True)
-
-
 def test_display_array_as_image():
   with mock.patch('IPython.get_ipython', mock.MagicMock()) as ipython_mock:
     array_as_img.auto_plot_array()

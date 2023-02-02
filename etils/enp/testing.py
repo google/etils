@@ -17,6 +17,7 @@
 from typing import Callable, Iterable, Optional, TypeVar
 
 from etils.enp import numpy_utils
+from etils.enp import torch_mock
 import numpy as np
 import pytest
 
@@ -27,15 +28,38 @@ _FnT = TypeVar('_FnT')
 
 @pytest.fixture(scope='module', autouse=True)
 def set_tnp() -> None:
-  """Enable numpy behavior.
+  """Enable numpy behavior (for `tensorflow`).
 
   Note: The fixture has to be explicitly declared in the `_test.py`
   file where it is used. This can be done by assigning
   `set_tnp = enp.testing.set_tnp`.
-
   """
   # This is required to have TF follow the same casting rules as numpy
   lazy.tnp.experimental_enable_numpy_behavior(prefer_float32=True)
+
+
+@pytest.fixture(scope='module', autouse=True)
+def set_torch_np() -> None:
+  """Enable numpy behavior (for `torch`).
+
+  Note: The fixture has to be explicitly declared in the `_test.py`
+  file where it is used. This can be done by assigning
+  `set_torch_np = enp.testing.set_torch_np`.
+  """
+  torch_mock.activate_torch_support()
+
+
+@pytest.fixture(scope='module', autouse=True)
+def enable_torch_tf_np_mode() -> None:
+  """Enable numpy behavior (for `torch` and `tensorflow`).
+
+  Note: The fixture has to be explicitly declared in the `_test.py`
+  file where it is used. This can be done by assigning
+  `enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode`.
+  """
+  # This is required to have TF follow the same casting rules as numpy
+  lazy.tnp.experimental_enable_numpy_behavior(prefer_float32=True)
+  torch_mock.activate_torch_support()
 
 
 def parametrize_xnp(
@@ -56,6 +80,7 @@ def parametrize_xnp(
       'np': np,
       'jnp': lazy.jnp,
       'tnp': lazy.tnp,
+      'torch': lazy.torch,
   }
 
   # Filter modules not requested
@@ -67,6 +92,17 @@ def parametrize_xnp(
   if with_none:
     # Allow to test without numpy module: `x = [1, 2]` vs `x = np.array([1, 2]`
     name_to_modules['no_np'] = None
+
+  # TODO(epot): Remove this hack once all tests are updated
+  # Currently, we do not test `xnp == 'pytorch'` if `enable_torch_tf_np_mode`
+  # is not defined in the file.
+  name_to_modules['torch'] = pytest.param(
+      name_to_modules['torch'],
+      # Use string condition so the `skipif` condition so the condition is
+      # lazily executed in the file it is defined.
+      marks=pytest.mark.skipif('"enable_torch_tf_np_mode" not in globals()'),
+  )
+  # hasattr(enp.lazy.torch, '__etils_np_mode__')
 
   return pytest.mark.parametrize(
       'xnp',

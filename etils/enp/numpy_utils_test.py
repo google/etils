@@ -21,10 +21,11 @@ import numpy as np
 import pytest
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
+import torch
 
 
 # Activate the fixture
-set_tnp = enp.testing.set_tnp
+enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 
 
 def fn(x):
@@ -38,10 +39,13 @@ def test_lazy():
 
   assert lazy.has_tf
   assert lazy.has_jax
+  assert lazy.has_torch
 
   assert lazy.tf is tf
+  assert lazy.tnp is tnp
   assert lazy.jax is jax
   assert lazy.jnp is jnp
+  assert lazy.torch is torch
   assert lazy.np is np
 
   assert lazy.is_array(np.array([123]))
@@ -56,9 +60,14 @@ def test_lazy():
   assert lazy.is_jax(jnp.array([123]))
   assert not lazy.is_jax(np.array([123]))
 
+  assert lazy.is_array(tf.constant([123]))
+  assert lazy.is_torch(torch.Tensor([123]))
+  assert not lazy.is_torch(np.array([123]))
+
   assert lazy.get_xnp(jnp.array([123])) is jnp
   assert lazy.get_xnp(tf.constant([123])) is tnp
   assert lazy.get_xnp(np.array([123])) is np
+  assert lazy.get_xnp(torch.Tensor([123])) is torch
   assert lazy.get_xnp([123], strict=False) is np
 
   with pytest.raises(TypeError, match='Cannot infer the numpy'):
@@ -76,17 +85,21 @@ def test_lazy_dtype():
   assert lazy.is_jax_dtype(jnp.int32)
   assert lazy.is_jax_dtype(np.int32)
   assert lazy.is_tf_dtype(tf.int32)
+  assert lazy.is_torch_dtype(torch.int32)
 
   assert not lazy.is_np_dtype(tf.int32)
   assert not lazy.is_jax_dtype(tf.int32)
   assert not lazy.is_tf_dtype(np.int32)
+  assert not lazy.is_torch_dtype(np.int32)
   assert not lazy.is_np_dtype(int)
   assert not lazy.is_jax_dtype(int)
   assert not lazy.is_tf_dtype(int)
+  assert not lazy.is_torch_dtype(int)
 
   assert lazy.as_dtype(tf.int32) == np.dtype('int32')
   assert lazy.as_dtype(jnp.int32) == np.dtype('int32')
   assert lazy.as_dtype(np.int32) == np.dtype('int32')
+  assert lazy.as_dtype(torch.int32) == np.dtype('int32')
   assert lazy.as_dtype(np.dtype('int32')) == np.dtype('int32')
 
   with pytest.raises(TypeError, match='Invalid dtype'):
@@ -122,6 +135,7 @@ def test_dtype_from_array_builtins():
         np.int64,
         np.float32,
         np.float64,
+        np.complex64,
         np.bool_,
         jnp.bfloat16,
     ],
@@ -140,6 +154,8 @@ def test_dtype_from_array_xnp(xnp, dtype):
             np.int64: np.int32,
         }
     ).get(dtype, dtype)
+  if xnp is torch and dtype == jnp.bfloat16:
+    return  # TODO(epot): Support torch.bfloat16
 
   x = xnp.array([1, 2], dtype=dtype)
   assert lazy.dtype_from_array(x) == target_dtype
