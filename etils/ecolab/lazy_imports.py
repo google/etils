@@ -26,17 +26,18 @@ To get the list of available modules:
 lazy_imports.__all__  # List of modules aliases
 lazy_imports.LAZY_MODULES  # Mapping <module_alias>: <lazy_module info>
 ```
-
 """
 
 from __future__ import annotations
 
 # Import as alias to avoid closure issues when updating the global()
+import builtins as builtins_
+import contextlib as contextlib_
 import dataclasses as dataclasses_
 import importlib as importlib_
 import traceback as traceback_
 import types as types_
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional
 
 from etils import epy as epy_
 
@@ -87,17 +88,20 @@ class LazyModuleState:
   Attributes:
     module_name: E.g. `jax.numpy`
     alias: E.g. `jnp`
+    is_std: Whether the module is part of the standard library (to order
+      imports)
     host: `LazyModule` attached to the state
     extra_imports: Additional extra imports to trigger (e.g. `concurrent`
       trigger `concurrent.futures` import)
     _module: Cached original imported module
-    trace_repr: Track the trace which trigger the import (Helpful to debug)
-      E.g. `Colab` call '.getdoc' on the background, which trigger import.
+    trace_repr: Track the trace which trigger the import (Helpful to debug) E.g.
+      `Colab` call '.getdoc' on the background, which trigger import.
   """
 
   module_name: str
   alias: str
-  host: LazyModule = dataclasses_.field(repr=False)
+  is_std: bool = dataclasses_.field(repr=False, default=False)
+  host: LazyModule = dataclasses_.field(repr=False, default=None)
   extra_imports: list[str] = dataclasses_.field(default_factory=list)
   _module: Optional[types_.ModuleType] = None
   # Track the trace which trigger the import
@@ -128,12 +132,6 @@ class LazyModuleState:
   def module_loaded(self) -> bool:
     """Returns `True` if the module is loaded."""
     return self._module is not None
-
-  @property
-  def is_std(self) -> bool:
-    """Returns `True` if the module is in the standard library."""
-    # TODO(epot): Should also contains, `mock`, `concurrent.futures`
-    return self.module_name in _STANDARD_MODULE_NAMES
 
   @property
   def import_statement(self) -> str:
@@ -171,25 +169,13 @@ class module(types_.ModuleType):  # pylint: disable=invalid-name
 
   _etils_state: LazyModuleState
 
-  def __init__(self, module_names: Union[str, list[str]], *, alias: str):
-    # We set `__file__` to None, to avoid `colab_import.reload_package(etils)`
+  def __init__(self, state: LazyModuleState):
+    # We set `__file__` to None, to avoid `colab_import_.reload_package(etils)`
     # to trigger a full reload of all modules here.
     object.__setattr__(self, '__file__', None)
-
-    if isinstance(module_names, str):
-      module_name = module_names
-      extra_imports = []
-    else:
-      assert isinstance(module_names, list)
-      module_name, *extra_imports = module_names
-
-    state = LazyModuleState(
-        module_name=module_name,
-        alias=alias,
-        extra_imports=extra_imports,
-        host=self,
-    )
     object.__setattr__(self, '_etils_state', state)
+    assert state.host is None
+    state.host = self
 
   def __getattr__(self, name: str) -> Any:
     if not self._etils_state.module_loaded and name in {
@@ -228,6 +214,19 @@ LazyModule = module
 del module
 
 
+# Modules here are imported from head (missing from the Brain Kernel)
+_PACKAGE_RESTRICT = [
+    'dataclass_array',
+    'etils',
+    'lark',
+    'sunds',
+    'visu3d',
+    'imageio',
+    'mediapy',
+    'pycolmap',
+]
+
+
 # TODO(epot): Rather than hardcoding which modules are adhoc-imported, this
 # could be a argument.
 def _load_module(
@@ -236,9 +235,7 @@ def _load_module(
     extra_imports: list[str],
 ) -> types_.ModuleType:
   """Load the module, eventually using adhoc-import."""
-  import contextlib  # pylint: disable=g-import-not-at-top
-
-  adhoc_cm = contextlib.suppress()
+  adhoc_cm = contextlib_.suppress()
 
   # First time, load the module
   with adhoc_cm:
@@ -250,6 +247,128 @@ def _load_module(
     return importlib_.import_module(module_name)
 
 
+class _LazyImportsBuilder:
+  """Capture import statements and replace them by lazy-import equivalement."""
+
+  def __init__(self, globals_):
+    self._globals = globals_
+    self.lazy_modules: dict[str, LazyModule] = {}
+
+  @contextlib_.contextmanager
+  def replace_imports(self, *, is_std: bool) -> Iterator[None]:
+    """Replace import statement by their lazy equivalent."""
+    # Step 1: Capture all imports by `_ModuleImportProxy`.
+
+    # Need to mock `__import__` (instead of `sys.meta_path`, as we do not want
+    # to modify the `sys.modules` cache in any way)
+    original_import = builtins_.__import__
+    try:
+      builtins_.__import__ = _lazy_import
+      yield
+    finally:
+      builtins_.__import__ = original_import
+
+    # Step 1: Replace all `_ModuleImportProxy` by the actual lazy `LazyModule`.
+
+    # We need 2 steps otherwise we have no way of knowing the alias used,
+    # for example to discriminating between:
+    # `import concurrent.futures` => `LazyModule('concurent')`
+    # `import concurrent.futures as xxx` => `LazyModule('concurent.future')`
+
+    for k, v in list(self._globals.items()):  # List to allow mutating `globals`
+      if isinstance(v, _ModuleImportProxy):
+        state = LazyModuleState(
+            module_name=v.qualname,
+            alias=k,
+            extra_imports=v.leaves_qualnames,
+            is_std=is_std,
+        )
+        lazy_module = LazyModule(state)
+        self.lazy_modules[k] = lazy_module
+        self._globals[k] = lazy_module
+
+
+def _lazy_import(
+    name: str,
+    globals_=None,
+    locals_=None,
+    fromlist: tuple[str, ...] = (),
+    level: int = 0,
+):
+  """Mock of `builtins.__import__`."""
+  del globals_, locals_  # Unused
+  if level:
+    raise ValueError(f'Relative import statements not supported ({name}).')
+
+  root_name, *parts = name.split('.')
+  root = _ModuleImportProxy(name=root_name)
+
+  # Extract inner-most module
+  child = root
+  for name in parts:
+    child = getattr(child, name)
+
+  if fromlist:
+    # from x.y.z import a, b
+    return child  # return the inner-most module (`x.y.z`)
+  else:
+    # import x.y.z
+    # import x.y.z as z
+    return root  # return the top-level module (`x`)
+
+
+@dataclasses_.dataclass(eq=False)
+class _ModuleImportProxy:
+  """`_ModuleImportProxy` replace all modules during import statement.
+
+  ```python
+  with _LazyImportsBuilder().replace_imports():
+    import abc.def
+    assert isinstance(abc.def, _ModuleImportProxy)
+  ```
+  """
+
+  name: str
+  parent: Optional[_ModuleImportProxy] = None
+  childs: dict[str, _ModuleImportProxy] = dataclasses_.field(
+      default_factory=dict
+  )
+
+  @property
+  def qualname(self) -> str:
+    if not self.parent:
+      return self.name
+    else:
+      return f'{self.parent.qualname}.{self.name}'
+
+  @property
+  def leaves_qualnames(self) -> list[str]:
+    """Extract all qualnames of leaves childs."""
+    all_childs = []
+    for childs in self.childs.values():
+      all_childs.extend(
+          leaves_qualnames
+          if (leaves_qualnames := childs.leaves_qualnames)
+          else [childs.qualname]  # Child is a leave
+      )
+    return all_childs
+
+  def __repr__(self) -> str:
+    if self.leaves_qualnames:
+      child_arg = f', childs={self.leaves_qualnames}'
+    else:
+      child_arg = ''
+    return f'{type(self).__name__}({self.qualname}{child_arg})'
+
+  def __getattr__(self, name: str):
+    if name not in self.childs:
+      self.childs[name] = type(self)(
+          name=name,
+          parent=self,
+      )
+    return self.childs[name]
+
+
 def print_current_imports() -> None:
   """Display the active lazy imports.
 
@@ -258,7 +377,6 @@ def print_current_imports() -> None:
 
   For convenience, `from etils.ecolab import lazy_imports` is excluded from
   the current imports.
-
   """
   print(_current_import_statements())
 
@@ -287,150 +405,144 @@ def _current_import_statements() -> str:
   return '\n'.join(lines)
 
 
-# Modules here are imported from head (missing from the Brain Kernel)
-_PACKAGE_RESTRICT = [
-    'dataclass_array',
-    'etils',
-    'lark',
-    'sunds',
-    'visu3d',
-    'imageio',
-    'mediapy',
-    'pycolmap',
-]
+_builder = _LazyImportsBuilder(globals())
 
-_STANDARD_MODULE_NAMES = [
-    'abc',
-    'argparse',
-    'ast',
-    'asyncio',
-    'base64',
-    'builtins',
-    'collections',
-    'colorsys',
-    'copy',
-    # 'concurrent.futures',  # Added bellow
-    'contextlib',
-    'contextvars',
-    'csv',
-    'dataclasses',
-    'datetime',
-    'difflib',
-    'dis',
-    'enum',
-    'functools',
-    'gc',
-    'gzip',
-    'html',
-    'inspect',
-    'io',
-    'importlib',
-    'itertools',
-    'json',
-    'logging',
-    'math',
-    'multiprocessing',
-    'os',
-    'pathlib',
-    'pdb',
-    'pickle',
-    'pprint',
-    'queue',
-    'random',
-    're',
-    'shutil',
-    'stat',
-    'string',
-    'subprocess',
-    'sys',
-    'tarfile',
-    'textwrap',
-    'threading',
-    'time',
-    'timeit',
-    'tomllib',
-    'traceback',
-    'typing',  # Note: With `__future__.annotations`, no need to import Any & co
-    'types',
-    'uuid',
-    'warnings',
-    'weakref',
-    'zipfile',
-]
 
-_MODULE_NAMES = dict(
-    # ====== Python standard lib ======
-    **{n: n for n in _STANDARD_MODULE_NAMES},
-    mock='unittest.mock',
-    concurrent=['concurrent', 'concurrent.futures'],
-    # ====== Etils ======
-    etils='etils',
-    array_types='etils.array_types',
-    ecolab='etils.ecolab',
-    edc='etils.edc',
-    enp='etils.enp',
-    epath='etils.epath',
-    epy='etils.epy',
-    etqdm='etils.etqdm',
-    etree='etils.etree',  # TODO(epot): etree='etils.etree.jax',
-    lazy_imports='etils.ecolab.lazy_imports',
-    # ====== Common third party ======
-    app='absl.app',
-    flags='absl.flags',
-    beam='apache_beam',
-    colabtools='colabtools',
-    interactive_forms='colabtools.interactive_forms',
-    chex='chex',
-    dca='dataclass_array',
-    einops='einops',
-    flax='flax',
-    nn='flax.linen',
-    gin='gin',
-    graphviz='graphviz',
-    imageio='imageio',
-    # Even though `import ipywidgets as widgets` is the common alias, widget
-    # is likely too ambiguous.
-    ipywidgets='ipywidgets',
-    jax='jax',
-    jnp='jax.numpy',
-    lark='lark',
-    matplotlib='matplotlib',
-    mpl='matplotlib',  # Standard alias
-    plt='matplotlib.pyplot',
-    media='mediapy',
-    ml_collections='ml_collections',
-    nx='networkx',
-    np='numpy',
-    pd='pandas',
-    pycolmap='pycolmap',
-    scipy='scipy',
-    sns='seaborn',
-    sklearn='sklearn',
-    tf='tensorflow',
-    tnp='tensorflow.experimental.numpy',
-    tfds='tensorflow_datasets',
-    tqdm=['tqdm', 'tqdm.auto', 'tqdm.notebook'],
-    tree='tree',
-    typing_extensions='typing_extensions',
-    plotly='plotly',
-    px='plotly.express',
-    go='plotly.graph_objects',
-    sunds='sunds',
-    v3d='visu3d',
-    xmflow='xmanager.contrib.flow',
-    xm='xmanager.xm',
-)
+with _builder.replace_imports(is_std=True):
+  # pylint: disable=g-import-not-at-top,unused-import,reimported
+  import abc
+  import argparse
+  import ast
+  import asyncio
+  import base64
+  import builtins
+  import collections
+  import colorsys
+  import copy
+  import concurrent.futures
+  import contextlib
+  import contextvars
+  import csv
+  import dataclasses
+  import datetime
+  import difflib
+  import dis
+  import enum
+  import functools
+  import gc
+  import gzip
+  import html
+  import inspect
+  import io
+  import importlib
+  import itertools
+  import json
+  import logging
+  import math
+  import multiprocessing
+  import os
+  import pathlib
+  import pdb
+  import pickle
+  import pprint
+  import queue
+  import random
+  import re
+  import shutil
+  import stat
+  import string
+  import subprocess
+  import sys
+  import tarfile
+  import textwrap
+  import threading
+  import time
+  import timeit
+  import tomllib  # pytype: disable=import-error
+  import traceback
+  import typing  # Note we do not import `Any`, `TypeVar`,...
+  import types
+  import uuid
+  from unittest import mock
+  import warnings
+  import weakref
+  import zipfile
+  # pylint: enable=g-import-not-at-top,unused-import,reimported
 
-# Note that this fail with python 3.7, but works with 3.8+
 
-LAZY_MODULES: dict[str, LazyModule] = {
-    k: LazyModule(v, alias=k) for k, v in _MODULE_NAMES.items()
-}
+with _builder.replace_imports(is_std=False):
+  # pylint: disable=g-import-not-at-top,unused-import,reimported
+  # pytype: disable=import-error
+  # ====== Etils ======
+  from etils import array_types
+  from etils import ecolab
+  from etils import edc
+  from etils import enp
+  from etils import epath
+  from etils import epy
+  from etils import etqdm
+  from etils import etree
+  from etils.ecolab import lazy_imports
+  # ====== Common third party ======
+  from absl import app
+  from absl import flags
+  import apache_beam as beam
+  import colabtools
+  from colabtools import interactive_forms
+  import chex
+  import dataclass_array as dca
+  import einops
+  import flax
+  from flax import linen as nn
+  import gin
+  import graphviz
+  import imageio
+  # Even though `import ipywidgets as widgets` is the common alias, widgets
+  # is likely too ambiguous.
+  import ipywidgets
+  import jax
+  from jax import numpy as jnp
+  import lark
+  import matplotlib
+  import matplotlib as mpl  # Standard alias
+  from matplotlib import pyplot
+  import mediapy as media
+  import ml_collections
+  import networkx as nx
+  import numpy as np
+  import pandas as pd
+  import pycolmap
+  import scipy
+  import seaborn as sns
+  import sklearn
+  import tensorflow as tf
+  import tensorflow.experimental.numpy as tnp
+  import tensorflow_datasets as tfds
+  import tqdm
+  # tqdm import also trigger additional imports.
+  # TODO(epot): Currently pylance might not infer `tqdm.auto` match
+  # `import tqdm.auto`
+  tqdm.auto  # pylint: disable=pointless-statement
+  tqdm.notebook  # pylint: disable=pointless-statement
+  import tree
+  import typing_extensions
+  import plotly
+  from plotly import express as px
+  from plotly import graph_objects as go
+  import sunds
+  import visu3d as v3d
+  from xmanager.contrib import flow as xmflow
+  from xmanager import xm
+  # pytype: enable=import-error
+  # pylint: enable=g-import-not-at-top,unused-import,reimported
+
+
 # Sort the lazy modules per their <module_name>
 LAZY_MODULES: dict[str, LazyModule] = dict(
-    sorted(LAZY_MODULES.items(), key=lambda x: x[1]._etils_state.module_name)  # pylint: disable=protected-access
+    sorted(
+        _builder.lazy_modules.items(),
+        key=lambda x: x[1]._etils_state.module_name,  # pylint: disable=protected-access
+    )
 )
-globals().update(LAZY_MODULES)
-
 
 __all__ = sorted(LAZY_MODULES)  # Sorted per alias

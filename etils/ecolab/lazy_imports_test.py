@@ -28,7 +28,7 @@ from etils import ecolab
 
 
 def test_lazy_imports():
-  from etils.ecolab.lazy_imports import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import jax  # pylint: disable=g-import-not-at-top
 
   assert repr(jax) == "LazyModule('jax')"
 
@@ -37,28 +37,28 @@ def test_lazy_imports():
   assert repr(jax).startswith("<lazy_module 'jax'")
   assert jax._etils_state.module_loaded
 
-  from etils.ecolab.lazy_imports import jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import jnp  # pylint: disable=g-import-not-at-top
 
   assert not jnp._etils_state.module_loaded
   _ = jnp.array  # Trigger import
   assert jnp._etils_state.module_loaded
   del jnp
 
-  from etils.ecolab.lazy_imports import epy  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import epy  # pylint: disable=g-import-not-at-top
 
   _ = epy.reraise  # Trigger import
 
   # Import os but do not trigger imports
-  from etils.ecolab.lazy_imports import os  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import os  # pylint: disable=g-import-not-at-top
 
   del os
 
   # lazy_imports can be imported but do not appear in `print_current_imports`
-  from etils.ecolab.lazy_imports import lazy_imports  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import lazy_imports  # pylint: disable=g-import-not-at-top
 
-  assert not lazy_imports._etils_state.module_loaded
+  assert not lazy_imports._etils_state.module_loaded  # pytype: disable=module-attr
   _ = lazy_imports.print_current_imports  # Trigger import
-  assert lazy_imports._etils_state.module_loaded
+  assert lazy_imports._etils_state.module_loaded  # pytype: disable=module-attr
   del lazy_imports
 
   assert ecolab.lazy_imports._current_import_statements() == epy.dedent(
@@ -71,11 +71,11 @@ def test_lazy_imports():
 
 
 def test_lazy_imports_mutate():
-  from etils.lazy_imports import enp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.lazy_imports import enp  # pylint: disable=g-import-not-at-top
 
-  assert not enp._etils_state.module_loaded
+  assert not enp._etils_state.module_loaded  # pytype: disable=module-attr
   _ = enp.NpModule
-  assert enp._etils_state.module_loaded
+  assert enp._etils_state.module_loaded  # pytype: disable=module-attr
 
   enp.some_value = 123
 
@@ -86,7 +86,7 @@ def test_lazy_imports_mutate():
 
 
 def test_lazy_imports_built_in():
-  from etils.ecolab.lazy_imports import gc  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import gc  # pylint: disable=g-import-not-at-top
 
   assert repr(gc).startswith("LazyModule('gc')")
   _ = gc.collect
@@ -94,7 +94,7 @@ def test_lazy_imports_built_in():
 
 
 def test_lazy_imports_dir():
-  from etils.ecolab.lazy_imports import lazy_imports  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from etils.ecolab.lazy_imports import lazy_imports  # pylint: disable=g-import-not-at-top
 
   for attr_name in dir(lazy_imports):
     assert hasattr(lazy_imports, attr_name)

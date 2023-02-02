@@ -8,6 +8,12 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+
+*   `ecolab`:
+    *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,
+        docstring tooltip, do not trigger linter errors anymore
+        (`"xxx" is not definedPylancereportUndefinedVariable`).
+
 <!-- --------- Do not add anything bellow this line --------- -->
 
 ## [1.0.0] - 2023-01-09
