@@ -47,6 +47,9 @@ from etils.enp.geo_utils import batch_dot
 from etils.enp.geo_utils import project_onto_plane
 from etils.enp.geo_utils import project_onto_vector
 
+# TODO(epot): Remove once Torch has better numpy API
+from etils.enp.torch_mock import activate_torch_support
+
 # Inside tests, can use `enp.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import
   try:
