@@ -18,20 +18,23 @@ from __future__ import annotations
 
 from typing import Tuple, Union
 
+from etils.enp import checking
 from etils.enp import numpy_utils
 from etils.enp.typing import Array, ArrayLike, FloatArray  # pylint: disable=g-multiple-import
-import numpy as np
 
 lazy = numpy_utils.lazy
 
 _MinMaxValue = Union[int, float, ArrayLike[Array['d']]]
 
 
+@checking.check_and_normalize_arrays(strict=False)
 def interp(
     x: Array['*d'],
     from_: Tuple[_MinMaxValue, _MinMaxValue],
     to: Tuple[_MinMaxValue, _MinMaxValue],
+    *,
     axis: int = -1,
+    xnp: numpy_utils.NpModule = ...,
 ) -> FloatArray['*d']:
   """Linearly scale the given value by the given range.
 
@@ -76,6 +79,7 @@ def interp(
     to: Range to which normalize x.
     axis: Axis on which normalizing. Only relevant if `from_` or `to` items
       contains range value.
+    xnp: Numpy module to use
 
   Returns:
     Float tensor with same shape as x, but with normalized coordinates.
@@ -94,9 +98,12 @@ def interp(
         'Only last axis supported for now. Please send a feature request.'
     )
 
-  # Note: This should be static arguments so we use numpy instead of jnp
-  from_ = tuple(np.array(v) for v in from_)
-  to = tuple(np.array(v) for v in to)
+  # Note: In theory, this could be static arguments so we could use numpy
+  # instead of xnp.
+  # However torch don't support `torch.Tensor + np.ndarray` and casting
+  # `torch.asarray()` afterward seems to create crash
+  from_ = tuple(xnp.asarray(v) for v in from_)
+  to = tuple(xnp.asarray(v) for v in to)
 
   # `a` can be scalar or array of shape=(x.shape[-1],), same for `b`
   a, b = _linear_interp_factors(*from_, *to)  # pytype: disable=wrong-arg-types

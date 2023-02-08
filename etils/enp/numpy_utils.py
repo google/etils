@@ -66,6 +66,10 @@ class _LazyImporter:
     return 'tensorflow' in sys.modules
 
   @property
+  def has_torch(self) -> bool:
+    return 'torch' in sys.modules
+
+  @property
   def jax(self):
     import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
@@ -90,6 +94,12 @@ class _LazyImporter:
     return tnp
 
   @property
+  def torch(self):
+    import torch  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+    return torch
+
+  @property
   def np(self):
     return np
 
@@ -102,9 +112,18 @@ class _LazyImporter:
   def is_jax(self, x: Array) -> bool:
     return self.has_jax and isinstance(x, self.jnp.ndarray)
 
+  def is_torch(self, x: Array) -> bool:
+    return self.has_torch and isinstance(x, self.torch.Tensor)
+
   def is_array(self, x: Array, *, strict: bool = True) -> bool:
     is_array_like = False if strict else isinstance(x, _ARRAY_LIKE_TYPES)
-    return self.is_np(x) or self.is_jax(x) or self.is_tf(x) or is_array_like
+    return (
+        self.is_np(x)
+        or self.is_jax(x)
+        or self.is_tf(x)
+        or self.is_torch(x)
+        or is_array_like
+    )
 
   def is_np_dtype(self, dtype) -> bool:
     return isinstance(dtype, np.dtype) or epy.issubclass(dtype, np.generic)
@@ -118,17 +137,24 @@ class _LazyImporter:
     check_jax = self.has_jax and isinstance(dtype, type(self.jnp.float32))
     return self.is_np_dtype(dtype) or check_jax
 
+  def is_torch_dtype(self, dtype) -> bool:
+    return self.has_torch and isinstance(dtype, self.torch.dtype)
+
   def is_dtype(self, dtype) -> bool:
     return (
         self.is_np_dtype(dtype)
         or self.is_jax_dtype(dtype)
         or self.is_tf_dtype(dtype)
+        or self.is_torch_dtype(dtype)
     )
 
   def as_dtype(self, dtype) -> _np.dtype:
     """Normalize to numpy dtype."""
     if self.is_tf_dtype(dtype):
       dtype = dtype.as_numpy_dtype
+    elif self.is_torch_dtype(dtype):
+      from etils.enp import torch_mock  # pylint: disable=g-import-not-at-top
+      dtype = torch_mock.dtype_torch_to_np(dtype)
     elif not self.is_jax_dtype(dtype) and not self.is_np_dtype(dtype):
       raise TypeError(f'Invalid dtype: {dtype!r}')
     return np.dtype(dtype)
@@ -181,6 +207,8 @@ class _LazyImporter:
       return self.tnp
     elif self.is_np(x):
       return np
+    elif self.is_torch(x):
+      return self.torch
     elif not strict and isinstance(x, _ARRAY_LIKE_TYPES):
       # `strict=False` support `[0, 0, 0]`, `0`,...
       return np

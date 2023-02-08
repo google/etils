@@ -200,7 +200,7 @@ def _infer_xnp(
     xnps: dict[numpy_utils.NpModule, list[str]]
 ) -> numpy_utils.NpModule:
   """Extract the `xnp` module."""
-  non_np_xnps = set(xnps) - {np}  # jnp, tnp take precedence on `np`
+  non_np_xnps = set(xnps) - {np}  # jnp, tnp, torch take precedence on `np`
 
   # Detecting conflicting xnp
   if len(non_np_xnps) > 1:

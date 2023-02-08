@@ -96,6 +96,14 @@ def auto_plot_array(*, video_min_num_frames: int = 15) -> None:
   else:
     formatter.for_type(tf.Tensor, array_repr_html_fn)
 
+  # Try registering Torch
+  try:
+    torch = enp.lazy.torch
+  except ImportError:
+    pass
+  else:
+    formatter.for_type(torch.Tensor, array_repr_html_fn)
+
   # Register np
   formatter.for_type(enp.lazy.np.ndarray, array_repr_html_fn)
 
@@ -123,7 +131,7 @@ def _array_repr_html_inner(
     return None
 
   # Normalize tf.Tensor into np.array
-  if enp.lazy.is_tf(img):
+  if enp.lazy.is_tf(img) or enp.lazy.is_torch(img):
     img = img.numpy()
 
   shape = img.shape

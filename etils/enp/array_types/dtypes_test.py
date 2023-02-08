@@ -27,7 +27,7 @@ import numpy as np
 import pytest
 
 # Activate the fixture
-set_tnp = enp.testing.set_tnp
+enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 with_subtests = epy.testing.with_subtests
 
 _ArrayDtype = Tuple[Any, Union[np.dtype, Exception]]
@@ -70,7 +70,7 @@ _ALL_ITEMS = [
             # _ArrayItem(1, np.int32),
             # _ArrayItem(1., np.float32),
             # _ArrayItem([1], np.int32),
-            # _ArrayItem([1.], np.int32),
+            # _ArrayItem([1.], np.float32),
             _ArrayItem(np.array(1, dtype=np.uint8), np.uint8),
         ],
     ),
@@ -205,6 +205,8 @@ def test_dtype(xnp, item: _DTypeTestItem):
 
   # DType casting
   for array_item in item.array_items:
+    if array_item.dtype == jnp.bfloat16 and xnp is enp.lazy.torch:
+      continue  # `torch.bfloat16` not yet supported in enp.
     name = f'{array_item.value}:{array_item.dtype!r}'  # Name
     with epy.testing.subtest(name):
       assert_asarray(dtype=dtype, array_item=array_item, xnp=xnp)
