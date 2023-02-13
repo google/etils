@@ -80,7 +80,18 @@ def parametrize_xnp(
       'np': np,
       'jnp': lazy.jnp,
       'tnp': lazy.tnp,
+      'torch': lazy.torch,
   }
+
+  # TODO(epot): Remove this hack once all tests are updated
+  # Currently, we do not test `xnp == 'pytorch'` if `enable_torch_tf_np_mode`
+  # is not defined in the file.
+  name_to_modules['torch'] = pytest.param(
+      name_to_modules['torch'],
+      # Use string condition so the `skipif` condition so the condition is
+      # lazily executed in the file it is defined.
+      marks=pytest.mark.skipif('"enable_torch_tf_np_mode" not in globals()'),
+  )
 
   # Filter modules not requested
   name_to_keep = set(restrict or name_to_modules)
