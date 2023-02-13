@@ -111,6 +111,7 @@ dev = [
     "pyink",
     "pylint>=2.6.0",
     "chex",
+    "torch",
 ]
 
 [tool.pyink]
