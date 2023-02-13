@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 
 # Activate the fixture
-set_tnp = enp.testing.set_tnp
+enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 
 
 def _array(xnp, value, batch_shape):

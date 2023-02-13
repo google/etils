@@ -18,6 +18,8 @@ from etils import enp
 
 import numpy as np
 
+enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
+
 
 @enp.testing.parametrize_xnp()
 def test_normalize(xnp: enp.NpModule):

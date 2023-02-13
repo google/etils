@@ -73,13 +73,13 @@ def test_tree_unzip(etree_api):  # pylint: disable=redefined-outer-name
 @enp.testing.parametrize_xnp()
 def test_tree_stack(etree_api, xnp: enp.NpModule):  # pylint: disable=redefined-outer-name
   x = etree_api.stack([
-      {'a': xnp.array([1]), 'b': xnp.array([10])},
-      {'a': xnp.array([2]), 'b': xnp.array([20])},
-      {'a': xnp.array([3]), 'b': xnp.array([30])},
+      {'a': xnp.asarray([1]), 'b': xnp.asarray([10])},
+      {'a': xnp.asarray([2]), 'b': xnp.asarray([20])},
+      {'a': xnp.asarray([3]), 'b': xnp.asarray([30])},
   ])
   y = {
-      'a': xnp.array([[1], [2], [3]]),
-      'b': xnp.array([[10], [20], [30]]),
+      'a': xnp.asarray([[1], [2], [3]]),
+      'b': xnp.asarray([[10], [20], [30]]),
   }
   chex.assert_tree_all_close(x, y)
 

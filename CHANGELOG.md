@@ -8,8 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
-
+*   `enp`:
+    *   Add `torch` support (experimental). Activated with
+        `enp.activate_torch_support()`
 *   `ecolab`:
+    *   Add `torch` support for `ecolab.auto_plot_array`
     *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,
         docstring tooltip, do not trigger linter errors anymore
         (`"xxx" is not definedPylancereportUndefinedVariable`).

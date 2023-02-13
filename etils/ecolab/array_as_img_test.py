@@ -26,7 +26,8 @@ import pytest
 def test_display_array_as_image():
   with mock.patch('IPython.get_ipython', mock.MagicMock()) as ipython_mock:
     array_as_img.auto_plot_array()
-  assert ipython_mock.call_count == 1
+  # It seems `import torch` call `get_ipython` internally too.
+  assert ipython_mock.call_count >= 1
 
 
 @pytest.mark.parametrize(

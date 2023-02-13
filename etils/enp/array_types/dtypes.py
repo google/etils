@@ -128,7 +128,16 @@ class DType(abc.ABC):
       pass  # Always try to cast to dtype
     else:
       raise NotImplementedError(f'Unsupported casting {casting}')
-    return xnp.asarray(array_like, dtype=to_dtype)
+
+    # Torch has a bug where `torch.tensor([.1], dtype=None)` returns `float64`
+    # instead of `float32`
+    if to_dtype is None:
+      dtype_kwargs = {}
+    else:
+      dtype_kwargs = {'dtype': to_dtype}
+
+    arr = xnp.asarray(array_like, **dtype_kwargs)
+    return arr
 
   @abc.abstractmethod
   def _get_target_dtype(
