@@ -11,6 +11,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `enp`:
     *   Add `torch` support (experimental). Activated with
         `enp.activate_torch_support()`
+    *   Add `skip=['jnp', ...]` kwarg to `enp.testing.parametrize_xnp` to
+        exclude a specific xnp module from tests.
 *   `ecolab`:
     *   Add `torch` support for `ecolab.auto_plot_array`
     *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,

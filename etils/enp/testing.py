@@ -14,6 +14,8 @@
 
 """Test utils."""
 
+from __future__ import annotations
+
 from typing import Callable, Iterable, Optional, TypeVar
 
 from etils.enp import numpy_utils
@@ -66,12 +68,14 @@ def parametrize_xnp(
     *,
     with_none: bool = False,
     restrict: Optional[Iterable[str]] = None,
+    skip: Optional[Iterable[str]] = None,
 ) -> Callable[[_FnT], _FnT]:
   """Parametrize over the numpy modules.
 
   Args:
     with_none: If `True`, also yield `None` among the values (to test `list`)
     restrict: If given, only test the given module (e.g. `restrict=['jnp']`)
+    skip: If given, skip the given module from test (e.g. `skip=['torch']`)
 
   Returns:
     The fixture to apply to the `def test_xyz()` function
@@ -83,20 +87,13 @@ def parametrize_xnp(
       'torch': lazy.torch,
   }
 
-  # TODO(epot): Remove this hack once all tests are updated
-  # Currently, we do not test `xnp == 'pytorch'` if `enable_torch_tf_np_mode`
-  # is not defined in the file.
-  name_to_modules['torch'] = pytest.param(
-      name_to_modules['torch'],
-      # Use string condition so the `skipif` condition so the condition is
-      # lazily executed in the file it is defined.
-      marks=pytest.mark.skipif('"enable_torch_tf_np_mode" not in globals()'),
+  keep = _normalize_set(
+      restrict, default=name_to_modules, valid=name_to_modules
   )
+  skip = _normalize_set(skip, default=[], valid=name_to_modules)
 
-  # Filter modules not requested
-  name_to_keep = set(restrict or name_to_modules)
   name_to_modules = {
-      k: v for k, v in name_to_modules.items() if k in name_to_keep
+      k: v for k, v in name_to_modules.items() if k not in skip and k in keep
   }
 
   if with_none:
@@ -108,3 +105,14 @@ def parametrize_xnp(
       list(name_to_modules.values()),
       ids=list(name_to_modules.keys()),
   )
+
+
+def _normalize_set(
+    values: Iterable[str], default: Iterable[str], valid: Iterable[str]
+) -> set[str]:
+  # Normalize str -> list (e.g. skip='torch')
+  values = [values] if isinstance(values, str) else values
+  values = set(default if values is None else values)
+  if extra_elements := (values - set(valid)):
+    raise ValueError(f'Unexpected numpy module: {extra_elements}')
+  return values
