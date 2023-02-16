@@ -492,8 +492,10 @@ with _builder.replace_imports(is_std=False):
   import chex
   import dataclass_array as dca
   import einops
+  import flask
   import flax
   from flax import linen as nn
+  import functorch
   import gin
   import graphviz
   import imageio
@@ -511,6 +513,8 @@ with _builder.replace_imports(is_std=False):
   import networkx as nx
   import numpy as np
   import pandas as pd
+  import PIL
+  from PIL import Image  # Common alias
   import pycolmap
   import scipy
   import seaborn as sns
@@ -518,10 +522,15 @@ with _builder.replace_imports(is_std=False):
   import tensorflow as tf
   import tensorflow.experimental.numpy as tnp
   import tensorflow_datasets as tfds
+  import torch
+  # from torch import nn  # Collision with flax.linen
+  import torchtext
+  import torchvision
   import tqdm
   # tqdm import also trigger additional imports.
   # TODO(epot): Currently pylance might not infer `tqdm.auto` match
   # `import tqdm.auto`
+  # Could try to explicitly import inside a `if typing.TYPE_CHECKING:`
   tqdm.auto  # pylint: disable=pointless-statement
   tqdm.notebook  # pylint: disable=pointless-statement
   import tree
@@ -529,6 +538,8 @@ with _builder.replace_imports(is_std=False):
   import plotly
   from plotly import express as px
   from plotly import graph_objects as go
+  import pydantic
+  import requests
   import sunds
   import visu3d as v3d
   from xmanager.contrib import flow as xmflow
