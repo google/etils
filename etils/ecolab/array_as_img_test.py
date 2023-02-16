@@ -23,6 +23,13 @@ from etils.ecolab import array_as_img
 import pytest
 
 
+_ARRAY_REPR_HTML_KWARGS = dict(
+    video_min_num_frames=15,
+    show_images_kwargs={},
+    show_videos_kwargs={},
+)
+
+
 def test_display_array_as_image():
   with mock.patch('IPython.get_ipython', mock.MagicMock()) as ipython_mock:
     array_as_img.auto_plot_array()
@@ -50,8 +57,7 @@ def test_array_repr_html_valid(
 ):
   # 2D images are displayed as images
   assert '<img' in array_as_img._array_repr_html(
-      xnp.zeros(valid_shape),
-      video_min_num_frames=15,
+      xnp.zeros(valid_shape), **_ARRAY_REPR_HTML_KWARGS
   )
 
 
@@ -68,8 +74,7 @@ def test_array_repr_video_html_valid(
 ):
   # 2D images are displayed as video
   assert '<video' in array_as_img._array_repr_html(
-      xnp.zeros(valid_shape),
-      video_min_num_frames=15,
+      xnp.zeros(valid_shape), **_ARRAY_REPR_HTML_KWARGS
   )
 
 
@@ -94,8 +99,7 @@ def test_array_repr_html_invalid(
 ):
   assert (
       array_as_img._array_repr_html(
-          xnp.zeros(invalid_shape),
-          video_min_num_frames=15,
+          xnp.zeros(invalid_shape), **_ARRAY_REPR_HTML_KWARGS
       )
       is None
   )

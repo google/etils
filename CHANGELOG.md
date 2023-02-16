@@ -14,7 +14,11 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `skip=['jnp', ...]` kwarg to `enp.testing.parametrize_xnp` to
         exclude a specific xnp module from tests.
 *   `ecolab`:
-    *   Add `torch` support for `ecolab.auto_plot_array`
+    *   `ecolab.auto_plot_array`
+        *   Add `torch`
+        *   Small images (height smaller than 100px) are automatically scaled up
+        *   Can overwrite `mediapy` default options with `show_images_kwargs`
+            and `show_videos_kwargs`
     *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,
         docstring tooltip, do not trigger linter errors anymore
         (`"xxx" is not definedPylancereportUndefinedVariable`).

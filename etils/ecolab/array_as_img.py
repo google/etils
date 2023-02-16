@@ -42,7 +42,10 @@ with _internal.check_missing_deps():
 
 Array = Any
 
+# Images smaller than this are displayed as text (e.g. `np.array([...`)
 _MIN_IMG_SHAPE: Tuple[int, int] = (10, 10)
+# Images smaller than this are rescalled
+_MIN_IMG_HEIGHT: int = 100
 
 
 def show(*objs, **kwargs) -> None:
@@ -50,7 +53,12 @@ def show(*objs, **kwargs) -> None:
   return IPython.display.display(*objs, **kwargs)
 
 
-def auto_plot_array(*, video_min_num_frames: int = 15) -> None:
+def auto_plot_array(
+    *,
+    video_min_num_frames: int = 15,
+    show_images_kwargs: Optional[dict[str, Any]] = None,
+    show_videos_kwargs: Optional[dict[str, Any]] = None,
+) -> None:
   """If called, 2d/3d imgage arrays will be plotted as images in colab/jupyter.
 
   Usage:
@@ -59,17 +67,24 @@ def auto_plot_array(*, video_min_num_frames: int = 15) -> None:
   >>> np.zeros((28, 28, 3))  # Displayed as image
 
   Args:
-    video_min_num_frames: Video `(num_frames, h, w, c)` with less than
-      this number of frames will be displayed as individual images
+    video_min_num_frames: Video `(num_frames, h, w, c)` with less than this
+      number of frames will be displayed as individual images
+    show_images_kwargs: Kwargs forwarded to `mediapy.show_images`
+    show_videos_kwargs: Kwargs forwarded to `mediapy.show_videos`
   """
 
   ipython = IPython.get_ipython()
   if ipython is None:
     return  # Non-notebook environement
 
+  show_images_kwargs = show_images_kwargs or {}
+  show_videos_kwargs = show_videos_kwargs or {}
+
   array_repr_html_fn = functools.partial(
       _array_repr_html,
       video_min_num_frames=video_min_num_frames,
+      show_images_kwargs=show_images_kwargs,
+      show_videos_kwargs=show_videos_kwargs,
   )
 
   # Register the new representation fo np, tf and jax array
@@ -125,8 +140,11 @@ def _array_repr_html_inner(
     img: Array,
     *,
     video_min_num_frames: int,
+    show_images_kwargs: dict[str, Any],
+    show_videos_kwargs: dict[str, Any],
 ) -> Optional[str]:
   """Display the normalized img, or `None` if the input is not an image."""
+
   if not enp.lazy.is_array(img):  # Not an array
     return None
 
@@ -159,20 +177,31 @@ def _array_repr_html_inner(
   if num_channel not in {1, 3, 4}:
     return None
 
+  # Resize small images to 100 pixels (otherwise, difficult to see)
+  height = max(img_shape[0], _MIN_IMG_HEIGHT)  # (h, w)
+
+  show_images_kwargs = show_images_kwargs.copy()
+  show_images_kwargs.setdefault('height', height)
+
   if ndim < 4:
-    out = media.show_image(img, return_html=True)
+    out = media.show_image(img, return_html=True, **show_images_kwargs)
   elif num_frames < video_min_num_frames:
-    out = media.show_images(img, return_html=True)
+    out = media.show_images(img, return_html=True, **show_images_kwargs)
   else:
     # TODO(epot): media.show_video does not support single channel video
     if num_channel != 3:
       return None
     # Dynamically compute the frame-rate, capped at 25 FPS
     fps = min(num_frames // 5, 25.0)
+
+    show_videos_kwargs = show_videos_kwargs.copy()
+    show_videos_kwargs.setdefault('fps', fps)
+    show_videos_kwargs.setdefault('height', height)
+
     out = media.show_video(
         img,
-        fps=fps,
         return_html=True,
+        **show_videos_kwargs,
     )
   return out
 
