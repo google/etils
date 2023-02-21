@@ -14,6 +14,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `skip=['jnp', ...]` kwarg to `enp.testing.parametrize_xnp` to
         exclude a specific xnp module from tests.
 *   `ecolab`:
+    *   Add `ecolab.json` for interactive expandable JSON display.
     *   `ecolab.auto_plot_array`
         *   Add `torch`
         *   Small images (height smaller than 100px) are automatically scaled up

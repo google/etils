@@ -23,3 +23,8 @@ def test_capture_stdout():
   with ecolab.collapse():
     print('Abcd')
     print('Abcd', file=sys.stderr)
+
+
+def test_json():
+  ecolab.json({'a': [1, None, 3.4]})
+  ecolab.json([1, None, 3.4, {'d': [1, True]}])

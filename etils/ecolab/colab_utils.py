@@ -19,9 +19,16 @@ from __future__ import annotations
 import contextlib
 import html
 import io
+import json as json_std
+import typing
 from typing import Iterator
+import uuid
 
 import IPython.display
+
+if typing.TYPE_CHECKING:
+  JsonValue = str | float | int | bool | None
+  Json = JsonValue | dict[JsonValue, 'Json'] | list['Json']
 
 
 @contextlib.contextmanager
@@ -63,3 +70,33 @@ def collapse(name: str = '') -> Iterator[None]:
   """
   with _collapse_std(name=name, redirect_fn=_redirect_stdall):
     yield
+
+
+def json(value: Json) -> None:
+  """Display the Json `dict` / `list` interactivelly (with collapsible elems).
+
+  Args:
+    value: Json `dict` or `list` to inspect.
+  """
+  # Unique id to make sure multiple Json display do not interact with each other
+  id_ = uuid.uuid1().hex
+
+  html_content = html.escape(json_std.dumps(value))
+  # There are a lot of alternative. Likely the most popular one is
+  # `react-json-view`. However, this one display preview for collapsible
+  # elements, which is nice (and not present in other alternatives).
+  # https://github.com/mac-s-g/react-json-view/issues/237
+
+  # TODO(epot): Could also add
+  # `<input placeholder="Search" onkeydown="search(this)"></input>`
+  # but likely not super useful.
+  html_content = f"""
+  <script src="https://unpkg.com/@alenaksu/json-viewer@2.0.0/dist/json-viewer.bundle.js"></script>
+  <script>
+    const viewer{id_} = document.querySelector('#json{id_}');
+  </script>
+  <button onclick="viewer{id_}.expandAll();">Expand All</button>
+  <button onclick="viewer{id_}.collapseAll();">Collapse All</button>
+  <json-viewer id="json{id_}">{html_content}</json-viewer>
+  """
+  IPython.display.display(IPython.display.HTML(html_content))
