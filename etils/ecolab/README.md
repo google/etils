@@ -56,11 +56,11 @@ By running:
 ecolab.auto_plot_array()
 ```
 
-All `([n, ]h, w[, c])` jax/numpy/TF arrays bigger than `(10, 10)` will be
+All `([n, ]h, w[, c])` Jax/Numpy/TF/Torch arrays bigger than `(10, 10)` will be
 displayed as image(s)/video (if `n > video_min_num_frames` args, default to 15),
 without having to manually call `pyplot` .
 
-![https://i.imgur.com/9XxBUlD.png](https://i.imgur.com/9XxBUlD.png){height="500"}
+![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/array.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/array.png?raw=true){height="220"}
 
 The original string representation is still available through `repr(array)`.
 
@@ -77,7 +77,14 @@ with ecolab.collapse('Json content:'):  # Capture both stderr/stdout
 
 Example:
 
-![https://i.imgur.com/KOjUlOg.png](https://i.imgur.com/KOjUlOg.png){height="180"}
+![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/collapse.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/collapse.png?raw=true){height="180"}
+
+### Inspect nested `dict` / `list`
+
+`ecolab.json` allow you to interactively explore Json nested `dict` / `list`
+with collapsible/expandable sections.
+
+![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/json.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/json.png?raw=true){height="180"}
 
 ### Others
 
