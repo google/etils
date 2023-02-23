@@ -86,6 +86,9 @@ with collapsible/expandable sections.
 
 ![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/json.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/json.png?raw=true){height="180"}
 
+The dict keys and list indices can be filtered from the display field using
+regex (e.g. `x.[0-9]` in the above example).
+
 ### Others
 
 *   `ecolab.set_verbose()`: Log stderr & `absl.logging` (which are hidden by
