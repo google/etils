@@ -11,6 +11,9 @@ Changelog follow https://keepachangelog.com/ format.
 *   `enp`:
     *   Add `torch` support (experimental). Activated with
         `enp.activate_torch_support()`
+    *   Add `enp.lazy.LazyArray` to lazily check
+        `isinstance(array, enp.lazy.LazyArray)` without triggering `TF`,
+        `jax`,... imports
     *   Add `skip=['jnp', ...]` kwarg to `enp.testing.parametrize_xnp` to
         exclude a specific xnp module from tests.
 *   `ecolab`:

@@ -165,6 +165,7 @@ def test_dtype_from_array_xnp(xnp, dtype):
 def test_get_array_module(xnp):
   y = fn(xnp.array([123]))
   assert isinstance(y, xnp.ndarray)
+  assert isinstance(y, enp.lazy.LazyArray)
 
 
 def test_get_array_module_tf():

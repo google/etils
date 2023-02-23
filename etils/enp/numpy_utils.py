@@ -49,6 +49,12 @@ _ARRAY_LIKE_TYPES = (int, bool, float, list, tuple)
 _np = np
 
 
+class _LazyArrayMeta(type):
+
+  def __instancecheck__(cls, obj) -> bool:
+    return lazy.is_array(obj)
+
+
 class _LazyImporter:
   """Lazy import module.
 
@@ -221,6 +227,16 @@ class _LazyImporter:
   def is_tnp_enabled(self) -> bool:
     """Returns `True` if numpy mode is enabled."""
     return self.has_tf and hasattr(self.tf.Tensor, 'reshape')
+
+  class LazyArray(metaclass=_LazyArrayMeta):
+    """Represent `tf.Tensor`, `jax.ndarray`, `np.ndarray`, `torch.Tensor`.
+
+    Allow to check isinstance without triggering imports from other modules:
+
+    ```
+    assert isinstance(jnp.zeros((2,)), enp.lazy.LazyArray)
+    ```
+    """
 
 
 lazy = _LazyImporter()
