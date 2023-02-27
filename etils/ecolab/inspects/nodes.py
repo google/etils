@@ -100,6 +100,7 @@ class Node:
       class_ = 'caret-invisible'
 
     def apply(*content):
+      # TODO(epot): Non-clickable nodes likely do not need ids
       return H.li(id=self.id)(H.span(class_=['caret', class_])(*content))
 
     return apply
@@ -132,6 +133,17 @@ class SubsectionNode(Node):
   def inner_html(self) -> str:
     all_childs = [c.header_html for c in self.childs]
     return H.ul(class_=['collapsible'])(*all_childs)
+
+
+@dataclasses.dataclass
+class HtmlNode(Node):
+  """Simple non clickable node that only displaying HTML."""
+
+  html: str
+
+  @property
+  def header_html(self) -> str:
+    return self._li(clickable=False)(self.html)
 
 
 @dataclasses.dataclass
@@ -305,8 +317,14 @@ class ArrayNode(ObjectNode[enp.typing.Array]):
 
   MATCH_TYPES = enp.lazy.LazyArray
 
-  # TODO(epot): When expanded, print the array values, or also in the one-line
-  # description ?
+  # TODO(epot): Also print array values in the one-line description ?
+
+  @property
+  def all_childs(self) -> list[Node]:
+    # When expanded, print the array values
+    return [
+        HtmlNode(_obj_html_repr(self.obj, array_values=True))
+    ] + super().all_childs
 
 
 @dataclasses.dataclass
@@ -341,7 +359,7 @@ class ExceptionNode(ObjectNode[attrs.ExceptionWrapper]):
     return True
 
 
-def _obj_html_repr(obj: object) -> str:
+def _obj_html_repr(obj: object, *, array_values: bool = False) -> str:
   """Returns the object representation."""
   if isinstance(obj, type(None)):
     type_ = 'null'
@@ -354,7 +372,7 @@ def _obj_html_repr(obj: object) -> str:
   elif isinstance(obj, (str, bytes)):
     type_ = 'string'
     obj = _truncate_long_str(repr(obj))
-  elif isinstance(obj, enp.lazy.LazyArray):
+  elif not array_values and isinstance(obj, enp.lazy.LazyArray):
     type_ = 'number'
     obj = enp.ArraySpec.from_array(obj)
   elif isinstance(obj, attrs.ExceptionWrapper):
