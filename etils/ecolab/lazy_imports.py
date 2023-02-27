@@ -512,6 +512,7 @@ with _builder.replace_imports(is_std=False):
   import ml_collections
   import networkx as nx
   import numpy as np
+  import optax
   import pandas as pd
   import PIL
   from PIL import Image  # Common alias
