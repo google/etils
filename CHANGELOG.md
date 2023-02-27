@@ -27,6 +27,10 @@ Changelog follow https://keepachangelog.com/ format.
     *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,
         docstring tooltip, do not trigger linter errors anymore
         (`"xxx" is not definedPylancereportUndefinedVariable`).
+*   `etree`:
+    *   `from etils import etree` now expose the Python backend (
+        `etree.map`,...). Other backend are still available as previously
+        (`etree.jax.map`,...)
 
 <!-- --------- Do not add anything bellow this line --------- -->
 

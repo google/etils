@@ -23,3 +23,9 @@ jax = tree_utils.TreeAPI(backend.Jax())  # jax.tree_utils
 tree = tree_utils.TreeAPI(backend.DmTree())  # tree (DeepMind)
 nest = tree_utils.TreeAPI(backend.Nest())  # tf.nest
 py = tree_utils.TreeAPI(backend.Python())  # Pure Python API
+
+map = py.map  # pylint: disable=redefined-builtin
+parallel_map = py.parallel_map
+unzip = py.unzip
+stack = py.stack
+spec_like = py.spec_like

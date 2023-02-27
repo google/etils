@@ -30,7 +30,8 @@ import tensorflow as tf
 
 
 @pytest.fixture(
-    params=[  # Run all tests 3 times (one for each backends)
+    params=[  # Run all tests X times (one for each backends)
+        etree_lib,
         etree_lib.jax,
         etree_lib.tree,
         etree_lib.nest,
@@ -128,6 +129,8 @@ def test_spec_like(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=
 
 
 def test_tree_assert_same_structure(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
+  if etree_api is etree_lib:  # Backend not exposed at the module level
+    return
   etree_api.backend.assert_same_structure(
       {
           'x': [1, 2, 3],
