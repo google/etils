@@ -79,6 +79,13 @@ Example:
 
 ![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/collapse.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/collapse.png?raw=true){height="180"}
 
+### Inspect any Python objects
+
+`ecolab.inspect` allow you to interactively explore any Python objects, with
+collapsible/expandable sections.
+
+![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/inspect.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/inspect.png?raw=true){height="280"}
+
 ### Inspect nested `dict` / `list`
 
 `ecolab.json` allow you to interactively explore Json nested `dict` / `list`

@@ -20,7 +20,7 @@ from collections.abc import Callable
 import functools
 
 
-def tag(name: str, **kwargs: str | list[str] | None) -> Callable[..., str]:
+def tag(name: str, **attributes: str | list[str] | None) -> Callable[..., str]:
   """Create a html tag.
 
   Usage:
@@ -31,7 +31,7 @@ def tag(name: str, **kwargs: str | list[str] | None) -> Callable[..., str]:
 
   Args:
     name: Tag name
-    **kwargs: Attributes of the tag
+    **attributes: Attributes of the tag
 
   Returns:
     The HTML string
@@ -39,7 +39,7 @@ def tag(name: str, **kwargs: str | list[str] | None) -> Callable[..., str]:
   # Could be much more optimized by first building the graph of nested
   # element, then joining individual parts
 
-  attributes = _format_tag_attributes(kwargs)
+  attributes = _format_tag_attributes(attributes)
 
   def apply(*content: str) -> str:
     content = ''.join(content)
