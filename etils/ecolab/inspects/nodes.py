@@ -16,10 +16,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import collections.abc
 import dataclasses
+import functools
 import html
-from typing import Any, ClassVar, Generic, TypeVar
+import types
+from typing import Any, Callable, ClassVar, Generic, Type, TypeVar, Union
 import uuid
 
 from etils import enp
@@ -63,6 +65,14 @@ class Node:
   def from_obj(cls, obj: object, *, name: str = '') -> ObjectNode:
     """Factory of a node from any object."""
     for sub_cls in [
+        BuiltinNode,
+        FnNode,
+        MappingNode,
+        SequenceNode,
+        SetNode,
+        ClsNode,
+        ArrayNode,
+        ExceptionNode,
         ObjectNode,
     ]:
       if isinstance(obj, sub_cls.MATCH_TYPES):
@@ -96,6 +106,58 @@ class Node:
 
 
 @dataclasses.dataclass
+class SubsectionNode(Node):
+  """Expandable subsection of an object (to group object attributes).
+
+  Example: `[[Methods]]`,...
+
+  ```
+  > obj:
+    > ...
+    > [[Methods]]
+      > ...
+    > [[Special attributes]]
+      > ...
+  ```
+  """
+
+  name: str
+  childs: list[Node]
+
+  @property
+  def header_html(self) -> str:
+    return self._li()(H.span(class_=['preview'])(f'[[{self.name}]]'))
+
+  @property
+  def inner_html(self) -> str:
+    all_childs = [c.header_html for c in self.childs]
+    return H.ul(class_=['collapsible'])(*all_childs)
+
+
+@dataclasses.dataclass
+class KeyValNode(Node):
+  """The (k, v) items for `list`, `dict`."""
+
+  key: object
+  value: object
+
+  # TODO(epot):
+  # * Cleaner implementation.
+  # * Built-ins should not be expandable.
+  # * Make both key and value expandable (when not built-in) ?
+
+  @property
+  def header_html(self) -> str:
+    return self._li()(
+        _obj_html_repr(self.key), ': ', _obj_html_repr(self.value)
+    )
+
+  @property
+  def inner_html(self) -> str:
+    return Node.from_obj(self.value).inner_html
+
+
+@dataclasses.dataclass
 class ObjectNode(Node, Generic[_T]):
   """Any Python objects."""
 
@@ -125,6 +187,32 @@ class ObjectNode(Node, Generic[_T]):
     all_childs = [
         Node.from_obj(v, name=k) for k, v in attrs.get_attrs(self.obj).items()
     ]
+
+    magic_attrs = []
+    fn_attrs = []
+    private_attrs = []
+    val_attrs = []
+
+    for c in all_childs:
+      if c.name.startswith('__') and c.name.endswith('__'):
+        magic_attrs.append(c)
+      elif c.name.startswith('_'):
+        private_attrs.append(c)
+      elif isinstance(c, FnNode):
+        fn_attrs.append(c)
+      else:
+        val_attrs.append(c)
+
+    all_childs = val_attrs
+    if fn_attrs:
+      all_childs.append(SubsectionNode(childs=fn_attrs, name='Methods'))
+    if private_attrs:
+      all_childs.append(SubsectionNode(childs=private_attrs, name='Private'))
+    if magic_attrs:
+      all_childs.append(
+          SubsectionNode(childs=magic_attrs, name='Special attributes')
+      )
+
     return all_childs
 
   @property
@@ -142,9 +230,122 @@ class ObjectNode(Node, Generic[_T]):
     return False
 
 
+@dataclasses.dataclass
+class BuiltinNode(ObjectNode[Union[int, float, bool, str, bytes, None]]):  # pytype: disable=bad-concrete-type
+  """`int`, `float`, `bytes`, `str`,..."""
+
+  MATCH_TYPES = (type(None), int, float, bool, str, bytes, type(...))
+
+  # TODO(epot): For subclasses, print the actual type somewhere ? Same for list,
+  # dict,... ?
+
+  @property
+  def is_leaf(self) -> bool:
+    # Can recurse into built-ins only if they are roots
+    return not self.is_root
+
+
+@dataclasses.dataclass
+class MappingNode(ObjectNode[collections.abc.Mapping]):  # pytype: disable=bad-concrete-type
+  """`dict` like."""
+
+  MATCH_TYPES = (dict, collections.abc.Mapping)
+
+  @property
+  def all_childs(self) -> list[Node]:
+    return [
+        KeyValNode(key=k, value=v) for k, v in self.obj.items()
+    ] + super().all_childs
+
+
+@dataclasses.dataclass
+class SetNode(ObjectNode[collections.abc.Set]):  # pytype: disable=bad-concrete-type
+  """`set` like."""
+
+  MATCH_TYPES = (set, frozenset, collections.abc.Set)
+
+  @property
+  def all_childs(self) -> list[Node]:
+    return [
+        KeyValNode(key=id(v), value=v) for v in self.obj
+    ] + super().all_childs
+
+
+@dataclasses.dataclass
+class SequenceNode(ObjectNode[Union[list, tuple]]):
+  """`list` like."""
+
+  MATCH_TYPES = (list, tuple)
+
+  @property
+  def all_childs(self) -> list[Node]:
+    return [
+        KeyValNode(key=i, value=v) for i, v in enumerate(self.obj)
+    ] + super().all_childs
+
+
+@dataclasses.dataclass
+class FnNode(ObjectNode[Callable[..., Any]]):
+  """Function."""
+
+  MATCH_TYPES = (
+      types.FunctionType,
+      types.BuiltinFunctionType,
+      types.MethodType,
+      types.MethodDescriptorType,
+      functools.partial,
+  )
+
+  # TODO(epot): Print `<red>f</red>`, docstring, signature
+
+
+@dataclasses.dataclass
+class ArrayNode(ObjectNode[enp.typing.Array]):
+  """Array."""
+
+  MATCH_TYPES = enp.lazy.LazyArray
+
+  # TODO(epot): When expanded, print the array values, or also in the one-line
+  # description ?
+
+
+@dataclasses.dataclass
+class ClsNode(ObjectNode[Type[Any]]):
+  """Type."""
+
+  MATCH_TYPES = type
+
+  # TODO(epot): Add link to source code
+
+  @property
+  def all_childs(self) -> list[Node]:
+    # Add `[[mro]]` subsection
+    return super().all_childs + [
+        SubsectionNode(
+            childs=[Node.from_obj(cls) for cls in self.obj.mro()],
+            name='mro',
+        )
+    ]
+
+
+@dataclasses.dataclass
+class ExceptionNode(ObjectNode[attrs.ExceptionWrapper]):
+  """Exception."""
+
+  MATCH_TYPES = attrs.ExceptionWrapper
+
+  # TODO(epot): Could expand with the traceback
+
+  @property
+  def is_leaf(self) -> bool:
+    return True
+
+
 def _obj_html_repr(obj: object) -> str:
   """Returns the object representation."""
   if isinstance(obj, type(None)):
+    type_ = 'null'
+  elif isinstance(obj, type(...)):
     type_ = 'null'
   elif isinstance(obj, (int, float)):
     type_ = 'number'
@@ -177,7 +378,6 @@ def _truncate_long_str(value: str) -> str:
   """Truncate long strings."""
   value = html.escape(value)
   # TODO(epot): Make the `...` clickable to allow expand the `str` dynamically
-  # TODO(epot): Truncate multi line repr to single line
   if len(value) > 80:
     return value[:80] + '...'
   else:
