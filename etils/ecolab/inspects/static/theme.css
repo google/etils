@@ -1,0 +1,105 @@
+
+/* Remove default bullets */
+.tree-root ul {
+  list-style-type: none;
+}
+
+/* Remove margins and padding from the parent ul */
+.tree-root {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer;
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+.caret::before {
+  content: "▶";
+  color: #616060;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.caret-invisible {
+  cursor: auto;
+}
+
+.caret-invisible::before {
+  color: rgba(0, 0, 0, 0);
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.collapsible {
+  display: none;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
+
+/* List elements */
+
+.tree-root {
+  /* --color: #f8f8f2; */
+  --background-color: #f7f7f7;
+  --property-color: #087db2;
+  --string-color: #a31515;
+  --number-color: #008000;
+  --boolean-color: #0000ff;
+  --null-color: #af00db;
+  --preview-color: #888888;
+
+  background-color: var(--background-color);
+  /* color: var(--color); */
+  font-family: monospace;
+  font-size: 14px;
+}
+
+html[theme=dark] .tree-root {
+  --background-color: #2c2c2c;
+  --property-color: #6fb3d2;
+  --string-color: #ce9178;
+  --number-color: #b5cea8;
+  --boolean-color: #569cd6;
+  --null-color: #c586c0;
+  --preview-color: #888888;
+}
+
+.key-main {
+  color: var(--property-color);
+}
+
+.preview {
+  color: var(--preview-color);
+}
+
+.null {
+  color: var(--null-color);
+}
+
+.string {
+  color: var(--string-color);
+}
+
+.number {
+  color: var(--number-color);
+}
+
+.boolean {
+  color: var(--boolean-color);
+}
+
+.error {
+  /* color: rgb(255,122,136); */
+  color: var(--ansi-red);
+}
+
