@@ -95,7 +95,7 @@ class Node:
   def _li(self, *, clickable: bool = True) -> Callable[..., str]:
     """`<li>` section, called inside `header_html`."""
     if clickable:
-      class_ = 'register-onclick'
+      class_ = 'register-onclick-expand'
     else:
       class_ = 'caret-invisible'
 
@@ -377,8 +377,20 @@ def _obj_html_repr(obj: object) -> str:
 def _truncate_long_str(value: str) -> str:
   """Truncate long strings."""
   value = html.escape(value)
-  # TODO(epot): Make the `...` clickable to allow expand the `str` dynamically
+  # TODO(epot): Could have a better expand section which truncate long string
+  # (e.g. > 100 lines)
+  # TODO(epot): Better CSS (with button)
   if len(value) > 80:
-    return value[:80] + '...'
+    return H.span(class_=['content-switch'])(
+        # Short version
+        H.span(class_=['content-version-short'])(
+            value[:80]
+            + H.span(class_='content-switch-expand register-onclick-switch')(
+                '...'
+            )
+        ),
+        # Long version
+        H.span(class_='content-version-long register-onclick-switch')(value),
+    )
   else:
     return value

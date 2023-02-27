@@ -1,3 +1,4 @@
+/****** Tree elements ******/
 
 /* Remove default bullets */
 .tree-root ul {
@@ -42,11 +43,40 @@
 }
 
 /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
-.active {
+.collapsible-active {
   display: block;
 }
 
-/* List elements */
+/****** Switch ******/
+
+.content-switch-expand {
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+}
+
+.content-switch:hover .content-switch-expand {
+  border-color: #616060;
+}
+
+.content-switch .content-version-short {
+  display: inline;
+}
+
+.content-switch .content-version-long {
+  display: none;
+  white-space: pre-wrap;
+}
+
+.content-switch.switch-active .content-version-short {
+  display: none;
+}
+
+.content-switch.switch-active .content-version-long {
+  display: inline;
+}
+
+/****** Items (int, bool, list,...) ******/
 
 .tree-root {
   /* --color: #f8f8f2; */
