@@ -81,10 +81,14 @@ Example:
 
 ### Inspect any Python objects
 
-`ecolab.inspect` allow you to interactively explore any Python objects, with
-collapsible/expandable sections.
+`ecolab.inspect` allow you to interactively explore any Python objects (e.g
+`module`, `class`, `dict`,...), with collapsible/expandable sections.
 
 ![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/inspect.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/inspect.png?raw=true){height="280"}
+
+When developing interactively on Colab, you can add
+`from etils import ecolab ; ecolab.inspect(x)` statements deep inside
+your code, executing them will display the visualization on Colab.
 
 ### Inspect nested `dict` / `list`
 

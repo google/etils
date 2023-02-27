@@ -116,6 +116,11 @@ html[theme=dark] .tree-root {
   color: var(--null-color);
 }
 
+.fn {
+  color: var(--null-color);
+  font-style: italic;
+}
+
 .string {
   color: var(--string-color);
 }

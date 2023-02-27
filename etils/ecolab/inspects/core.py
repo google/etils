@@ -49,7 +49,7 @@ def inspect(obj: object) -> None:
   """Inspect all attributes of a Python object interactivelly.
 
   Args:
-    obj: Any object to inspect.
+    obj: Any object to inspect (module, class, dict,...).
   """
 
   root = nodes.Node.from_obj(obj)

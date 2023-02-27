@@ -20,6 +20,7 @@ import collections.abc
 import dataclasses
 import functools
 import html
+import inspect
 import types
 from typing import Any, Callable, ClassVar, Generic, Type, TypeVar, Union
 import uuid
@@ -308,7 +309,12 @@ class FnNode(ObjectNode[Callable[..., Any]]):
       functools.partial,
   )
 
-  # TODO(epot): Print `<red>f</red>`, docstring, signature
+  @property
+  def header_repr(self) -> str:
+    return _fn_html_repr(self.obj)
+
+  # TODO(epot): Expand the function should display docstring, signature,
+  # annotations, default values
 
 
 @dataclasses.dataclass
@@ -427,3 +433,39 @@ def _truncate_long_str(value: str, *, expand_new_lines: bool = False) -> str:
     )
   else:
     return short_value
+
+
+def _fn_html_repr(fn: Callable[..., Any]) -> str:
+  """Constructs the signature representation of a function."""
+  try:
+    sig = inspect.Signature.from_callable(fn)
+  except Exception:  # pylint: disable=broad-except
+    # TODO(epot): Support more built-in fns,...
+    return _obj_html_repr(fn)
+
+  # Do not add annotations in the one-line repr (would be too boilerplate)
+
+  # TODO(epot): When using built-in, should display `object.__repr__` rather
+  # than `A.__repr__`
+  parts = [fn.__qualname__, '(']
+  is_first = True
+  is_kwarg_only = False
+  for param in sig.parameters.values():
+    if not is_first:
+      parts.append(', ')
+    is_first = False
+    if param.kind == inspect.Parameter.VAR_POSITIONAL:
+      parts.append('*')
+      is_kwarg_only = True
+    elif param.kind == inspect.Parameter.VAR_KEYWORD:
+      parts.append('**')
+      is_kwarg_only = True
+    elif param.kind == inspect.Parameter.KEYWORD_ONLY and not is_kwarg_only:
+      is_kwarg_only = True
+      parts.append('*, ')
+    parts.append(param.name)
+  parts.append(')')
+
+  sig_str = ''.join(parts)
+  sig_str = _truncate_long_str(sig_str)
+  return H.span(class_='fn')('ƒ') + ' ' + H.span(class_=['preview'])(sig_str)
