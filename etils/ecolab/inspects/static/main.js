@@ -19,8 +19,8 @@ async function load_content(id_) {
     // Insert at the end, without destroying the one-line content
     root.insertAdjacentHTML('beforeend', html_content);
 
-    // Register listeners for all newly added childs
-    registerChildsEvent(root);
+    // Register listeners for all newly added children
+    registerChildrenEvent(root);
   }
 }
 
@@ -38,8 +38,8 @@ async function load_content(id_) {
  * @param {!EventCallback} callback Function to call.
  */
 function registerClickListenerOnAll(elem, class_name, callback) {
-  const childs = elem.querySelectorAll(`.${class_name}`);
-  for (const child of childs) {
+  const children = elem.querySelectorAll(`.${class_name}`);
+  for (const child of children) {
     child.classList.remove(class_name);
     child.addEventListener('click', function(event) {
       event.stopPropagation();  // Only one click processed if multiple listener
@@ -49,10 +49,10 @@ function registerClickListenerOnAll(elem, class_name, callback) {
 }
 
 /**
- * Register all listerners for all childs.
+ * Register all listerners for all children.
  * @param {!HTMLElement} elem Root element to which add the listener
  */
-function registerChildsEvent(elem) {
+function registerChildrenEvent(elem) {
   registerClickListenerOnAll(elem, 'register-onclick-expand', async function() {
     // Do not process the click if text is selected
     const selection = document.getSelection();

@@ -123,7 +123,7 @@ class SubsectionNode(Node):
   """
 
   name: str
-  childs: list[Node]
+  children: list[Node]
 
   @property
   def header_html(self) -> str:
@@ -131,8 +131,8 @@ class SubsectionNode(Node):
 
   @property
   def inner_html(self) -> str:
-    all_childs = [c.header_html for c in self.childs]
-    return H.ul(class_=['collapsible'])(*all_childs)
+    children = [c.header_html for c in self.children]
+    return H.ul(class_=['collapsible'])(*children)
 
 
 @dataclasses.dataclass
@@ -190,13 +190,13 @@ class ObjectNode(Node, Generic[_T]):
 
   @property
   def inner_html(self) -> str:
-    all_childs = [c.header_html for c in self.all_childs]
-    return H.ul(class_=['collapsible'])(*all_childs)
+    children = [c.header_html for c in self.children]
+    return H.ul(class_=['collapsible'])(*children)
 
   @property
-  def all_childs(self) -> list[Node]:
+  def children(self) -> list[Node]:
     """Extract all attributes."""
-    all_childs = [
+    children = [
         Node.from_obj(v, name=k) for k, v in attrs.get_attrs(self.obj).items()
     ]
 
@@ -205,7 +205,7 @@ class ObjectNode(Node, Generic[_T]):
     private_attrs = []
     val_attrs = []
 
-    for c in all_childs:
+    for c in children:
       if c.name.startswith('__') and c.name.endswith('__'):
         magic_attrs.append(c)
       elif c.name.startswith('_'):
@@ -215,17 +215,17 @@ class ObjectNode(Node, Generic[_T]):
       else:
         val_attrs.append(c)
 
-    all_childs = val_attrs
+    children = val_attrs
     if fn_attrs:
-      all_childs.append(SubsectionNode(childs=fn_attrs, name='Methods'))
+      children.append(SubsectionNode(children=fn_attrs, name='Methods'))
     if private_attrs:
-      all_childs.append(SubsectionNode(childs=private_attrs, name='Private'))
+      children.append(SubsectionNode(children=private_attrs, name='Private'))
     if magic_attrs:
-      all_childs.append(
-          SubsectionNode(childs=magic_attrs, name='Special attributes')
+      children.append(
+          SubsectionNode(children=magic_attrs, name='Special attributes')
       )
 
-    return all_childs
+    return children
 
   @property
   def header_repr(self) -> str:
@@ -264,10 +264,10 @@ class MappingNode(ObjectNode[collections.abc.Mapping]):  # pytype: disable=bad-c
   MATCH_TYPES = (dict, collections.abc.Mapping)
 
   @property
-  def all_childs(self) -> list[Node]:
+  def children(self) -> list[Node]:
     return [
         KeyValNode(key=k, value=v) for k, v in self.obj.items()
-    ] + super().all_childs
+    ] + super().children
 
 
 @dataclasses.dataclass
@@ -277,10 +277,10 @@ class SetNode(ObjectNode[collections.abc.Set]):  # pytype: disable=bad-concrete-
   MATCH_TYPES = (set, frozenset, collections.abc.Set)
 
   @property
-  def all_childs(self) -> list[Node]:
+  def children(self) -> list[Node]:
     return [
         KeyValNode(key=id(v), value=v) for v in self.obj
-    ] + super().all_childs
+    ] + super().children
 
 
 @dataclasses.dataclass
@@ -290,10 +290,10 @@ class SequenceNode(ObjectNode[Union[list, tuple]]):
   MATCH_TYPES = (list, tuple)
 
   @property
-  def all_childs(self) -> list[Node]:
+  def children(self) -> list[Node]:
     return [
         KeyValNode(key=i, value=v) for i, v in enumerate(self.obj)
-    ] + super().all_childs
+    ] + super().children
 
 
 @dataclasses.dataclass
@@ -320,11 +320,11 @@ class ArrayNode(ObjectNode[enp.typing.Array]):
   # TODO(epot): Also print array values in the one-line description ?
 
   @property
-  def all_childs(self) -> list[Node]:
+  def children(self) -> list[Node]:
     # When expanded, print the array values
     return [
         HtmlNode(_obj_html_repr(self.obj, array_values=True))
-    ] + super().all_childs
+    ] + super().children
 
 
 @dataclasses.dataclass
@@ -336,11 +336,11 @@ class ClsNode(ObjectNode[Type[Any]]):
   # TODO(epot): Add link to source code
 
   @property
-  def all_childs(self) -> list[Node]:
+  def children(self) -> list[Node]:
     # Add `[[mro]]` subsection
-    return super().all_childs + [
+    return super().children + [
         SubsectionNode(
-            childs=[Node.from_obj(cls) for cls in self.obj.mro()],
+            children=[Node.from_obj(cls) for cls in self.obj.mro()],
             name='mro',
         )
     ]

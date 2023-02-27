@@ -330,7 +330,7 @@ class _ModuleImportProxy:
 
   name: str
   parent: Optional[_ModuleImportProxy] = None
-  childs: dict[str, _ModuleImportProxy] = dataclasses_.field(
+  children: dict[str, _ModuleImportProxy] = dataclasses_.field(
       default_factory=dict
   )
 
@@ -343,30 +343,30 @@ class _ModuleImportProxy:
 
   @property
   def leaves_qualnames(self) -> list[str]:
-    """Extract all qualnames of leaves childs."""
-    all_childs = []
-    for childs in self.childs.values():
-      all_childs.extend(
+    """Extract all qualnames of leaves children."""
+    all_children = []
+    for children in self.children.values():
+      all_children.extend(
           leaves_qualnames
-          if (leaves_qualnames := childs.leaves_qualnames)
-          else [childs.qualname]  # Child is a leave
+          if (leaves_qualnames := children.leaves_qualnames)
+          else [children.qualname]  # Child is a leave
       )
-    return all_childs
+    return all_children
 
   def __repr__(self) -> str:
     if self.leaves_qualnames:
-      child_arg = f', childs={self.leaves_qualnames}'
+      child_arg = f', children={self.leaves_qualnames}'
     else:
       child_arg = ''
     return f'{type(self).__name__}({self.qualname}{child_arg})'
 
   def __getattr__(self, name: str):
-    if name not in self.childs:
-      self.childs[name] = type(self)(
+    if name not in self.children:
+      self.children[name] = type(self)(
           name=name,
           parent=self,
       )
-    return self.childs[name]
+    return self.children[name]
 
 
 def print_current_imports() -> None:
