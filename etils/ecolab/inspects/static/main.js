@@ -42,7 +42,15 @@ function registerClickListenerOnAll(elem, class_name, callback) {
   for (const child of children) {
     child.classList.remove(class_name);
     child.addEventListener('click', function(event) {
-      event.stopPropagation();  // Only one click processed if multiple listener
+      // Only one click processed if multiple (nested) listener
+      event.stopPropagation();
+
+      // Do not process the click if text is selected
+      const selection = document.getSelection();
+      if (selection.type === 'Range') {
+        return;
+      }
+
       callback.bind(this)();
     });
   }
@@ -54,12 +62,6 @@ function registerClickListenerOnAll(elem, class_name, callback) {
  */
 function registerChildrenEvent(elem) {
   registerClickListenerOnAll(elem, 'register-onclick-expand', async function() {
-    // Do not process the click if text is selected
-    const selection = document.getSelection();
-    if (selection.type === 'Range') {
-      return;
-    }
-
     // TODO(epot): As optimization, it's not required to query the id
     // each time, but instead use closure.
     // TODO(epot): Is there a way to only call this once ?
