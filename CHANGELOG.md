@@ -24,6 +24,7 @@ Changelog follow https://keepachangelog.com/ format.
         *   Small images (height smaller than 100px) are automatically scaled up
         *   Can overwrite `mediapy` default options with `show_images_kwargs`
             and `show_videos_kwargs`
+    *   Add `ecolab.interruptible` for graceful interruption of loops.
     *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,
         docstring tooltip, do not trigger linter errors anymore
         (`"xxx" is not definedPylancereportUndefinedVariable`).

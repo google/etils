@@ -92,13 +92,33 @@ your code, executing them will display the visualization on Colab.
 
 ### Inspect nested `dict` / `list`
 
-`ecolab.json` allow you to interactively explore Json nested `dict` / `list`
+`ecolab.json` allows you to interactively explore Json nested `dict` / `list`
 with collapsible/expandable sections.
 
 ![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/json.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/json.png?raw=true){height="180"}
 
 The dict keys and list indices can be filtered from the display field using
 regex (e.g. `x.[0-9]` in the above example).
+
+### Interruptible loops
+
+`ecolab.interruptible` allows graceful interruption of loops. It is especially
+useful for slow training loops.
+
+While an iterator wrapped with `interruptible` is running, the first SIGINT
+signal (e.g. from Ctrl+C or from interrupting the Colab Kernel) is captured, and
+instead of raising an exception the loop simply ends after the current
+iteration.
+
+The second SIGINT signal will immediately raise a `KeyboardInterrupt` as usual.
+
+```python
+# SIGINT during this loop will finish the current iteration and then
+# simply stop without raising an exception raised.
+for i in ecolab.interruptible(range(100)):
+  time.sleep(2)
+  print(i)
+```
 
 ### Others
 

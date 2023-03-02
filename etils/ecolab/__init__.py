@@ -16,6 +16,7 @@
 
 from etils.ecolab.array_as_img import auto_plot_array
 from etils.ecolab.colab_utils import collapse
+from etils.ecolab.colab_utils import interruptible
 from etils.ecolab.colab_utils import json
 from etils.ecolab.inspects.core import inspect
 from etils.ecolab.module_utils import clear_cached_modules
@@ -27,6 +28,7 @@ __all__ = [
     'collapse',
     'clear_cached_modules',
     'inspect',
+    'interruptible',
     'patch_graphviz',
     'set_verbose',
 ]
