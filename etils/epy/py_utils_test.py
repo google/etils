@@ -105,3 +105,8 @@ def test_frozen_inheritance_new_init():
   assert b.x3 == 123
   with pytest.raises(AttributeError):
     b.w = 456
+
+
+def test_issubclass():
+  assert not epy.issubclass(1, int)
+  assert epy.issubclass(bool, int)

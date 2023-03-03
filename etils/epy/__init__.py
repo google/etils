@@ -20,6 +20,7 @@ from etils.epy.backports import cached_property
 from etils.epy.contextlib import ContextManager
 from etils.epy.env_utils import is_notebook
 from etils.epy.itertools import groupby
+from etils.epy.itertools import splitby
 from etils.epy.itertools import zip_dict
 from etils.epy.py_utils import frozen
 from etils.epy.py_utils import issubclass_ as issubclass  # pylint: disable=redefined-builtin
