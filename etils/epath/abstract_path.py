@@ -24,14 +24,14 @@ from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike
 
-T = TypeVar('T')
+_T = TypeVar('_T')
 
 
 # Ideally, `Path` should be `abc.ABC`. However this trigger pytype errors
 # when calling `Path()` (can't instantiate abstract base class)
 # Also this allow path childs to only partially implement the Path API (e.g.
 # read only path)
-def abstractmethod(fn: T) -> T:
+def abstractmethod(fn: _T) -> _T:
   return fn
 
 
@@ -43,7 +43,7 @@ class Path(pathlib.PurePosixPath):
 
   """
 
-  def __new__(cls: Type[T], *args: PathLike) -> T:
+  def __new__(cls: Type[_T], *args: PathLike) -> _T:
     """Create a new path.
 
     ```python
@@ -77,7 +77,7 @@ class Path(pathlib.PurePosixPath):
     except ValueError:
       return False
 
-  def format(self: T, *args: Any, **kwargs: Any) -> T:
+  def format(self: _T, *args: Any, **kwargs: Any) -> _T:
     """Apply `str.format()` to the path."""
     return type(self)(os.fspath(self).format(*args, **kwargs))  # pytype: disable=not-instantiable
 
@@ -98,28 +98,28 @@ class Path(pathlib.PurePosixPath):
     return not self.is_dir()
 
   @abstractmethod
-  def iterdir(self: T) -> Iterator[T]:
+  def iterdir(self: _T) -> Iterator[_T]:
     """Iterates over the directory."""
     raise NotImplementedError
 
   @abstractmethod
-  def glob(self: T, pattern: str) -> Iterator[T]:
+  def glob(self: _T, pattern: str) -> Iterator[_T]:
     """Yielding all matching files (of any kind)."""
     # Might be able to implement using `iterdir` (recursivelly for `rglob`).
     raise NotImplementedError
 
-  def rglob(self: T, pattern: str) -> Iterator[T]:
+  def rglob(self: _T, pattern: str) -> Iterator[_T]:
     """Yielding all matching files recursivelly (of any kind)."""
     return self.glob(f'**/{pattern}')
 
-  def expanduser(self: T) -> T:
+  def expanduser(self: _T) -> _T:
     """Returns a new path with expanded `~` and `~user` constructs."""
     if '~' not in self.parts:  # pytype: disable=attribute-error
       return self
     raise NotImplementedError
 
   @abstractmethod
-  def resolve(self: T, strict: bool = False) -> T:
+  def resolve(self: _T, strict: bool = False) -> _T:
     """Returns the absolute path."""
     raise NotImplementedError
 
@@ -207,13 +207,13 @@ class Path(pathlib.PurePosixPath):
     self.write_text('')
 
   @abstractmethod
-  def rename(self: T, target: PathLike) -> T:
+  def rename(self: _T, target: PathLike) -> _T:
     """Renames the path."""
 
   @abstractmethod
-  def replace(self: T, target: PathLike) -> T:
+  def replace(self: _T, target: PathLike) -> _T:
     """Overwrites the destination path."""
 
   @abstractmethod
-  def copy(self: T, dst: PathLike, overwrite: bool = False) -> T:
+  def copy(self: _T, dst: PathLike, overwrite: bool = False) -> _T:
     """Copy the current file to the given destination."""

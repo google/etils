@@ -17,16 +17,11 @@
 from __future__ import annotations
 
 import functools
-import typing
 
 from etils import epath
 from etils.ecolab import pyjs_com
 from etils.ecolab.inspects import nodes
 import IPython.display
-
-if typing.TYPE_CHECKING:
-  JsonValue = bool | int | float | str | None
-  Json = dict[str, 'Json'] | list['Json'] | JsonValue
 
 
 @pyjs_com.register_js_fn
