@@ -46,6 +46,16 @@ def test_group_by_value():
   }
 
 
+def test_splitby():
+  f_out, t_out = epy.splitby(
+      [0, 30, 2, 4, 2, 20, 3],
+      lambda x: x < 10,
+  )
+  # Order is consistent with above
+  assert f_out == [30, 20]
+  assert t_out == [0, 2, 4, 2, 3]
+
+
 def test_zip_dict():
   d0 = {'a': 1, 'b': 2}
   d1 = {'a': 10, 'b': 20}
@@ -88,8 +98,3 @@ def test_zip_dict_three():
   d2 = {'a': 100, 'c': 300}
   with pytest.raises(KeyError):
     list(epy.zip_dict(d0, d1, d2))
-
-
-def test_issubclass():
-  assert not epy.issubclass(1, int)
-  assert epy.issubclass(bool, int)

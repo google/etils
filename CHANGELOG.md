@@ -32,6 +32,9 @@ Changelog follow https://keepachangelog.com/ format.
     *   `from etils import etree` now expose the Python backend (
         `etree.map`,...). Other backend are still available as previously
         (`etree.jax.map`,...)
+*   `epy`:
+    *   Added: `epy.splitby` to split an iterator in 2, based on a predicate.
+        (e.g. `small, big = epy.splitby([20, 1, 30, 1, 2], lambda x: x > 10)`)
 
 <!-- --------- Do not add anything bellow this line --------- -->
 
