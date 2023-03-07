@@ -245,7 +245,7 @@ class _GPath(abstract_path.Path):
     return target
 
   def copy(self: _P, dst: PathLike, overwrite: bool = False) -> _P:
-    """Remove the directory."""
+    """Copy file or directory to the given target."""
     # Could add a recursive=True mode
     dst = self._new(dst)
     backend = _get_backend(self, dst)
