@@ -19,7 +19,6 @@ from __future__ import annotations
 import functools
 import typing
 
-from etils.enp import compat
 from etils.enp import numpy_utils
 import numpy as np
 
@@ -92,14 +91,6 @@ def _mock_torch(torch) -> None:
     _wrap_fn(torch, fn_name, _cast_dtype_kwargs)
   _wrap_fn(torch.Tensor, 'type', _cast_dtype_arg)
   _wrap_fn(torch.Tensor, 'mean', _mean)
-  _wrap_fn(torch, 'allclose', _allclose)
-
-
-def _setattr(obj, name: str, value) -> None:
-  """Set attribute while making sure we're not overwriting an existing one."""
-  if hasattr(obj, name):
-    raise AttributeError(f'Cannot mock torch: {name} already exists.')
-  setattr(obj, name, value)
 
 
 def _wrap_fn(obj, name: str, fn) -> None:
@@ -144,14 +135,3 @@ def _mean(fn, self: torch_.Tensor, *args, **kwargs):
     return fn(self, *args, **kwargs, dtype=lazy.torch.float32)
   else:
     return fn(self, *args, **kwargs)
-
-
-def _allclose(fn, x: torch_.Tensor, y: torch_.Tensor, **kwargs):
-  """Make allclose accept different dtypes."""
-  if not x.dtype.is_floating_point:
-    x = compat.astype(x, y.dtype)
-  if not y.dtype.is_floating_point:
-    y = compat.astype(y, x.dtype)
-  if x.dtype != y.dtype:
-    x = compat.astype(x, y.dtype)
-  return fn(x, y, **kwargs)
