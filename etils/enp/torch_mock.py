@@ -94,9 +94,6 @@ def _mock_torch(torch) -> None:
   _wrap_fn(torch.Tensor, 'mean', _mean)
   _wrap_fn(torch, 'allclose', _allclose)
 
-  # Missing numpy functions
-  _setattr(torch, 'around', _around)
-
 
 def _setattr(obj, name: str, value) -> None:
   """Set attribute while making sure we're not overwriting an existing one."""
@@ -158,8 +155,3 @@ def _allclose(fn, x: torch_.Tensor, y: torch_.Tensor, **kwargs):
   if x.dtype != y.dtype:
     x = compat.astype(x, y.dtype)
   return fn(x, y, **kwargs)
-
-
-def _around(arr):
-  """Missing `np.around` method."""
-  return arr.round()

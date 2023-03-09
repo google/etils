@@ -67,6 +67,13 @@ def concat(x: list[Array['*d']], *, axis) -> Array['*d']:
 # ======== TF issues ========
 
 
+def round(x: FloatArray['*d']) -> FloatArray['*d']:  # pylint: disable=redefined-builtin
+  """`x.round()` for jnp, tnp, np, otrch."""
+  if lazy.is_tf(x):  # TODO(b/219427516): missing method
+    return lazy.tnp.around(x)
+  return x.round()
+
+
 def norm(
     x: FloatArray['*d'],
     axis: Optional[int] = None,
