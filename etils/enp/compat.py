@@ -23,15 +23,57 @@ official numpy API.
 
 from __future__ import annotations
 
+import functools
+import typing
 from typing import Optional
 
 from etils.enp import numpy_utils
 from etils.enp.typing import Array, FloatArray  # pylint: disable=g-multiple-import
+import numpy as np
+
+if typing.TYPE_CHECKING:
+  import torch as torch_  # pytype: disable=import-error
 
 lazy = numpy_utils.lazy
 
 
 # ======== Torch issues ========
+
+
+@functools.lru_cache()
+def _torch_to_np_dtypes() -> dict[torch_.dtype, np.dtype]:
+  """Returns mapping torch -> numpy dtypes."""
+  torch = lazy.torch
+  return {
+      torch.bool: np.bool_,
+      torch.uint8: np.uint8,
+      torch.int8: np.int8,
+      torch.int16: np.int16,
+      torch.int32: np.int32,
+      torch.int64: np.int64,
+      # TODO(epot): torch.bfloat:
+      torch.float16: np.float16,
+      torch.float32: np.float32,
+      torch.float64: np.float64,
+      torch.complex64: np.complex64,
+      torch.complex128: np.complex128,
+  }
+
+
+@functools.lru_cache()
+def _np_to_torch_dtypes() -> dict[np.dtype, torch_.dtype]:
+  """Returns mapping numpy -> torch dtypes."""
+  return dict((np.dtype(n), t) for t, n in _torch_to_np_dtypes().items())
+
+
+def dtype_torch_to_np(dtype) -> np.dtype:
+  """Returns the numpy dtype for the given torch dtype."""
+  return _torch_to_np_dtypes()[dtype]
+
+
+def dtype_np_to_torch(dtype):
+  """Returns the torch dtype for the given numpy dtype."""
+  return _np_to_torch_dtypes()[np.dtype(dtype)]
 
 
 def is_array_xnp(x, xnp) -> bool:

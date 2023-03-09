@@ -109,6 +109,18 @@ class _LazyImporter:
   def np(self):
     return np
 
+  def is_np_xnp(self, xnp: NpModule) -> bool:
+    return xnp is _np
+
+  def is_tf_xnp(self, xnp: NpModule) -> bool:
+    return self.has_tf and xnp is self.tnp
+
+  def is_jax_xnp(self, xnp: NpModule) -> bool:
+    return self.has_jax and xnp is self.jnp
+
+  def is_torch_xnp(self, xnp: NpModule) -> bool:
+    return self.has_torch and xnp is self.torch
+
   def is_np(self, x: Array) -> bool:
     return isinstance(x, (np.ndarray, np.generic))
 
@@ -154,16 +166,40 @@ class _LazyImporter:
         or self.is_torch_dtype(dtype)
     )
 
-  def as_dtype(self, dtype) -> _np.dtype:
-    """Normalize to numpy dtype."""
+  def as_np_dtype(self, dtype):
     if self.is_tf_dtype(dtype):
       dtype = dtype.as_numpy_dtype
     elif self.is_torch_dtype(dtype):
-      from etils.enp import torch_mock  # pylint: disable=g-import-not-at-top
-      dtype = torch_mock.dtype_torch_to_np(dtype)
+      from etils.enp import compat  # pylint: disable=g-import-not-at-top
+
+      dtype = compat.dtype_torch_to_np(dtype)
     elif not self.is_jax_dtype(dtype) and not self.is_np_dtype(dtype):
       raise TypeError(f'Invalid dtype: {dtype!r}')
     return np.dtype(dtype)
+
+  def as_tf_dtype(self, dtype):
+    return self.tf.dtypes.as_dtype(self.as_np_dtype(dtype))
+
+  def as_jax_dtype(self, dtype):
+    return self.as_np_dtype(dtype)  # Jax and numpy types are mostly similar
+
+  def as_torch_dtype(self, dtype):
+    from etils.enp import compat  # pylint: disable=g-import-not-at-top
+
+    return compat.dtype_np_to_torch(self.as_np_dtype(dtype))
+
+  def as_dtype(self, dtype, *, xnp: NpModule = _np):
+    """Normalize to dtype for the given `xnp`."""
+    if self.is_np_xnp(xnp):
+      return self.as_np_dtype(dtype)
+    elif self.is_tf_xnp(xnp):
+      return self.as_tf_dtype(dtype)
+    elif self.is_jax_xnp(xnp):
+      return self.as_jax_dtype(dtype)
+    elif self.is_torch_xnp(xnp):
+      return self.as_torch_dtype(dtype)
+    else:
+      raise TypeError(f'Unknown xnp: {xnp!r}')
 
   def dtype_from_array(
       self,

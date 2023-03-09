@@ -134,7 +134,7 @@ class DType(abc.ABC):
     if to_dtype is None:
       dtype_kwargs = {}
     else:
-      dtype_kwargs = {'dtype': to_dtype}
+      dtype_kwargs = {'dtype': numpy_utils.lazy.as_dtype(to_dtype, xnp=xnp)}
 
     arr = xnp.asarray(array_like, **dtype_kwargs)
     return arr

@@ -48,6 +48,15 @@ def test_lazy():
   assert lazy.torch is torch
   assert lazy.np is np
 
+  assert lazy.is_np_xnp(np)
+  assert lazy.is_tf_xnp(tnp)
+  assert lazy.is_jax_xnp(jnp)
+  assert lazy.is_torch_xnp(torch)
+  assert not lazy.is_np_xnp(jnp)
+  assert not lazy.is_tf_xnp(tf)
+  assert not lazy.is_jax_xnp(jax)
+  assert not lazy.is_torch_xnp(jnp)
+
   assert lazy.is_array(np.array([123]))
   assert lazy.is_np(np.array([123]))
   assert not lazy.is_np(jnp.array([123]))
@@ -104,6 +113,26 @@ def test_lazy_dtype():
 
   with pytest.raises(TypeError, match='Invalid dtype'):
     lazy.as_dtype(123)
+
+
+@enp.testing.parametrize_xnp()
+def test_dtype_convert(xnp: enp.NpModule):
+  lazy = enp.numpy_utils.lazy
+  assert lazy.as_dtype(xnp.int32) == np.dtype('int32')
+
+  is_xnp = {
+      np: lazy.is_np_dtype,
+      tnp: lazy.is_tf_dtype,
+      jnp: lazy.is_jax_dtype,
+      torch: lazy.is_torch_dtype,
+  }[xnp]
+
+  assert is_xnp(lazy.as_dtype(tf.int32, xnp=xnp))
+  assert is_xnp(lazy.as_dtype(jnp.int32, xnp=xnp))
+  assert is_xnp(lazy.as_dtype(np.int32, xnp=xnp))
+  assert is_xnp(lazy.as_dtype(torch.int32, xnp=xnp))
+  assert is_xnp(lazy.as_dtype(np.dtype('int32'), xnp=xnp))
+  assert is_xnp(lazy.as_dtype(np.int32, xnp=xnp))
 
 
 def test_dtype_from_array_builtins():
