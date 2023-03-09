@@ -16,6 +16,11 @@ Changelog follow https://keepachangelog.com/ format.
         `jax`,... imports
     *   Add `skip=['jnp', ...]` kwarg to `enp.testing.parametrize_xnp` to
         exclude a specific xnp module from tests.
+    *   Add `enp.compat` function to fix compatibility issues between Jax, TF,
+        torch, numpy (e.g. `x.astype()` missing from `torch`, but working in
+        `jax`, `tf`, `np`).
+    *   Breaking: Move some functions from `enp.linalg` to `enp.compat`.
+    *   Add more `enp.lazy.` methods for conversions from/to dtype
 *   `ecolab`:
     *   Add `ecolab.inspect` for interactively inspect any Python objects.
     *   Add `ecolab.json` for interactive expandable JSON display.

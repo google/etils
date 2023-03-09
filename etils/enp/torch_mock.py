@@ -16,14 +16,7 @@
 
 from __future__ import annotations
 
-import functools
-import typing
-
 from etils.enp import numpy_utils
-import numpy as np
-
-if typing.TYPE_CHECKING:
-  import torch as torch_  # pytype: disable=import-error
 
 lazy = numpy_utils.lazy
 
@@ -40,89 +33,9 @@ def activate_torch_support() -> None:
   torch = lazy.torch
   if hasattr(torch, '__etils_np_mode__'):  # Already mocked
     return
-  _mock_torch(torch)
   torch.__etils_np_mode__ = True
 
-
-@functools.lru_cache()
-def _torch_to_np_dtypes() -> dict[torch_.dtype, np.dtype]:
-  """Returns mapping torch -> numpy dtypes."""
-  torch = lazy.torch
-  return {
-      torch.bool: np.bool_,
-      torch.uint8: np.uint8,
-      torch.int8: np.int8,
-      torch.int16: np.int16,
-      torch.int32: np.int32,
-      torch.int64: np.int64,
-      # TODO(epot): torch.bfloat:
-      torch.float16: np.float16,
-      torch.float32: np.float32,
-      torch.float64: np.float64,
-      torch.complex64: np.complex64,
-      torch.complex128: np.complex128,
-  }
-
-
-@functools.lru_cache()
-def _np_to_torch_dtypes() -> dict[np.dtype, torch_.dtype]:
-  """Returns mapping numpy -> torch dtypes."""
-  return dict((np.dtype(n), t) for t, n in _torch_to_np_dtypes().items())
-
-
-def dtype_torch_to_np(dtype) -> np.dtype:
-  """Returns the numpy dtype for the given torch dtype."""
-  return _torch_to_np_dtypes()[dtype]
-
-
-def _mock_torch(torch) -> None:
-  """Mock `torch` to behave more like `numpy`."""
-  # Mock a few pytorch functions to make them behave like numpy/jnp/tf.numpy
-  # * Accept `dtype=np.int32` (by default, `torch` only accept torch dtype)
-  # * More flexible casting (`Tensor(tf.int32).mean()` returns `tf.float32`,
-  #   `torch.allclose()` works on different input types)
-  # * Accept `torch.zeros(shape=)` (currently only `size=` accepted)
-  for fn_name in [
-      'tensor',
-      'asarray',
-      'zeros',
-      'ones',
-  ]:
-    _wrap_fn(torch, fn_name, _cast_dtype_kwargs)
-  _wrap_fn(torch.Tensor, 'type', _cast_dtype_arg)
-
-
-def _wrap_fn(obj, name: str, fn) -> None:
-  """Replace the function by the new one."""
-  original_fn = getattr(obj, name)
-
-  @functools.wraps(original_fn)
-  def new_fn(*args, **kwargs):
-    return fn(original_fn, *args, **kwargs)
-
-  setattr(obj, name, new_fn)
-
-
-def _to_torch_dtype(dtype):
-  if dtype is ... or dtype is None or lazy.is_torch_dtype(dtype):
-    return dtype
-  else:
-    return _np_to_torch_dtypes()[np.dtype(dtype)]
-
-
-def _cast_dtype_kwargs(fn, *args, dtype=..., **kwargs):
-  """Normalize dtype (passed as kwargs)."""
-  dtype = _to_torch_dtype(dtype)
-  if dtype is ...:  # Use `...` as sentinel value
-    return fn(*args, **kwargs)
-  else:
-    return fn(*args, **kwargs, dtype=dtype)
-
-
-def _cast_dtype_arg(fn, self, dtype=..., **kwargs):
-  """Normalize dtype (passed as args)."""
-  dtype = _to_torch_dtype(dtype)
-  if dtype is ...:
-    return fn(self, **kwargs)
-  else:
-    return fn(self, dtype, **kwargs)
+  # 'tensor',
+  # 'asarray',
+  # 'zeros',
+  # 'ones',

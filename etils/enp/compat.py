@@ -77,6 +77,7 @@ def dtype_np_to_torch(dtype):
 
 
 def is_array_xnp(x, xnp) -> bool:
+  """`isinstance(x, xnp.Array)`."""
   if lazy.has_torch and xnp is lazy.torch:
     return isinstance(x, xnp.Tensor)
   else:
@@ -84,6 +85,7 @@ def is_array_xnp(x, xnp) -> bool:
 
 
 def astype(x: Array['*d'], dtype) -> Array['*d']:
+  """`x.astype(dtype)`."""
   if lazy.is_torch(x):
     return x.type(dtype)
   else:
@@ -91,6 +93,7 @@ def astype(x: Array['*d'], dtype) -> Array['*d']:
 
 
 def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:
+  """`xnp.expand_dims(x, axis=axis)`."""
   xnp = lazy.get_xnp(x)
   if lazy.is_torch(x):
     return xnp.unsqueeze(x, axis=axis)
@@ -99,6 +102,7 @@ def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:
 
 
 def concat(x: list[Array['*d']], *, axis) -> Array['*d']:
+  """`xnp.concatenate(x, axis=axis)`."""
   xnp = lazy.get_xnp(x[0])
   if lazy.is_torch(x[0]):
     return xnp.concat(x, axis=axis)

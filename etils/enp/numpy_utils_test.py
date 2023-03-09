@@ -186,7 +186,7 @@ def test_dtype_from_array_xnp(xnp, dtype):
   if xnp is torch and dtype == jnp.bfloat16:
     return  # TODO(epot): Support torch.bfloat16
 
-  x = xnp.asarray([1, 2], dtype=dtype)
+  x = xnp.asarray([1, 2], dtype=enp.lazy.as_dtype(dtype, xnp=xnp))
   assert lazy.dtype_from_array(x) == target_dtype
 
 
