@@ -43,7 +43,7 @@ def fn_xnp_kwarg(x: f32, y: IntArray, *, xnp: enp.NpModule = ...):
 
 
 def _assert_out(z, xnp):
-  assert isinstance(z, xnp.ndarray)
+  assert enp.compat.is_array_xnp(z, xnp)
   # jnp/np don't have same upcasting rules
   assert enp.lazy.as_dtype(z.dtype) in (np.float32, np.float64)
   assert z.shape == (1,)

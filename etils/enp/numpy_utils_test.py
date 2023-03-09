@@ -164,7 +164,7 @@ def test_dtype_from_array_xnp(xnp, dtype):
 @enp.testing.parametrize_xnp()
 def test_get_array_module(xnp):
   y = fn(xnp.asarray([123]))
-  assert isinstance(y, xnp.ndarray)
+  assert enp.compat.is_array_xnp(y, xnp)
   assert isinstance(y, enp.lazy.LazyArray)
 
 

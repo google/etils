@@ -95,8 +95,6 @@ def _mock_torch(torch) -> None:
   _wrap_fn(torch, 'allclose', _allclose)
 
   # Missing numpy functions
-  _setattr(torch, 'ndarray', torch.Tensor)
-  _setattr(torch, 'expand_dims', torch.unsqueeze)
   _setattr(torch, 'append', _append)
   _setattr(torch, 'around', _around)
 

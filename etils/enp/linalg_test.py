@@ -25,7 +25,7 @@ enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 def test_normalize(xnp: enp.NpModule):
   x = xnp.asarray([3.0, 0, 0])
   y = enp.linalg.normalize(x)
-  assert isinstance(y, xnp.ndarray)
+  assert enp.compat.is_array_xnp(y, xnp)
   assert y.shape == x.shape
   np.testing.assert_allclose(y, [1.0, 0.0, 0.0])
 
@@ -40,7 +40,7 @@ def test_normalize_batched(xnp: enp.NpModule):
       ]
   )
   y = enp.linalg.normalize(x)
-  assert isinstance(y, xnp.ndarray)
+  assert enp.compat.is_array_xnp(y, xnp)
   assert y.shape == x.shape
   norm = np.sqrt(2**2 + 3**2)
   np.testing.assert_allclose(
@@ -60,12 +60,12 @@ def test_norm(xnp: enp.NpModule):
   if xnp is np:
     assert isinstance(y, float)
   else:
-    assert isinstance(y, xnp.ndarray)
+    assert enp.compat.is_array_xnp(y, xnp)
     assert y.shape == ()  # pylint: disable=g-explicit-bool-comparison
   np.testing.assert_allclose(y, 3.0)
 
   y = enp.compat.norm(x, axis=-1, keepdims=True)
-  assert isinstance(y, xnp.ndarray)
+  assert enp.compat.is_array_xnp(y, xnp)
   assert y.shape == (1,)
   np.testing.assert_allclose(y, [3.0])
 
@@ -79,7 +79,7 @@ def test_norm_batched(xnp: enp.NpModule):
       ]
   )
   y = enp.compat.norm(x, axis=-1)
-  assert isinstance(y, xnp.ndarray)
+  assert enp.compat.is_array_xnp(y, xnp)
   assert y.shape == (2,)
   np.testing.assert_allclose(y, [3.0, 4.0])
 

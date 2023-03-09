@@ -32,11 +32,26 @@ lazy = numpy_utils.lazy
 # ======== Torch issues ========
 
 
+def is_array_xnp(x, xnp) -> bool:
+  if lazy.has_torch and xnp is lazy.torch:
+    return isinstance(x, xnp.Tensor)
+  else:
+    return isinstance(x, xnp.ndarray)
+
+
 def astype(x: Array['*d'], dtype) -> Array['*d']:
   if lazy.is_torch(x):
     return x.type(dtype)
   else:
     return x.astype(dtype)
+
+
+def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:
+  xnp = lazy.get_xnp(x)
+  if lazy.is_torch(x):
+    return xnp.unsqueeze(x, axis=axis)
+  else:
+    return xnp.expand_dims(x, axis=axis)
 
 
 # ======== TF issues ========

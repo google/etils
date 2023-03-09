@@ -36,7 +36,7 @@ def test_interp_scalar(xnp: enp.NpModule):
   #
 
   out = enp.interp(vals, from_=(-1, 1), to=(0, 256))
-  assert isinstance(out, xnp.ndarray)
+  assert enp.compat.is_array_xnp(out, xnp)
 
   assert xnp.allclose(
       out,

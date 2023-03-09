@@ -225,5 +225,5 @@ def test_dtype(xnp, item: _DTypeTestItem):
 
 def assert_asarray(*, dtype, array_item: _ArrayItem, xnp, **asarray_kwargs):
   array = dtype.asarray(array_item.value, xnp=xnp, **asarray_kwargs)
-  assert isinstance(array, xnp.ndarray)
+  assert enp.compat.is_array_xnp(array, xnp)
   assert enp.lazy.as_dtype(array.dtype) == array_item.dtype
