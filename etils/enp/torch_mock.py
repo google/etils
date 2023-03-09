@@ -90,7 +90,6 @@ def _mock_torch(torch) -> None:
   ]:
     _wrap_fn(torch, fn_name, _cast_dtype_kwargs)
   _wrap_fn(torch.Tensor, 'type', _cast_dtype_arg)
-  _wrap_fn(torch.Tensor, 'mean', _mean)
 
 
 def _wrap_fn(obj, name: str, fn) -> None:
@@ -127,11 +126,3 @@ def _cast_dtype_arg(fn, self, dtype=..., **kwargs):
     return fn(self, **kwargs)
   else:
     return fn(self, dtype, **kwargs)
-
-
-def _mean(fn, self: torch_.Tensor, *args, **kwargs):
-  """`x.mean()` return `float32` for `intXX` arrays."""
-  if not self.dtype.is_floating_point:
-    return fn(self, *args, **kwargs, dtype=lazy.torch.float32)
-  else:
-    return fn(self, *args, **kwargs)

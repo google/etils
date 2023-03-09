@@ -30,7 +30,7 @@ enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 
 def fn(x):
   xnp = enp.get_np_module(x)
-  y = xnp.sum(x) + x.mean()
+  y = xnp.sum(x)
   return x + y
 
 
