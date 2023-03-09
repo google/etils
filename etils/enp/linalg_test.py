@@ -18,7 +18,7 @@ from etils import enp
 
 import numpy as np
 
-enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
+enable_tf_np_mode = enp.testing.set_tnp
 
 
 @enp.testing.parametrize_xnp()

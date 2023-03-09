@@ -27,7 +27,7 @@ import numpy as np
 import pytest
 
 # Activate the fixture
-enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
+enable_tf_np_mode = enp.testing.set_tnp
 with_subtests = epy.testing.with_subtests
 
 _ArrayDtype = Tuple[Any, Union[np.dtype, Exception]]

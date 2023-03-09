@@ -9,8 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `enp`:
-    *   Add `torch` support (experimental). Activated with
-        `enp.activate_torch_support()`
+    *   **Add `torch` support!**
     *   Add `enp.lazy.LazyArray` to lazily check
         `isinstance(array, enp.lazy.LazyArray)` without triggering `TF`,
         `jax`,... imports

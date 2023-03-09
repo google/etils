@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 
 # Activate fixture
-enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
+enable_tf_np_mode = enp.testing.set_tnp
 
 
 @enp.check_and_normalize_arrays

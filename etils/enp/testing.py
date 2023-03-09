@@ -19,7 +19,6 @@ from __future__ import annotations
 from typing import Callable, Iterable, Optional, TypeVar
 
 from etils.enp import numpy_utils
-from etils.enp import torch_mock
 import numpy as np
 import pytest
 
@@ -38,30 +37,6 @@ def set_tnp() -> None:
   """
   # This is required to have TF follow the same casting rules as numpy
   lazy.tnp.experimental_enable_numpy_behavior(prefer_float32=True)
-
-
-@pytest.fixture(scope='module', autouse=True)
-def set_torch_np() -> None:
-  """Enable numpy behavior (for `torch`).
-
-  Note: The fixture has to be explicitly declared in the `_test.py`
-  file where it is used. This can be done by assigning
-  `set_torch_np = enp.testing.set_torch_np`.
-  """
-  torch_mock.activate_torch_support()
-
-
-@pytest.fixture(scope='module', autouse=True)
-def enable_torch_tf_np_mode() -> None:
-  """Enable numpy behavior (for `torch` and `tensorflow`).
-
-  Note: The fixture has to be explicitly declared in the `_test.py`
-  file where it is used. This can be done by assigning
-  `enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode`.
-  """
-  # This is required to have TF follow the same casting rules as numpy
-  lazy.tnp.experimental_enable_numpy_behavior(prefer_float32=True)
-  torch_mock.activate_torch_support()
 
 
 def parametrize_xnp(
