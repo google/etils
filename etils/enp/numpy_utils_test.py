@@ -157,13 +157,13 @@ def test_dtype_from_array_xnp(xnp, dtype):
   if xnp is torch and dtype == jnp.bfloat16:
     return  # TODO(epot): Support torch.bfloat16
 
-  x = xnp.array([1, 2], dtype=dtype)
+  x = xnp.asarray([1, 2], dtype=dtype)
   assert lazy.dtype_from_array(x) == target_dtype
 
 
 @enp.testing.parametrize_xnp()
 def test_get_array_module(xnp):
-  y = fn(xnp.array([123]))
+  y = fn(xnp.asarray([123]))
   assert isinstance(y, xnp.ndarray)
   assert isinstance(y, enp.lazy.LazyArray)
 
@@ -175,7 +175,7 @@ def test_get_array_module_tf():
 
 @pytest.mark.parametrize('xnp', [np, jnp])
 def test_not_array_str(xnp):
-  x = xnp.array([123])
+  x = xnp.asarray([123])
   assert enp.is_array(x)
   assert not enp.is_array_str(x)
   assert not enp.is_dtype_str(x.dtype)

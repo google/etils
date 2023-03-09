@@ -53,12 +53,12 @@ def _assert_out(z, xnp):
 @enp.testing.parametrize_xnp()
 @pytest.mark.parametrize('fn', [fn_base, fn_xnp_kwarg, fn_non_strict])
 def test_type(xnp: enp.NpModule, fn):
-  x = xnp.array([2.0], dtype=np.float32)
-  y = xnp.array([1], dtype=np.int32)
+  x = xnp.asarray([2.0], dtype=np.float32)
+  y = xnp.asarray([1], dtype=np.int32)
 
   _assert_out(fn(x, y), xnp)
   # IntArray accept any int dtype
-  _assert_out(fn(x, xnp.array([1], dtype=np.uint8)), xnp)
+  _assert_out(fn(x, xnp.asarray([1], dtype=np.uint8)), xnp)
 
   if fn is fn_non_strict:
     # strict=False and pass non-array
@@ -72,11 +72,11 @@ def test_type(xnp: enp.NpModule, fn):
 
   # Bad dtype
   with pytest.raises(ValueError, match='Cannot cast float16 to float32'):
-    fn(xnp.array(2.0, dtype=np.float16), y)
+    fn(xnp.asarray(2.0, dtype=np.float16), y)
 
   # Bad dtype (integer)
   with pytest.raises(ValueError, match='Cannot cast float32 to'):
-    fn(x, xnp.array(2.0, dtype=np.float32))
+    fn(x, xnp.asarray(2.0, dtype=np.float32))
 
   # Independently of the original xnp, we can explicitly pass the target xnp
   _assert_out(fn(x, y, xnp=enp.lazy.np), enp.lazy.np)  # pytype: disable=wrong-keyword-args

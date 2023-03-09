@@ -23,7 +23,7 @@ enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 
 @enp.testing.parametrize_xnp()
 def test_interp_scalar(xnp: enp.NpModule):
-  vals = xnp.array(
+  vals = xnp.asarray(
       [
           [-1, -1],
           [-1, 0],
@@ -40,7 +40,7 @@ def test_interp_scalar(xnp: enp.NpModule):
 
   assert xnp.allclose(
       out,
-      xnp.array(
+      xnp.asarray(
           [
               [0, 0],
               [0, 128],
@@ -52,7 +52,7 @@ def test_interp_scalar(xnp: enp.NpModule):
   )
   assert xnp.allclose(
       enp.interp(vals, from_=(-1, 1), to=(0, 1)),
-      xnp.array(
+      xnp.asarray(
           [
               [0, 0],
               [0, 0.5],
@@ -63,7 +63,7 @@ def test_interp_scalar(xnp: enp.NpModule):
       ),
   )
 
-  vals = xnp.array(
+  vals = xnp.asarray(
       [
           [255, 255, 0],
           [255, 128, 0],
@@ -72,7 +72,7 @@ def test_interp_scalar(xnp: enp.NpModule):
   )
   assert xnp.allclose(
       enp.interp(vals, from_=(0, 255), to=(0, 1)),
-      xnp.array(
+      xnp.asarray(
           [
               [1, 1, 0],
               [1, 128 / 255, 0],
@@ -82,7 +82,7 @@ def test_interp_scalar(xnp: enp.NpModule):
   )
   assert xnp.allclose(
       enp.interp(vals, from_=(0, 255), to=(-1, 1)),
-      xnp.array(
+      xnp.asarray(
           [
               [1, 1, -1],
               [1, 0.00392157, -1],
@@ -96,7 +96,7 @@ def test_interp_scalar(xnp: enp.NpModule):
 
 @enp.testing.parametrize_xnp()
 def test_interp_coords(xnp):
-  coords = xnp.array(
+  coords = xnp.asarray(
       [
           [-1, -1],
           [-1, 0],
@@ -107,7 +107,7 @@ def test_interp_coords(xnp):
   )
   assert xnp.allclose(
       enp.interp(coords, (-1, 1), (0, (1024, 256))),
-      xnp.array(
+      xnp.asarray(
           [
               [0, 0],
               [0, 128],
@@ -118,7 +118,7 @@ def test_interp_coords(xnp):
       ),
   )
 
-  coords = xnp.array(
+  coords = xnp.asarray(
       [
           [[0, 0], [0, 1024]],
           [[256, 256], [0, 768]],
@@ -126,7 +126,7 @@ def test_interp_coords(xnp):
   )
   assert xnp.allclose(
       enp.interp(coords, (0, (256, 1024)), (0, 1)),
-      xnp.array(
+      xnp.asarray(
           [
               [[0, 0], [0, 1]],
               [[1, 0.25], [0, 0.75]],

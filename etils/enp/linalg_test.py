@@ -23,7 +23,7 @@ enable_torch_tf_np_mode = enp.testing.enable_torch_tf_np_mode
 
 @enp.testing.parametrize_xnp()
 def test_normalize(xnp: enp.NpModule):
-  x = xnp.array([3.0, 0, 0])
+  x = xnp.asarray([3.0, 0, 0])
   y = enp.linalg.normalize(x)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == x.shape
@@ -32,7 +32,7 @@ def test_normalize(xnp: enp.NpModule):
 
 @enp.testing.parametrize_xnp()
 def test_normalize_batched(xnp: enp.NpModule):
-  x = xnp.array(
+  x = xnp.asarray(
       [
           [3.0, 0, 0],
           [0, 4.0, 0],
@@ -55,7 +55,7 @@ def test_normalize_batched(xnp: enp.NpModule):
 
 @enp.testing.parametrize_xnp()
 def test_norm(xnp: enp.NpModule):
-  x = xnp.array([3.0, 0, 0])
+  x = xnp.asarray([3.0, 0, 0])
   y = enp.linalg.norm(x, axis=-1)
   if xnp is np:
     assert isinstance(y, float)
@@ -72,7 +72,7 @@ def test_norm(xnp: enp.NpModule):
 
 @enp.testing.parametrize_xnp()
 def test_norm_batched(xnp: enp.NpModule):
-  x = xnp.array(
+  x = xnp.asarray(
       [
           [3.0, 0, 0],
           [0, 4.0, 0],
