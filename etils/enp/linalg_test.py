@@ -56,7 +56,7 @@ def test_normalize_batched(xnp: enp.NpModule):
 @enp.testing.parametrize_xnp()
 def test_norm(xnp: enp.NpModule):
   x = xnp.asarray([3.0, 0, 0])
-  y = enp.linalg.norm(x, axis=-1)
+  y = enp.compat.norm(x, axis=-1)
   if xnp is np:
     assert isinstance(y, float)
   else:
@@ -64,7 +64,7 @@ def test_norm(xnp: enp.NpModule):
     assert y.shape == ()  # pylint: disable=g-explicit-bool-comparison
   np.testing.assert_allclose(y, 3.0)
 
-  y = enp.linalg.norm(x, axis=-1, keepdims=True)
+  y = enp.compat.norm(x, axis=-1, keepdims=True)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == (1,)
   np.testing.assert_allclose(y, [3.0])
@@ -78,10 +78,10 @@ def test_norm_batched(xnp: enp.NpModule):
           [0, 4.0, 0],
       ]
   )
-  y = enp.linalg.norm(x, axis=-1)
+  y = enp.compat.norm(x, axis=-1)
   assert isinstance(y, xnp.ndarray)
   assert y.shape == (2,)
   np.testing.assert_allclose(y, [3.0, 4.0])
 
-  y = enp.linalg.norm(x)
+  y = enp.compat.norm(x)
   np.testing.assert_allclose(y, np.sqrt(3**2 + 4**2))

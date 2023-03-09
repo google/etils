@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 from etils.enp import checking
-from etils.enp import linalg
+from etils.enp import compat
 from etils.enp import numpy_utils
 from etils.enp.typing import FloatArray
 
@@ -63,7 +63,7 @@ def angle_between(
     xnp: numpy_utils.NpModule = ...,
 ) -> FloatArray['... 1?']:
   """Compute angle between 2 vectors, unsigned."""
-  a0 = linalg.norm(xnp.cross(x0, x1), axis=-1, keepdims=keepdims)
+  a0 = compat.norm(xnp.cross(x0, x1), axis=-1, keepdims=keepdims)
   a1 = batch_dot(x0, x1, keepdims=keepdims)
   angle = xnp.arctan2(a0, a1)
   return angle
@@ -77,7 +77,7 @@ def project_onto_vector(
   """Project `u` onto `v`."""
   return (
       batch_dot(u, v, keepdims=True)
-      / linalg.norm(v, axis=-1, keepdims=True) ** 2
+      / compat.norm(v, axis=-1, keepdims=True) ** 2
       * v
   )
 

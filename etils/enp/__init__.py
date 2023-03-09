@@ -25,6 +25,7 @@ import sys
 
 # Lazy, array types and xnp utils
 from etils.enp import typing
+from etils.enp import compat
 from etils.enp.array_spec import ArraySpec
 from etils.enp.array_types import dtypes
 from etils.enp.checking import check_and_normalize_arrays

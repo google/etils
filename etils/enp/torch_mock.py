@@ -19,6 +19,7 @@ from __future__ import annotations
 import functools
 import typing
 
+from etils.enp import compat
 from etils.enp import numpy_utils
 import numpy as np
 
@@ -98,7 +99,6 @@ def _mock_torch(torch) -> None:
   _setattr(torch, 'expand_dims', torch.unsqueeze)
   _setattr(torch, 'append', _append)
   _setattr(torch, 'around', _around)
-  _setattr(torch.Tensor, 'astype', torch.Tensor.type)
 
 
 def _setattr(obj, name: str, value) -> None:
@@ -155,11 +155,11 @@ def _mean(fn, self: torch_.Tensor, *args, **kwargs):
 def _allclose(fn, x: torch_.Tensor, y: torch_.Tensor, **kwargs):
   """Make allclose accept different dtypes."""
   if not x.dtype.is_floating_point:
-    x = x.astype(y.dtype)
+    x = compat.astype(x, y.dtype)
   if not y.dtype.is_floating_point:
-    y = y.astype(x.dtype)
+    y = compat.astype(y, x.dtype)
   if x.dtype != y.dtype:
-    x = x.astype(y.dtype)
+    x = compat.astype(x, y.dtype)
   return fn(x, y, **kwargs)
 
 

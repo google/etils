@@ -16,50 +16,13 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
+from etils.enp import compat
 from etils.enp import numpy_utils
-from etils.enp.typing import Array, FloatArray  # pylint: disable=g-multiple-import
+from etils.enp.typing import FloatArray  # pylint: disable=g-multiple-import
 
 lazy = numpy_utils.lazy
 
 
-# ================ Utils (not present in numpy) ================
-
-
 def normalize(x: FloatArray['*d'], axis: int = -1) -> FloatArray['*d']:
   """Normalize the vector to the unit norm."""
-  return x / norm(x, axis=axis, keepdims=True)
-
-
-# ================ Compat utils (between TF/Jax/np) ================
-
-
-def norm(
-    x: FloatArray['*d'],
-    axis: Optional[int] = None,
-    keepdims: bool = False,
-) -> FloatArray['*d']:
-  """Like `np.linalg.norm` but auto-support jnp, tnp, np."""
-  if lazy.is_tf(x):  # TODO(b/219427516): tnp.linalg.norm missing
-    return lazy.tf.norm(x, axis=axis, keepdims=keepdims)
-  xnp = lazy.get_xnp(x)
-  return xnp.linalg.norm(x, axis=axis, keepdims=keepdims)
-
-
-def inv(x: FloatArray['*d']) -> FloatArray['*d']:
-  """Like `np.linalg.inv` but auto-support jnp, tnp, np."""
-  return _tf_or_xnp(x).linalg.inv(x)
-
-
-def det(x: FloatArray['*d m m']) -> FloatArray['*d']:
-  """Like `np.linalg.det` but auto-support jnp, tnp, np."""
-  return _tf_or_xnp(x).linalg.det(x)
-
-
-def _tf_or_xnp(x: Array['*d']):
-  xnp = lazy.get_xnp(x)
-  if lazy.has_tf and xnp is lazy.tnp:
-    return lazy.tf
-  else:
-    return xnp
+  return x / compat.norm(x, axis=axis, keepdims=True)
