@@ -21,6 +21,8 @@ In the future, those functions could be deleted and replaced by the
 official numpy API.
 """
 
+from __future__ import annotations
+
 from typing import Optional
 
 from etils.enp import numpy_utils
@@ -52,6 +54,14 @@ def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:
     return xnp.unsqueeze(x, axis=axis)
   else:
     return xnp.expand_dims(x, axis=axis)
+
+
+def concat(x: list[Array['*d']], *, axis) -> Array['*d']:
+  xnp = lazy.get_xnp(x[0])
+  if lazy.is_torch(x[0]):
+    return xnp.concat(x, axis=axis)
+  else:
+    return xnp.concatenate(x, axis=axis)
 
 
 # ======== TF issues ========

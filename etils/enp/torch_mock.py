@@ -95,7 +95,6 @@ def _mock_torch(torch) -> None:
   _wrap_fn(torch, 'allclose', _allclose)
 
   # Missing numpy functions
-  _setattr(torch, 'append', _append)
   _setattr(torch, 'around', _around)
 
 
@@ -159,11 +158,6 @@ def _allclose(fn, x: torch_.Tensor, y: torch_.Tensor, **kwargs):
   if x.dtype != y.dtype:
     x = compat.astype(x, y.dtype)
   return fn(x, y, **kwargs)
-
-
-def _append(arr, values, *, axis=None):
-  """Missing `np.append` method."""
-  return lazy.torch.cat([arr, values], axis=axis)
 
 
 def _around(arr):
