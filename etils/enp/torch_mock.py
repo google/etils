@@ -90,13 +90,10 @@ def _mock_torch(torch) -> None:
   ]:
     _wrap_fn(torch, fn_name, _cast_dtype_kwargs)
   _wrap_fn(torch.Tensor, 'type', _cast_dtype_arg)
-  _wrap_fn(torch, 'ones', _accept_shape)
-  _wrap_fn(torch, 'zeros', _accept_shape)
   _wrap_fn(torch.Tensor, 'mean', _mean)
   _wrap_fn(torch, 'allclose', _allclose)
 
   # Missing numpy functions
-  _setattr(torch, 'array', torch.tensor)
   _setattr(torch, 'ndarray', torch.Tensor)
   _setattr(torch, 'expand_dims', torch.unsqueeze)
   _setattr(torch, 'append', _append)
@@ -145,13 +142,6 @@ def _cast_dtype_arg(fn, self, dtype=..., **kwargs):
     return fn(self, **kwargs)
   else:
     return fn(self, dtype, **kwargs)
-
-
-def _accept_shape(fn, *args, **kwargs):
-  """Accept `shape=()` kwargs (for `torch.ones`, `torch.zeros`)."""
-  if 'shape' in kwargs:
-    kwargs['size'] = kwargs.pop('shape')
-  return fn(*args, **kwargs)
 
 
 def _mean(fn, self: torch_.Tensor, *args, **kwargs):
