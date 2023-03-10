@@ -25,6 +25,7 @@ import pytest
 
 _ARRAY_REPR_HTML_KWARGS = dict(
     video_min_num_frames=15,
+    height=(100, 250),
     show_images_kwargs={},
     show_videos_kwargs={},
 )

@@ -25,15 +25,19 @@ from etils import epy
 from etils.enp import numpy_utils
 import numpy as np
 
+# https://numpy.org/doc/stable/reference/generated/numpy.dtype.kind.html
 _NP_KIND_TO_STR = {
-    'u': 'ui',
-    'i': 'i',
-    'f': 'f',
-    'V': 'bf',  # Because np.dtype(jnp.bfloat16).kind == 'V'
-    'c': 'complex',
     'b': 'bool_',
-    'U': 'str',  # Unicode
+    'i': 'i',
+    'u': 'ui',
+    'f': 'f',
+    'c': 'complex',
+    'm': 'timedelta',
+    'M': 'datetime',
     'O': 'str',  # Unicode
+    'S': 'bytes',
+    'U': 'str',  # Unicode
+    'V': 'bf',  # Because np.dtype(jnp.bfloat16).kind == 'V'
 }
 # Numpy kinds which should be displayed with bits number (`f32`,...)
 _BITS_KINDS = {'u', 'i', 'f', 'c', 'V'}

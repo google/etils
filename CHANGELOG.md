@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+<!-- --------- Do not add anything bellow this line --------- -->
+
+## [1.1.0] - 2023-03-13
+
 *   `enp`:
     *   **Add `torch` support!**
     *   Add `enp.lazy.LazyArray` to lazily check
@@ -25,7 +29,9 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `ecolab.json` for interactive expandable JSON display.
     *   `ecolab.auto_plot_array`
         *   Add `torch`
-        *   Small images (height smaller than 100px) are automatically scaled up
+        *   Small/large images (height outside 100-250px) are automatically
+            scaled up/down. Can be disabled with
+            `ecolab.auto_plot_array(height=None)`
         *   Can overwrite `mediapy` default options with `show_images_kwargs`
             and `show_videos_kwargs`
     *   Add `ecolab.interruptible` for graceful interruption of loops.
@@ -39,8 +45,6 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`:
     *   Added: `epy.splitby` to split an iterator in 2, based on a predicate.
         (e.g. `small, big = epy.splitby([20, 1, 30, 1, 2], lambda x: x > 10)`)
-
-<!-- --------- Do not add anything bellow this line --------- -->
 
 ## [1.0.0] - 2023-01-09
 
@@ -220,7 +224,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/google/etils/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/google/etils/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/google/etils/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/google/etils/compare/v0.7.0...v0.8.0

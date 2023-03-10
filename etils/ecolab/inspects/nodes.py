@@ -156,12 +156,13 @@ class KeyValNode(Node):
 
   # TODO(epot):
   # * Cleaner implementation.
-  # * Built-ins should not be expandable.
   # * Make both key and value expandable (when not built-in) ?
 
   @property
   def header_html(self) -> str:
-    return self._li()(
+    # * Built-ins are not be expandable.
+    is_builtin = isinstance(self.value, BuiltinNode.MATCH_TYPES)
+    return self._li(clickable=not is_builtin)(
         _obj_html_repr(self.key), ': ', _obj_html_repr(self.value)
     )
 
@@ -304,14 +305,23 @@ class FnNode(ObjectNode[Callable[..., Any]]):
   MATCH_TYPES = (
       types.FunctionType,
       types.BuiltinFunctionType,
+      types.BuiltinMethodType,
       types.MethodType,
       types.MethodDescriptorType,
+      types.ClassMethodDescriptorType,
+      types.MemberDescriptorType,
+      types.WrapperDescriptorType,
+      types.MethodWrapperType,
       functools.partial,
   )
 
   @property
   def header_repr(self) -> str:
     return _fn_html_repr(self.obj)
+
+  @property
+  def children(self) -> list[Node]:
+    return _fn_children(self.obj) + super().children
 
   # TODO(epot): Expand the function should display docstring, signature,
   # annotations, default values
@@ -435,19 +445,55 @@ def _truncate_long_str(value: str, *, expand_new_lines: bool = False) -> str:
     return short_value
 
 
-def _fn_html_repr(fn: Callable[..., Any]) -> str:
+def _fn_children(fn: Callable[..., Any]) -> list[Node]:
+  """Build the fn children."""
+  children = []
+  # Add docstring
+  try:
+    doc = fn.__doc__
+  except Exception:  # pylint: disable=broad-except
+    pass
+  else:
+    if doc:
+      children.append(HtmlNode(_obj_html_repr(doc)))
+
+  # Add signature
+  try:
+    sig = inspect.Signature.from_callable(fn)
+  except Exception:  # pylint: disable=broad-except
+    # Many builtins do not expose any signature information
+    pass
+  else:
+    for param in sig.parameters.values():
+      name = param.name
+      if param.kind == inspect.Parameter.VAR_POSITIONAL:
+        name = f'*{name}'
+      elif param.kind == inspect.Parameter.VAR_KEYWORD:
+        name = f'**{name}'
+      name = H.span(class_=['preview'])(name)
+
+      if param.annotation is inspect.Parameter.empty:
+        annotations = ''
+      else:
+        annotations = f': {_obj_html_repr(param.annotation)}'
+      if param.default is inspect.Parameter.empty:
+        default = ''
+      else:
+        default = f' = {_obj_html_repr(param.default)}'
+      node = HtmlNode(name + annotations + default)
+      children.append(node)
+  return children
+
+
+def _fn_signature_repr(fn: Callable[..., Any]) -> str:
   """Constructs the signature representation of a function."""
   try:
     sig = inspect.Signature.from_callable(fn)
   except Exception:  # pylint: disable=broad-except
-    # TODO(epot): Support more built-in fns,...
-    return _obj_html_repr(fn)
+    # Many builtins do not expose any signature information
+    return '...'
 
-  # Do not add annotations in the one-line repr (would be too boilerplate)
-
-  # TODO(epot): When using built-in, should display `object.__repr__` rather
-  # than `A.__repr__`
-  parts = [fn.__qualname__, '(']
+  parts = []
   is_first = True
   is_kwarg_only = False
   for param in sig.parameters.values():
@@ -464,8 +510,26 @@ def _fn_html_repr(fn: Callable[..., Any]) -> str:
       is_kwarg_only = True
       parts.append('*, ')
     parts.append(param.name)
-  parts.append(')')
+  return ''.join(parts)
 
-  sig_str = ''.join(parts)
+
+def _fn_html_repr(fn: Callable[..., Any]) -> str:
+  """Constructs the signature representation of a function."""
+  # TODO(epot): Special partial case (should likely be another custom node)
+  if isinstance(fn, functools.partial):
+    return _obj_html_repr(fn)
+
+  try:
+    # TODO(epot): When using built-in, should display `object.__repr__` rather
+    # than `A.__repr__`
+    fn_name = fn.__qualname__
+  except Exception:  # pylint: disable=broad-except
+    # Not sure when this could happen
+    return _obj_html_repr(fn)
+
+  # Do not add annotations/default in the one-line repr (would be too
+  # boilerplate)
+
+  sig_str = f'{fn_name}({_fn_signature_repr(fn)})'
   sig_str = _truncate_long_str(sig_str)
   return H.span(class_='fn')('ƒ') + ' ' + H.span(class_=['preview'])(sig_str)
