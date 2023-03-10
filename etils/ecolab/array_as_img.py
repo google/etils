@@ -44,8 +44,6 @@ Array = Any
 
 # Images smaller than this are displayed as text (e.g. `np.array([...`)
 _MIN_IMG_SHAPE: Tuple[int, int] = (10, 10)
-# Images smaller than this are rescalled
-_MIN_IMG_HEIGHT: int = 100
 
 
 def show(*objs, **kwargs) -> None:
@@ -56,6 +54,8 @@ def show(*objs, **kwargs) -> None:
 def auto_plot_array(
     *,
     video_min_num_frames: int = 15,
+    # Images outside this range are rescalled
+    height: None | int | tuple[int, int] = (100, 250),
     show_images_kwargs: Optional[dict[str, Any]] = None,
     show_videos_kwargs: Optional[dict[str, Any]] = None,
 ) -> None:
@@ -69,6 +69,8 @@ def auto_plot_array(
   Args:
     video_min_num_frames: Video `(num_frames, h, w, c)` with less than this
       number of frames will be displayed as individual images
+    height: `(min, max)` image height in pixels. Images smaller/larger will be
+      reshaped. `None` to disable. If a single number, assume `min == max`.
     show_images_kwargs: Kwargs forwarded to `mediapy.show_images`
     show_videos_kwargs: Kwargs forwarded to `mediapy.show_videos`
   """
@@ -83,6 +85,7 @@ def auto_plot_array(
   array_repr_html_fn = functools.partial(
       _array_repr_html,
       video_min_num_frames=video_min_num_frames,
+      height=height,
       show_images_kwargs=show_images_kwargs,
       show_videos_kwargs=show_videos_kwargs,
   )
@@ -140,6 +143,7 @@ def _array_repr_html_inner(
     img: Array,
     *,
     video_min_num_frames: int,
+    height: None | int | tuple[int, int],
     show_images_kwargs: dict[str, Any],
     show_videos_kwargs: dict[str, Any],
 ) -> Optional[str]:
@@ -177,11 +181,23 @@ def _array_repr_html_inner(
   if num_channel not in {1, 3, 4}:
     return None
 
-  # Resize small images to 100 pixels (otherwise, difficult to see)
-  height = max(img_shape[0], _MIN_IMG_HEIGHT)  # (h, w)
-
   show_images_kwargs = show_images_kwargs.copy()
-  show_images_kwargs.setdefault('height', height)
+  show_videos_kwargs = show_videos_kwargs.copy()
+
+  # Resize small/large images to X pixels (otherwise, difficult to see)
+  if height:
+    if isinstance(height, int):
+      min_height = height
+      max_height = height
+    else:
+      min_height, max_height = height
+    del height
+    target_height = img_shape[0]  # (h, w)
+    target_height = max(target_height, min_height)
+    target_height = min(target_height, max_height)
+
+    show_images_kwargs.setdefault('height', target_height)
+    show_videos_kwargs.setdefault('height', target_height)
 
   if ndim < 4:
     out = media.show_image(img, return_html=True, **show_images_kwargs)
@@ -194,9 +210,7 @@ def _array_repr_html_inner(
     # Dynamically compute the frame-rate, capped at 25 FPS
     fps = min(num_frames // 5, 25.0)
 
-    show_videos_kwargs = show_videos_kwargs.copy()
     show_videos_kwargs.setdefault('fps', fps)
-    show_videos_kwargs.setdefault('height', height)
 
     out = media.show_video(
         img,
