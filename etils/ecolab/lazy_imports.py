@@ -435,6 +435,7 @@ with _builder.replace_imports(is_std=True):
   import inspect
   import io
   import importlib
+  import IPython
   import itertools
   import json
   import logging

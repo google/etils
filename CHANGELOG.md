@@ -25,7 +25,9 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `ecolab.json` for interactive expandable JSON display.
     *   `ecolab.auto_plot_array`
         *   Add `torch`
-        *   Small images (height smaller than 100px) are automatically scaled up
+        *   Small/large images (height outside 100-250px) are automatically
+            scaled up/down. Can be disabled with
+            `ecolab.auto_plot_array(height=None)`
         *   Can overwrite `mediapy` default options with `show_images_kwargs`
             and `show_videos_kwargs`
     *   Add `ecolab.interruptible` for graceful interruption of loops.
