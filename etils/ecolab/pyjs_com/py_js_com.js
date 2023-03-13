@@ -15,7 +15,7 @@
  * structure)
  */
 async function call_python(fn_name, args = [], kwargs = {}) {
-  const out = await colab.kernel.invokeFunction(fn_name, args, kwargs);
+  const out = await google.colab.kernel.invokeFunction(fn_name, args, kwargs);
   const data = out.data['application/json'];
   if ('__etils_pyjs__' in data) {
     return data['__etils_pyjs__'];  // Unwrap inner value

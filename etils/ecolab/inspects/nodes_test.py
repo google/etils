@@ -16,6 +16,9 @@
 
 from __future__ import annotations
 
+import datetime
+import functools
+
 from etils.ecolab.inspects import nodes
 import numpy as np
 import pytest
@@ -52,6 +55,12 @@ class A:
         (np.zeros, nodes.FnNode),
         (dict.keys, nodes.FnNode),
         (({}).keys, nodes.FnNode),
+        (functools.partial(dict.keys), nodes.FnNode),
+        (dict.keys, nodes.FnNode),
+        (dict.__dict__['fromkeys'], nodes.FnNode),
+        (datetime.timedelta.days, nodes.FnNode),
+        (datetime.datetime.ctime.__call__, nodes.FnNode),
+        (datetime.datetime.now().ctime.__call__, nodes.FnNode),
         ({'a': 123, True: 456}, nodes.MappingNode),
         ({'a', True, (3,)}, nodes.SetNode),
         ([{}, 123], nodes.SequenceNode),
