@@ -117,7 +117,9 @@ dev = [
 [tool.flit.sdist]
 # Do not release tests, doc on PyPI
 exclude = [
-  "**/README.md",
+  # TODO(epot): Flit fail if top level `README.md` is excluded. How to
+  # also include it ?
+  # "**/README.md",
   "**/docs/**",
   "**/*_test.py",
   "ecolab/tests/",
