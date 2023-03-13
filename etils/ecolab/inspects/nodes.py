@@ -156,12 +156,13 @@ class KeyValNode(Node):
 
   # TODO(epot):
   # * Cleaner implementation.
-  # * Built-ins should not be expandable.
   # * Make both key and value expandable (when not built-in) ?
 
   @property
   def header_html(self) -> str:
-    return self._li()(
+    # * Built-ins are not be expandable.
+    is_builtin = isinstance(self.value, BuiltinNode.MATCH_TYPES)
+    return self._li(clickable=not is_builtin)(
         _obj_html_repr(self.key), ': ', _obj_html_repr(self.value)
     )
 
@@ -318,6 +319,10 @@ class FnNode(ObjectNode[Callable[..., Any]]):
   def header_repr(self) -> str:
     return _fn_html_repr(self.obj)
 
+  @property
+  def children(self) -> list[Node]:
+    return _fn_children(self.obj) + super().children
+
   # TODO(epot): Expand the function should display docstring, signature,
   # annotations, default values
 
@@ -438,6 +443,46 @@ def _truncate_long_str(value: str, *, expand_new_lines: bool = False) -> str:
     )
   else:
     return short_value
+
+
+def _fn_children(fn: Callable[..., Any]) -> list[Node]:
+  """Build the fn children."""
+  children = []
+  # Add docstring
+  try:
+    doc = fn.__doc__
+  except Exception:  # pylint: disable=broad-except
+    pass
+  else:
+    if doc:
+      children.append(HtmlNode(_obj_html_repr(doc)))
+
+  # Add signature
+  try:
+    sig = inspect.Signature.from_callable(fn)
+  except Exception:  # pylint: disable=broad-except
+    # Many builtins do not expose any signature information
+    pass
+  else:
+    for param in sig.parameters.values():
+      name = param.name
+      if param.kind == inspect.Parameter.VAR_POSITIONAL:
+        name = f'*{name}'
+      elif param.kind == inspect.Parameter.VAR_KEYWORD:
+        name = f'**{name}'
+      name = H.span(class_=['preview'])(name)
+
+      if param.annotation is inspect.Parameter.empty:
+        annotations = ''
+      else:
+        annotations = f': {_obj_html_repr(param.annotation)}'
+      if param.default is inspect.Parameter.empty:
+        default = ''
+      else:
+        default = f' = {_obj_html_repr(param.default)}'
+      node = HtmlNode(name + annotations + default)
+      children.append(node)
+  return children
 
 
 def _fn_signature_repr(fn: Callable[..., Any]) -> str:
