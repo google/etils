@@ -104,6 +104,9 @@ all = [
     "etils[etree-tf]",
 ]
 
+# DEPRECATED: Kept to avoid pip warning
+epath-no-tf = []
+
 dev = [
     "pytest",
     "pytest-subtests",
