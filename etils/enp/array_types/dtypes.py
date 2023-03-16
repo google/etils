@@ -237,12 +237,12 @@ class AnyFloat(_SingletonDType):
       from_dtype: Optional[np.dtype],
   ) -> Optional[np.dtype]:
     if from_dtype is None:
-      return np.float32
+      return np.dtype(np.float32)
     elif _is_float(from_dtype):
       return from_dtype
     else:  # int, bool,...
       # Could validate dtype to restrict too implicit casting
-      return np.float32
+      return np.dtype(np.float32)
 
 
 class AnyInt(_SingletonDType):
@@ -255,12 +255,12 @@ class AnyInt(_SingletonDType):
       from_dtype: Optional[np.dtype],
   ) -> Optional[np.dtype]:
     if from_dtype is None:
-      return np.int32
+      return np.dtype(np.int32)
     elif _is_integer(from_dtype):
       return from_dtype
     else:  # float, bool,...
       # Could validate dtype to restrict too implicit casting
-      return np.int32
+      return np.dtype(np.int32)
 
 
 _STD_TYPE_TO_DTYPE = {
