@@ -43,7 +43,7 @@ def parametrize_xnp(
     *,
     with_none: bool = False,
     restrict: Optional[Iterable[str]] = None,
-    skip: Optional[Iterable[str]] = None,
+    skip: Optional[Iterable[str]] = ('torch',),  # does not work with torch2.0
 ) -> Callable[[_FnT], _FnT]:
   """Parametrize over the numpy modules.
 
