@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+
+*   `enp`:
+    *   Fix `torch==2.0` compatibility.
+
 <!-- --------- Do not add anything bellow this line --------- -->
 
 ## [1.1.0] - 2023-03-13

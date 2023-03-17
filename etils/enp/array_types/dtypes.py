@@ -142,6 +142,14 @@ class DType(abc.ABC):
     else:
       dtype_kwargs = {'dtype': numpy_utils.lazy.as_dtype(to_dtype, xnp=xnp)}
 
+    # Torch fail for scalar np.ndarray
+    # See: https://github.com/pytorch/pytorch/issues/97021
+    if isinstance(array_like, np.ndarray) and array_like.shape == ():  # pylint: disable=g-explicit-bool-comparison
+      if not dtype_kwargs:
+        dtype_kwargs = {
+            'dtype': numpy_utils.lazy.as_dtype(array_like.dtype, xnp=xnp)
+        }
+      array_like = array_like.item()
     arr = xnp.asarray(array_like, **dtype_kwargs)
     return arr
 
