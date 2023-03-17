@@ -25,6 +25,8 @@ from etils import epy
 from etils.enp import numpy_utils
 import numpy as np
 
+_NpDType = Any
+
 # https://numpy.org/doc/stable/reference/generated/numpy.dtype.kind.html
 _NP_KIND_TO_STR = {
     'b': 'bool_',
@@ -84,7 +86,7 @@ class DType(abc.ABC):
   array_cls_name: str
 
   @classmethod
-  def from_value(cls, value: Any) -> 'DType':
+  def from_value(cls, value: Any) -> DType:
     """Convert the value to dtype."""
     if value is None:
       return AnyDType()
@@ -146,8 +148,8 @@ class DType(abc.ABC):
   @abc.abstractmethod
   def _get_target_dtype(
       self,
-      from_dtype: Optional[np.dtype],
-  ) -> Optional[np.dtype]:
+      from_dtype: Optional[_NpDType],
+  ) -> Optional[_NpDType]:
     """Validate and normalize the numpy dtype.
 
     Args:
@@ -181,8 +183,8 @@ class NpDType(DType):
 
   def _get_target_dtype(
       self,
-      from_dtype: Optional[np.dtype],
-  ) -> Optional[np.dtype]:
+      from_dtype: Optional[_NpDType],
+  ) -> Optional[_NpDType]:
     # Here, we could validate invalid casting, like:
     # * float -> int
     # * int -> bool
@@ -222,8 +224,8 @@ class AnyDType(_SingletonDType):
 
   def _get_target_dtype(
       self,
-      from_dtype: Optional[np.dtype],
-  ) -> Optional[np.dtype]:
+      from_dtype: Optional[_NpDType],
+  ) -> Optional[_NpDType]:
     return None  # Keep original dtype
 
 
@@ -234,8 +236,8 @@ class AnyFloat(_SingletonDType):
 
   def _get_target_dtype(
       self,
-      from_dtype: Optional[np.dtype],
-  ) -> Optional[np.dtype]:
+      from_dtype: Optional[_NpDType],
+  ) -> Optional[_NpDType]:
     if from_dtype is None:
       return np.float32
     elif _is_float(from_dtype):
@@ -252,8 +254,8 @@ class AnyInt(_SingletonDType):
 
   def _get_target_dtype(
       self,
-      from_dtype: Optional[np.dtype],
-  ) -> Optional[np.dtype]:
+      from_dtype: Optional[_NpDType],
+  ) -> Optional[_NpDType]:
     if from_dtype is None:
       return np.int32
     elif _is_integer(from_dtype):
@@ -270,13 +272,13 @@ _STD_TYPE_TO_DTYPE = {
 }
 
 
-def _is_float(dtype: np.dtype) -> bool:
+def _is_float(dtype: _NpDType) -> bool:
   """Validate the dtype is float."""
   # `V` to support bfloat16
   return np.issubdtype(dtype, np.floating) or dtype.kind == 'V'
 
 
-def _is_integer(dtype: np.dtype) -> bool:
+def _is_integer(dtype: _NpDType) -> bool:
   """Validate the dtype is integer."""
   return np.issubdtype(dtype, np.integer)
 

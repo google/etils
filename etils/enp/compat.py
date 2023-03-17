@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import functools
 import typing
-from typing import Optional
+from typing import Any, Optional
 
 from etils.enp import numpy_utils
 from etils.enp.typing import Array, FloatArray  # pylint: disable=g-multiple-import
@@ -34,6 +34,8 @@ import numpy as np
 if typing.TYPE_CHECKING:
   import torch as torch_  # pytype: disable=import-error
 
+_NpDType = Any
+
 lazy = numpy_utils.lazy
 
 
@@ -41,7 +43,7 @@ lazy = numpy_utils.lazy
 
 
 @functools.lru_cache()
-def _torch_to_np_dtypes() -> dict[torch_.dtype, np.dtype]:
+def _torch_to_np_dtypes() -> dict[torch_.dtype, _NpDType]:
   """Returns mapping torch -> numpy dtypes."""
   torch = lazy.torch
   return {
