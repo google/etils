@@ -8,11 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.1.1] - 2023-03-20
 
 *   `enp`:
     *   Fix `torch==2.0` compatibility.
-
-<!-- --------- Do not add anything bellow this line --------- -->
+*   Fix warning during `pip install` (missing `epath-no-tf`)
 
 ## [1.1.0] - 2023-03-13
 
@@ -228,7 +228,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/google/etils/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/google/etils/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/google/etils/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/google/etils/compare/v0.8.0...v0.9.0
