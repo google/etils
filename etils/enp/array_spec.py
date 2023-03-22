@@ -84,6 +84,9 @@ class ArraySpec:
     if isinstance(array, (np.ndarray, np.generic, ArraySpec)):
       shape = array.shape
       dtype = array.dtype
+    elif lazy.has_jax and isinstance(array, lazy.jax.random.PRNGKeyArray):
+      shape = array.shape
+      dtype = np.uint32  # `jax.random.PRNGKeyArray` is a constant
     elif lazy.has_jax and isinstance(
         array,
         (lazy.jax.ShapeDtypeStruct, lazy.jnp.ndarray),

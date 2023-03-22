@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   Add `ecolab.auto_inspect()` to allow inspecting all colab outputs.
+
 ## [1.1.1] - 2023-03-20
 
 *   `enp`:

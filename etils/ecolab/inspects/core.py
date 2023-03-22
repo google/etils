@@ -16,11 +16,9 @@
 
 from __future__ import annotations
 
-import functools
-
-from etils import epath
 from etils.ecolab import pyjs_com
 from etils.ecolab.inspects import nodes
+from etils.ecolab.inspects import resource_utils
 import IPython.display
 
 
@@ -46,41 +44,25 @@ def inspect(obj: object) -> None:
   Args:
     obj: Any object to inspect (module, class, dict,...).
   """
-
   root = nodes.Node.from_obj(obj)
 
-  html_content = IPython.display.HTML(
-      f"""
-      {_css_import()}
+  html_content = IPython.display.HTML(f"""
+      {resource_utils.resource_import('theme.css')}
       {pyjs_com.js_import()}
-      {_js_import()}
+      {resource_utils.resource_import('main.js')}
 
-      <ul class="tree-root">
-        {root.header_html}
-      </ul>
+      {main_inspect_html(root)}
       <script>
         load_content("{root.id}");
       </script>
-      """
-  )
+      """)
   IPython.display.display(html_content)
 
 
-def _static_path() -> epath.Path:
-  """Path to the static resources (`.js`, `.css`)."""
-  return epath.resource_path('etils') / 'ecolab' / 'inspects' / 'static'
-
-
-# TODO(epot): Use gstatic to serve those files.
-@functools.lru_cache()
-def _css_import() -> str:
-  """CSS content."""
-  content = _static_path().joinpath('theme.css').read_text()
-  return f'<style>{content}</style>'
-
-
-@functools.lru_cache()
-def _js_import() -> str:
-  """Js content."""
-  content = _static_path().joinpath('main.js').read_text()
-  return f'<script>{content}</script>'
+def main_inspect_html(root: nodes.Node) -> str:
+  """Main HTML content."""
+  return f"""
+    <ul class="tree-root">
+      {root.header_html}
+    </ul>
+  """
