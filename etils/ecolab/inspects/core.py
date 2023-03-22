@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+from etils import epy
 from etils.ecolab import pyjs_com
 from etils.ecolab.inspects import nodes
 from etils.ecolab.inspects import resource_utils
@@ -34,8 +35,17 @@ def get_html_content(id_: str) -> str:
   Returns:
     The html to add.
   """
-  node = nodes.Node.from_id(id_)
-  return node.inner_html
+  try:
+    node = nodes.Node.from_id(id_)
+    return node.inner_html
+  except Exception as e:  # pylint: disable=broad-except
+    epy.reraise(
+        e,
+        prefix=(
+            '`ecolab.inspect` internal error. Please report an issue'
+            '.\n'
+        ),
+    )
 
 
 def inspect(obj: object) -> None:

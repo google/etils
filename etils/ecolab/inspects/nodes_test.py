@@ -66,6 +66,7 @@ class A:
         ([{}, 123], nodes.SequenceNode),
         (np.zeros((2,)), nodes.ArrayNode),
         (dict, nodes.ClsNode),
+        (type, nodes.ClsNode),
         (A, nodes.ClsNode),
         (A(), nodes.ObjectNode),
     ],
