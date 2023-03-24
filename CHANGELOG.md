@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `ecolab`:
     *   Add `ecolab.auto_inspect()` to allow inspecting all colab outputs.
+    *   Fix various `ecolab.inspect` (when used on metaclasses,...).
 
 ## [1.1.1] - 2023-03-20
 

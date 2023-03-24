@@ -353,13 +353,14 @@ class ClsNode(ObjectNode[Type[Any]]):
 
   @property
   def children(self) -> list[Node]:
-    children = super().children
-    if self.obj is type:  # `type.mro()` do not work
-      return children
+    if isinstance(self.obj, type) and self.obj.mro is type.mro:
+      mro = self.obj.mro(self.obj)  # `type.mro()` do not work
+    else:
+      mro = self.obj.mro()
     # Add `[[mro]]` subsection
-    return children + [
+    return super().children + [
         SubsectionNode(
-            children=[Node.from_obj(cls) for cls in self.obj.mro()],
+            children=[Node.from_obj(cls) for cls in mro],
             name='mro',
         )
     ]
