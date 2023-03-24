@@ -19,6 +19,7 @@ from __future__ import annotations
 import datetime
 import functools
 
+from etils.array_types import f32
 from etils.ecolab.inspects import nodes
 import numpy as np
 import pytest
@@ -67,6 +68,8 @@ class A:
         (np.zeros((2,)), nodes.ArrayNode),
         (dict, nodes.ClsNode),
         (type, nodes.ClsNode),
+        (f32, nodes.ClsNode),
+        (f32['h w'], nodes.ClsNode),
         (A, nodes.ClsNode),
         (A(), nodes.ObjectNode),
     ],
