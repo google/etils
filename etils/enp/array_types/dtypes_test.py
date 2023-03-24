@@ -64,14 +64,14 @@ _ALL_ITEMS = [
         name='AnyDType',
         cls_name='Array',
         array_items=[
-            _ArrayItem(True, np.bool_),
-            _ArrayItem([True, False], np.bool_),
+            _ArrayItem(True, np.bool_),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([True, False], np.bool_),  # pytype: disable=wrong-arg-types  # numpy-scalars
             # Numpy default are plaform dependent (int64 except on windows)
             # _ArrayItem(1, np.int32),
             # _ArrayItem(1., np.float32),
             # _ArrayItem([1], np.int32),
             # _ArrayItem([1.], np.float32),
-            _ArrayItem(np.array(1, dtype=np.uint8), np.uint8),
+            _ArrayItem(np.array(1, dtype=np.uint8), np.uint8),  # pytype: disable=wrong-arg-types  # numpy-scalars
         ],
     ),
     _DTypeTestItem(
@@ -79,17 +79,17 @@ _ALL_ITEMS = [
         cls_name='FloatArray',
         array_items=[
             # Bool, int,... casted to float
-            _ArrayItem(True, np.float32, iscast=True),
-            _ArrayItem(1, np.float32, iscast=False),
-            _ArrayItem(1.0, np.float32),
-            _ArrayItem([1], np.float32, iscast=False),
-            _ArrayItem([1.0], np.float32),
-            _ArrayItem(
+            _ArrayItem(True, np.float32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(1, np.float32, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(1.0, np.float32),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([1], np.float32, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([1.0], np.float32),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(  # pytype: disable=wrong-arg-types  # numpy-scalars
                 np.array([True], dtype=np.bool_), np.float32, iscast=True
             ),
-            _ArrayItem(np.array(1, dtype=np.uint8), np.float32, iscast=True),
+            _ArrayItem(np.array(1, dtype=np.uint8), np.float32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
             # Float values not casted
-            _ArrayItem(np.array(1, dtype=np.float16), np.float16),
+            _ArrayItem(np.array(1, dtype=np.float16), np.float16),  # pytype: disable=wrong-arg-types  # numpy-scalars
             _ArrayItem(np.array(1, dtype=jnp.bfloat16), jnp.bfloat16),
         ],
     ),
@@ -98,16 +98,16 @@ _ALL_ITEMS = [
         cls_name='IntArray',
         array_items=[
             # Casted to int
-            _ArrayItem(True, np.int32, iscast=True),
-            _ArrayItem(1, np.int32),
-            _ArrayItem(1.0, np.int32, iscast=False),
-            _ArrayItem([1], np.int32),
-            _ArrayItem([1.0], np.int32, iscast=False),
+            _ArrayItem(True, np.int32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(1, np.int32),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(1.0, np.int32, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([1], np.int32),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([1.0], np.int32, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
             # Int values not casted
-            _ArrayItem(np.array([True], dtype=np.bool_), np.int32, iscast=True),
-            _ArrayItem(np.array(1, dtype=np.uint8), np.uint8),
+            _ArrayItem(np.array([True], dtype=np.bool_), np.int32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(np.array(1, dtype=np.uint8), np.uint8),  # pytype: disable=wrong-arg-types  # numpy-scalars
             # Float values casted
-            _ArrayItem(np.array(1, dtype=np.float16), np.int32, iscast=True),
+            _ArrayItem(np.array(1, dtype=np.float16), np.int32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
         ],
     ),
     # `BoolArray` -> `bool_`
@@ -125,22 +125,22 @@ _ALL_ITEMS = [
         name='bool',
         cls_name='bool_',
         array_items=[
-            _ArrayItem(True, np.bool_),
-            _ArrayItem(1, np.bool_, iscast=False),
-            _ArrayItem([1.0], np.bool_, iscast=False),
-            _ArrayItem(np.array([True], dtype=np.bool_), np.bool_),
-            _ArrayItem(np.array([1], dtype=np.uint8), np.bool_, iscast=True),
+            _ArrayItem(True, np.bool_),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(1, np.bool_, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([1.0], np.bool_, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(np.array([True], dtype=np.bool_), np.bool_),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(np.array([1], dtype=np.uint8), np.bool_, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
         ],
     ),
     _DTypeTestItem(
         name='uint8',
         cls_name='ui8',
         array_items=[
-            _ArrayItem(True, np.uint8, iscast=True),
-            _ArrayItem(1, np.uint8),
-            _ArrayItem([1.0], np.uint8, iscast=False),
-            _ArrayItem(np.array([True], dtype=np.bool_), np.uint8, iscast=True),
-            _ArrayItem(np.array([1], dtype=np.int32), np.uint8, iscast=True),
+            _ArrayItem(True, np.uint8, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(1, np.uint8),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem([1.0], np.uint8, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(np.array([True], dtype=np.bool_), np.uint8, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
+            _ArrayItem(np.array([1], dtype=np.int32), np.uint8, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
         ],
     ),
     _DTypeTestItem(
