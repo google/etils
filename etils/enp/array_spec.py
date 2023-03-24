@@ -101,6 +101,14 @@ class ArraySpec:
       dtype = array.dtype.as_numpy_dtype
     elif lazy.has_tf and isinstance(array, type(_get_none_spec())):
       return None  # Special case for `NoneTensorSpec()`
+    elif isinstance(array, array_types.ArrayAliasMeta):
+      try:
+        shape = (int(s) for s in array.shape.split())
+      except ValueError:
+        raise UnknownArrayError(
+            f'Not supported dynamic shape: {array}'
+        ) from None
+      dtype = array.dtype.np_dtype
     else:
       raise UnknownArrayError(f'Unknown array-like type: {type(array)}')
     # Should we also handle `bytes` case ?

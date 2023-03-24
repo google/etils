@@ -15,6 +15,7 @@
 """Tests for array_spec."""
 
 from etils import enp
+from etils.enp.typing import f32
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -30,6 +31,7 @@ def test_array_spec_valid():
 
   assert not enp.ArraySpec.is_array(123)
   assert not enp.ArraySpec.is_array('123')
+  assert enp.ArraySpec.is_array(f32['1 4'])
   assert enp.ArraySpec.is_array(np.array(123))
   assert enp.ArraySpec.is_array(np.array('123'))
 
@@ -64,7 +66,8 @@ def test_array_spec_tensors():
   # ====== Etils ======
   assert _array_repr(enp.ArraySpec((1, 2), dtype=np.float32)) == 'f32[1 2]'
   assert _array_repr(enp.ArraySpec((None, 2), dtype=str)) == 'str[_ 2]'
-  # TODO(epot): support array_types ?
+  assert _array_repr(f32['1 4']) == 'f32[1 4]'
+  # TODO(epot): support array_types with unknown shapes ?
 
 
 def test_array_spec_repr():
