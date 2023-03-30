@@ -115,6 +115,7 @@ dev = [
     "pylint>=2.6.0",
     "chex",
     "torch",
+    "optree",  # For `etree.optree`
 ]
 
 [tool.flit.sdist]

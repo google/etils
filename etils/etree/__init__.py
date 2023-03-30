@@ -1,4 +1,4 @@
-# Copyright 2022 The etils Authors.
+# Copyright 2023 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from etils.etree.typing import Tree
 
 # Expose 4 variants of the API depending on which backend is used.
 jax = tree_utils.TreeAPI(backend.Jax())  # jax.tree_utils
+optree = tree_utils.TreeAPI(backend.Optree())
 tree = tree_utils.TreeAPI(backend.DmTree())  # tree (DeepMind)
 nest = tree_utils.TreeAPI(backend.Nest())  # tf.nest
 py = tree_utils.TreeAPI(backend.Python())  # Pure Python API

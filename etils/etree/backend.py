@@ -1,4 +1,4 @@
-# Copyright 2022 The etils Authors.
+# Copyright 2023 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -114,6 +114,15 @@ class Jax(Backend):
           "The two structures don't have the same nested structure.\n"
           f"Left: {treedef0}\nRight: {treedef1}"
       )
+
+
+class Optree(Jax):
+  """`optree` backend."""
+
+  def import_module(self):
+    import optree  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+    return optree
 
 
 class DmTree(Backend):

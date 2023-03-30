@@ -13,6 +13,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Fix various `ecolab.inspect` (when used on metaclasses,...).
 *   `enp`:
     *   `etree.spec_like` support `f32`,... annotations (when fully defined).
+*   `etree`:
+    *   Add `optree` backend.
 
 ## [1.1.1] - 2023-03-20
 

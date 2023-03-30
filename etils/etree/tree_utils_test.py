@@ -1,4 +1,4 @@
-# Copyright 2022 The etils Authors.
+# Copyright 2023 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import tensorflow as tf
     params=[  # Run all tests X times (one for each backends)
         etree_lib,
         etree_lib.jax,
+        etree_lib.optree,
         etree_lib.tree,
         etree_lib.nest,
         etree_lib.py,
