@@ -15,7 +15,7 @@
 """Wrapper for tdqm."""
 
 import typing
-from typing import TypeVar
+from typing import Optional, TypeVar
 
 from etils import epy
 from etils.epy import _internal
@@ -44,9 +44,9 @@ class _LogFile:
 
 # TODO(epot): Mock the original `tqdm`, (in `__main__`), rather than
 # having to change the import.
-def tqdm(iterable: _IterableT, **kwargs) -> _IterableT:
+def tqdm(iterable: Optional[_IterableT] = None, **kwargs) -> _IterableT:
   """Add a progressbar to the iterable."""
-  return tqdm_base.tqdm(iterable, **kwargs)
+  return tqdm_base.tqdm(iterable=iterable, **kwargs)
 
 
 if typing.TYPE_CHECKING:
