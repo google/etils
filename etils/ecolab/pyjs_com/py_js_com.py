@@ -17,14 +17,78 @@
 Could be released as a separate module once it also support non-colab notebooks.
 """
 
+import abc
 import functools
+import sys
 import traceback
-from typing import TypeVar
+from typing import Any, Callable, TypeVar
 
 from etils import epath
+from etils import epy
+import IPython
 import IPython.display
 
+
 _FnT = TypeVar('_FnT')
+
+_Json = Any
+_Fn = Callable[..., Any]  # (*args: Json, **kwargs: Json) -> Json
+
+# Coms doc is defined in
+# https://jupyter-notebook.readthedocs.io/en/stable/comms.html
+
+
+def _is_notebook_colab() -> bool:
+  """Returns True if notebook is colab."""
+  return 'google.colab' in sys.modules
+
+
+class _NotebookBackend(abc.ABC):
+  """Backend interface."""
+
+  @abc.abstractmethod
+  def wrap_output(self, out: _Json):
+    """Eventually wrap the Json output."""
+    raise NotImplementedError
+
+  @abc.abstractmethod
+  def register_fn(self, fn: _Fn) -> None:
+    """Register the function to be called in Javascript."""
+    raise NotImplementedError
+
+
+class _Colab(_NotebookBackend):
+  """Backend for Colab."""
+
+  def wrap_output(self, out):
+    return IPython.display.JSON(out)
+
+  def register_fn(self, fn: _Fn) -> None:
+    from google.colab import output  # pylint: disable=g-import-not-at-top
+
+    # TODO(epot): Fragile if multiple functions have the same name. How to
+    # specify namespace ?
+    output.register_callback(fn.__name__, fn)
+
+
+class _Jupyter(_NotebookBackend):
+  """Backend for Jupyter notebooks."""
+
+  def wrap_output(self, out):
+    return out
+
+  def register_fn(self, fn: _Fn) -> None:
+    def target_func(comm, open_msg):
+      del open_msg
+
+      @comm.on_msg
+      def _recv(msg):
+        data = msg['content']['data']
+        out = fn(*data['args'], **data['kwargs'])
+        comm.send(out)
+
+    ipython = IPython.get_ipython()
+    ipython.kernel.comm_manager.register_target(fn.__name__, target_func)
 
 
 def register_js_fn(fn: _FnT) -> _FnT:
@@ -62,25 +126,29 @@ def register_js_fn(fn: _FnT) -> _FnT:
     The Python function, unmodified
   """
 
+  # No-op when running on tests
+  if not epy.is_notebook():
+    return fn
+
+  if _is_notebook_colab():
+    backend = _Colab()
+  else:
+    backend = _Jupyter()
+
+  @functools.wraps(fn)
   def decorated(*args, **kwargs):
     try:
       out = fn(*args, **kwargs)
       # Wrap non-dict values inside JSON
       if not isinstance(out, dict):
         out = {'__etils_pyjs__': out}
-      return IPython.display.JSON(out)
+      # Eventually wrap the output
+      return backend.wrap_output(out)
     except Exception as e:
       traceback.print_exception(e)
       raise
 
-  # TODO(epot): Support Jypyter notebooks
-  try:
-    from google.colab import output  # pylint: disable=g-import-not-at-top
-  except ImportError:
-    pass
-  else:
-    output.register_callback(fn.__name__, decorated)
-
+  backend.register_fn(decorated)
   return fn
 
 
