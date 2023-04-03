@@ -8,13 +8,14 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
-*   `ecolab`:
-    *   Add `ecolab.auto_inspect()` to allow inspecting all colab outputs.
-    *   Fix various `ecolab.inspect` (when used on metaclasses,...).
 *   `enp`:
     *   `etree.spec_like` support `f32`,... annotations (when fully defined).
 *   `etree`:
     *   Add `optree` backend.
+*   `ecolab`:
+    *   Add `ecolab.auto_inspect()` to allow inspecting all colab outputs.
+    *   Fix various `ecolab.inspect` issues (e.g. when used on metaclasses,...).
+    *   Add `ecolab.inspect` support for Jupyter notebook (non-Colab).
 
 ## [1.1.1] - 2023-03-20
 

@@ -107,12 +107,17 @@ def register_js_fn(fn: _FnT) -> _FnT:
   The function can then be called from Javascript:
 
   ```python
-  IPython.display.HTML(f\"\"\"
-    {pyjs_com.js_import()}
-    <script>
-      out = await call_python('my_fn', [arg0, arg1], {kwarg0: val0});
-      out["x"] === 123;
-    </script>
+  # Currently has to be executed in the same cell to install the library
+  IPython.display.display(IPython.display.HTML(ecolab.pyjs_import()))
+
+  IPython.display.HTML(\"\"\"
+  <script>
+    async function main() {
+      out = await call_python('my_fn', [1, 2], {z: 3});
+      console.log(out['sum']);  // my_fn(1, 2, z=3)  == {'sum': 6}
+    }
+    main();
+  </script>
   \"\"\")
   ```
 
@@ -150,6 +155,10 @@ def register_js_fn(fn: _FnT) -> _FnT:
 
   backend.register_fn(decorated)
   return fn
+
+
+# TODO(epot): Automatically add js-import if `register_js_fn` was called. This
+# could be done similarly to `auto_inspect()`.
 
 
 # TODO(epot): Host on gstatic and dynamically generate the URL from the

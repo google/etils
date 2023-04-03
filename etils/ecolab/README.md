@@ -1,4 +1,4 @@
-## Colab utils
+## Colab/Jupyter utils
 
 ### Lazy common imports
 
@@ -90,6 +90,14 @@ When developing interactively on Colab, you can add
 `from etils import ecolab ; ecolab.inspect(x)` statements deep inside
 your code, executing them will display the visualization on Colab.
 
+To add a button in all cells to transform the last output in:
+
+```python
+ecolab.auto_inspect()
+```
+
+![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/auto_inspect.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/auto_inspect.png?raw=true){height="70"}
+
 ### Inspect nested `dict` / `list`
 
 `ecolab.json` allows you to interactively explore Json nested `dict` / `list`
@@ -99,6 +107,38 @@ with collapsible/expandable sections.
 
 The dict keys and list indices can be filtered from the display field using
 regex (e.g. `x.[0-9]` in the above example).
+
+### Bi-directional Python/Javascript communication
+
+Ecolab provide a simplified API for Python<>Js communication which works for
+both `colab` and `jupyter` notebooks.
+
+In Python, use `ecolab.register_js_fn` to register any Python functions. The
+function accept any json-like input/outputs (`int`, `str`, `list`, `dict`, `None`,...)
+
+```python
+@ecolab.register_js_fn
+def my_fn(x, y, z):
+  return {'sum': x + y + z}
+```
+
+The function can then be called from Javascript with
+`call_python('<fn_name>', [arg0, ...], {kwarg0: ..., kwarg1: ...})`
+
+```python
+# Currently has to be executed in the same cell to install the library
+IPython.display.display(IPython.display.HTML(ecolab.pyjs_import()))
+
+IPython.display.HTML("""
+<script>
+  async function main() {
+    out = await call_python('my_fn', [1, 2], {z: 3});
+    console.log(out['sum']);  // my_fn(1, 2, z=3)  == {'sum': 6}
+  }
+  main();
+</script>
+""")
+```
 
 ### Interruptible loops
 
