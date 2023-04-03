@@ -62,14 +62,47 @@ def test_lines_block():
   assert epy.Lines.make_block('A', {}, braces='[') == 'A[]'
   assert epy.Lines.make_block('A', {'x': '1'}) == 'A(x=1)'
   assert epy.Lines.make_block('A', {'x': '1'}, braces=('<', '>')) == 'A<x=1>'
-  assert epy.Lines.make_block('A', {'x': '1', 'y': '2'}) == epy.dedent(
+  assert (
+      epy.Lines.make_block('', {'x': '1'}, braces='{', equal=': ') == '{x: 1}'
+  )
+  assert epy.Lines.make_block(
+      'A',
+      {
+          'x': '111',
+          'y': '222',
+          'z': '333',
+      },
+  ) == epy.dedent(
       """
       A(
-          x=1,
-          y=2,
+          x=111,
+          y=222,
+          z=333,
       )
       """
   )
+  assert epy.Lines.make_block(
+      'A',
+      epy.Lines.make_block(
+          'A',
+          {
+              'x': '111',
+              'y': '222',
+              'z': '333',
+          },
+      ),
+  ) == epy.dedent(
+      """
+      A(
+          A(
+              x=111,
+              y=222,
+              z=333,
+          ),
+      )
+      """
+  )
+  assert epy.Lines.make_block('', ['a', 'b'], braces='[') == '[a, b]'
 
 
 def test_lines_nested_indent():

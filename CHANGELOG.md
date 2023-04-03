@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Better `epy.Lines.block` for custom pretty print classes, list,...
+
 ## [1.2.0] - 2023-04-03
 
 *   `enp`:
