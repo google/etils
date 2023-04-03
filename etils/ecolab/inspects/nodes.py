@@ -280,9 +280,7 @@ class SetNode(ObjectNode[collections.abc.Set]):  # pytype: disable=bad-concrete-
 
   @property
   def children(self) -> list[Node]:
-    return [
-        KeyValNode(key=id(v), value=v) for v in self.obj
-    ] + super().children
+    return [KeyValNode(key=id(v), value=v) for v in self.obj] + super().children
 
 
 @dataclasses.dataclass
@@ -436,12 +434,12 @@ def _truncate_long_str(value: str, *, expand_new_lines: bool = False) -> str:
         # Short version
         H.span(class_=['content-version-short'])(
             short_value[:80]
-            + H.span(class_='content-switch-expand register-onclick-switch')(
-                '...'
-            )
+            + H.span(
+                class_=['content-switch-expand', 'register-onclick-switch']
+            )('...')
         ),
         # Long version
-        H.span(class_='content-version-long register-onclick-switch')(
+        H.span(class_=['content-version-long', 'register-onclick-switch'])(
             long_value
         ),
     )

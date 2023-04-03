@@ -20,5 +20,5 @@ from etils.ecolab.inspects import html_helper as H
 def test_tag():
   assert (
       H.li(id='a', class_=['xx', 'yy'], href=None)('content')
-      == '<li id="a" class="xx yy">content</li>'
+      == '<li id="a" class="etils-xx etils-yy">content</li>'
   )

@@ -10,8 +10,8 @@ async function load_content(id_) {
   const root = document.getElementById(id_);
 
   // Guard to only load the content once
-  if (!root.classList.contains('loaded')) {
-    root.classList.add('loaded');
+  if (!root.classList.contains('etils-loaded')) {
+    root.classList.add('etils-loaded');
 
     // Compute the HTML content in Python
     const html_content = await call_python('get_html_content', [root.id]);
@@ -23,7 +23,6 @@ async function load_content(id_) {
     registerChildrenEvent(root);
   }
 }
-
 
 /**
  * Function which execute the callback.
@@ -61,19 +60,21 @@ function registerClickListenerOnAll(elem, class_name, callback) {
  * @param {!HTMLElement} elem Root element to which add the listener
  */
 function registerChildrenEvent(elem) {
-  registerClickListenerOnAll(elem, 'register-onclick-expand', async function() {
-    // TODO(epot): As optimization, it's not required to query the id
-    // each time, but instead use closure.
-    // TODO(epot): Is there a way to only call this once ?
-    await load_content(this.parentElement.id);
+  registerClickListenerOnAll(
+      elem, 'etils-register-onclick-expand', async function() {
+        // TODO(epot): As optimization, it's not required to query the id
+        // each time, but instead use closure.
+        // TODO(epot): Is there a way to only call this once ?
+        await load_content(this.parentElement.id);
 
-    // Toogle the collapsible section
-    this.parentElement.querySelector('.collapsible')
-        .classList.toggle('collapsible-active');
-    this.classList.toggle('caret-down');
-  });
+        // Toogle the collapsible section
+        this.parentElement.querySelector('.etils-collapsible')
+            .classList.toggle('etils-collapsible-active');
+        this.classList.toggle('etils-caret-down');
+      });
 
-  registerClickListenerOnAll(elem, 'register-onclick-switch', function() {
-    this.closest('.content-switch').classList.toggle('switch-active');
+  registerClickListenerOnAll(elem, 'etils-register-onclick-switch', function() {
+    this.closest('.etils-content-switch')
+        .classList.toggle('etils-switch-active');
   });
 }

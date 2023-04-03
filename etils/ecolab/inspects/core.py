@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from etils import epy
 from etils.ecolab import pyjs_com
+from etils.ecolab.inspects import html_helper as H
 from etils.ecolab.inspects import nodes
 from etils.ecolab.inspects import resource_utils
 import IPython.display
@@ -71,8 +72,4 @@ def inspect(obj: object) -> None:
 
 def main_inspect_html(root: nodes.Node) -> str:
   """Main HTML content."""
-  return f"""
-    <ul class="tree-root">
-      {root.header_html}
-    </ul>
-  """
+  return H.ul(class_='tree-root')(root.header_html)

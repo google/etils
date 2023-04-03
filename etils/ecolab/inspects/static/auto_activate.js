@@ -9,8 +9,10 @@
  */
 function add_auto_activate(id_) {
   // TODO(epot): Make the current `output-body` invisible (if no outputs).
+  // TODO(epot): In Jupyter, this is class='output_subarea'
+  const output_classname = 'output-body';
 
-  const root = document.getElementById('output-body');
+  const root = document.getElementById(output_classname);
   root.classList.add('inspect_activable');
 
   // Fetch all the cell output

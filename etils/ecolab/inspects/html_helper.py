@@ -58,11 +58,16 @@ def _format_tag_attributes(attrs: dict[str, str | list[str]]) -> str:
       k = 'class'
 
     if isinstance(v, str):
-      pass
-    elif isinstance(v, list):
-      v = ' '.join(v)
-    else:
+      v = v.split()
+    elif not isinstance(v, list):
       raise TypeError(f'Unexpected attribute: {k}={v!r}')
+
+    # To avoid collisions, we prefix all classes with `etils-`
+    if k == 'class':
+      v = [f'etils-{v_}' for v_ in v]
+
+    v = ' '.join(v)
+
     out.append(f'{k}="{v}"')
   return ' '.join(out)
 
