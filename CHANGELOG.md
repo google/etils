@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-04-03
+
 *   `enp`:
     *   `etree.spec_like` support `f32`,... annotations (when fully defined).
 *   `etree`:
@@ -237,7 +239,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/google/etils/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/google/etils/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/google/etils/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/google/etils/compare/v0.9.0...v1.0.0
