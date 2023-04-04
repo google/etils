@@ -130,10 +130,12 @@ class Lines:
   @classmethod
   def make_block(
       cls,
-      header: str,
-      content: dict[str, str],
+      header: str = '',
+      content: str | dict[str, str] | list[str] | tuple[str, ...] = (),
       *,
       braces: Union[str, tuple[str, str]] = '(',
+      equal: str = '=',
+      limit: int = 10,
   ) -> str:
     """Util function to create a code block.
 
@@ -162,22 +164,41 @@ class Lines:
       content: Dict of key to values. One line will be displayed per item if
         `len(content) > 1`. Otherwise the code is collapsed
       braces: Brace type (`(`, `[`, `{`), can be tuple for custom open/close.
+      equal: The separator (`=`, `: `)
+      limit: Strings smaller than this will be collapsed
 
     Returns:
       The block string
     """
-    collapse = len(content) <= 1
-    trailing = '' if collapse else ','
-
     if isinstance(braces, str):
       braces = _BRACE_TO_BRACES[braces]
     brace_start, brace_end = braces
 
+    if isinstance(content, str):
+      content = [content]
+
+    if isinstance(content, dict):
+      parts = [f'{k}{equal}{v}' for k, v in content.items()]
+    elif isinstance(content, (list, tuple)):
+      parts = [f'{v}' for v in content]
+    else:
+      raise TypeError(f'Invalid fields {type(content)}')
+
+    collapse = len(parts) <= 1
+    if any('\n' in p for p in parts):
+      collapse = False
+    # Also collapse string which are small
+    elif sum(len(p) for p in parts) <= limit:
+      collapse = True
+
     lines = cls()
     lines += f'{header}{brace_start}'
     with lines.indent():
-      for k, v in content.items():
-        lines += f'{k}={v}{trailing}'
+      if collapse:
+        lines += ', '.join(parts)
+      else:
+        for p in parts:
+          lines += f'{p},'
     lines += f'{brace_end}'
 
     return lines.join(collapse=collapse)
