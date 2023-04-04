@@ -1,5 +1,8 @@
 ## Colab/Jupyter utils
 
+See the
+[demo on Colab](https://colab.research.google.com/github/google/etils/blob/main/etils/ecolab/docs/demo.ipynb).).
+
 ### Lazy common imports
 
 Running:
