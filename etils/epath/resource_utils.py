@@ -76,6 +76,11 @@ class ResourcePath(zipfile.Path):
       next_ = posixpath.join(self.at, *other)  # pytype: disable=attribute-error
       return self._next(self.root.resolve_dir(next_))  # pytype: disable=attribute-error
 
+  if sys.version_info < (3, 11):
+    @property
+    def suffix(self):
+      return pathlib.Path(self.at).suffix or self.filename.suffix  # pytype: disable=attribute-error
+
 
 def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
   """Returns read-only root directory path of the module.
