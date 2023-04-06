@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   Add `ecolab.highlight_html(code)` to add syntax highlighting to cell
+        outputs of specific objects.
 *   `epy`:
     *   Better `epy.Lines.block` for custom pretty print classes, list,...
 
