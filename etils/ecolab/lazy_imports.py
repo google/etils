@@ -514,6 +514,7 @@ with _builder.replace_imports(is_std=False):
   import networkx as nx
   import numpy as np
   import optax
+  import orbax
   import pandas as pd
   import PIL
   from PIL import Image  # Common alias
