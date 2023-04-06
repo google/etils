@@ -1,7 +1,7 @@
 ## Colab/Jupyter utils
 
 See the
-[demo on Colab](https://colab.research.google.com/github/google/etils/blob/main/etils/ecolab/docs/demo.ipynb).).
+[demo on Colab](https://colab.research.google.com/github/google/etils/blob/main/etils/ecolab/docs/demo.ipynb).
 
 ### Lazy common imports
 
@@ -110,6 +110,27 @@ with collapsible/expandable sections.
 
 The dict keys and list indices can be filtered from the display field using
 regex (e.g. `x.[0-9]` in the above example).
+
+### Syntax highlighting in cell output
+
+Use `ecolab.highlight_html(code_str)` to add Python syntax highlighting to a Python
+code string.
+
+Example:
+
+```python
+@dataclasses.dataclass
+class A:
+  x: int
+
+  def _repr_html_(self) -> str:
+    from etils import ecolab  # Lazy-import ecolab
+
+    return ecolab.highlight_html(repr(self))
+
+```
+
+![https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/highlight.png](https://github.com/google/etils/blob/main/etils/ecolab/docs/imgs/highlight.png?raw=true){height="180"}
 
 ### Bi-directional Python/Javascript communication
 
