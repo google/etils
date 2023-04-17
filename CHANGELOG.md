@@ -9,6 +9,8 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `ecolab`:
+    *   Add `widget=True` argument to `ecolab.collapse()` for better
+        interactivity.
     *   Add `ecolab.highlight_html(code)` to add syntax highlighting to cell
         outputs of specific objects.
 *   `epy`:
