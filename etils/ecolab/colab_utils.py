@@ -63,16 +63,36 @@ def _redirect_stdall(new_target: io.StringIO) -> Iterator[None]:
 
 
 @contextlib.contextmanager
-def collapse(name: str = '') -> Iterator[None]:
+def collapse(name: str = '', *, widget: bool = False) -> Iterator[None]:
   """Capture stderr/stdout and display it in a collapsible block.
 
   Args:
     name: Name of the collapsible section.
+    widget: If True, use `ipywidgets` backend. Will become the default in the
+      future (output appear in real time, support HTML,...)
 
   Yields:
     None
   """
-  with _collapse_std(name=name, redirect_fn=_redirect_stdall):
+  if widget:
+    with _collapse_widget(name):
+      yield
+  else:
+    with _collapse_std(name=name, redirect_fn=_redirect_stdall):
+      yield
+
+
+@contextlib.contextmanager
+def _collapse_widget(name: str = '') -> Iterator[None]:
+  """Widget implementation of Collapsible widget."""
+  import ipywidgets  # pylint: disable=g-import-not-at-top
+
+  out = ipywidgets.Output()
+  accordion = ipywidgets.Accordion(children=[out])
+  accordion.set_title(0, name)
+  accordion.selected_index = None
+  IPython.display.display(accordion)
+  with out:
     yield
 
 
