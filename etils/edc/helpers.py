@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import dataclasses
 import functools
+import typing
 from typing import Any, Callable, Dict, Type, TypeVar
 
 from etils import epy
@@ -119,7 +120,7 @@ def _get_type_hints(cls, *, include_extras: bool = False) -> _Hints:
   """`get_type_hints` with better error reporting."""
   # At this point, `ForwardRef` should have been resolved.
   try:
-    return typing_extensions.get_type_hints(cls, include_extras=include_extras)
+    return _get_type_hints_fix(cls, include_extras=include_extras)
   except Exception as e:  # pylint: disable=broad-except
     msg = (
         f'Could not infer typing annotation of {cls.__qualname__} '
@@ -129,3 +130,25 @@ def _get_type_hints(cls, *, include_extras: bool = False) -> _Hints:
     lines = '\n'.join(lines)
 
     epy.reraise(e, prefix=msg + lines + '\n')
+
+
+def _get_type_hints_fix(cls, *, include_extras: bool = False) -> _Hints:
+  """`get_type_hints` with bug fixes."""
+  # TODO(py311): `get_type_hints` fail for `_: dataclasses.KW_ONLY`
+  old_annotations = [_fix_annotations(subcls) for subcls in cls.mro()]
+  try:
+    return typing.get_type_hints(cls, include_extras=include_extras)
+  finally:
+    # Restore the annotations
+    for subcls, annotations in zip(cls.mro(), old_annotations):
+      if annotations:
+        subcls.__annotations__ = annotations
+
+
+def _fix_annotations(cls):
+  """Remove the `_: dataclasses.KW_ONLY` annotation."""
+  if cls is object or '_' not in cls.__annotations__:
+    return
+  old_annotations = dict(cls.__annotations__)
+  cls.__annotations__.pop('_')
+  return old_annotations
