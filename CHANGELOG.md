@@ -13,6 +13,9 @@ Changelog follow https://keepachangelog.com/ format.
         interactivity.
     *   Add `ecolab.highlight_html(code)` to add syntax highlighting to cell
         outputs of specific objects.
+*   `edc`:
+    *   Add `contextvars` option: Fields annotated as `edc.ContextVars[T]` are
+        wrapped in `contextvars.ContextVars`.
 *   `epy`:
     *   Better `epy.Lines.block` for custom pretty print classes, list,...
 
