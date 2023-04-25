@@ -16,6 +16,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `edc`:
     *   Add `contextvars` option: Fields annotated as `edc.ContextVars[T]` are
         wrapped in `contextvars.ContextVars`.
+    *   Fix error when using `_: dataclasses.KW_ONLY`
 *   `epy`:
     *   Better `epy.Lines.block` for custom pretty print classes, list,...
 
