@@ -128,7 +128,7 @@ def _get_type_hints(cls, *, include_extras: bool = False) -> _Hints:
     lines = [f' * {k}: {v!r}' for k, v in cls.__annotations__.items()]
     lines = '\n'.join(lines)
 
-    epy.reraise(e, prefix=msg + lines + '\n')
+    epy.reraise(e, prefix=msg + lines + '\n')  # pytype: disable=bad-return-type
 
 
 def _get_type_hints_fix(cls, *, include_extras: bool = False) -> _Hints:

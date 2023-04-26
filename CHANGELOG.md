@@ -17,8 +17,9 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `contextvars` option: Fields annotated as `edc.ContextVars[T]` are
         wrapped in `contextvars.ContextVars`.
     *   Fix error when using `_: dataclasses.KW_ONLY`
+    *   `__repr__` now also pretty-print nested dataclasses, list, dict,...
 *   `epy`:
-    *   Better `epy.Lines.block` for custom pretty print classes, list,...
+    *   Better `epy.Lines.make_block` for custom pretty print classes, list,...
 
 ## [1.2.0] - 2023-04-03
 

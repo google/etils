@@ -14,6 +14,9 @@
 
 """Tests for text_utils."""
 
+from __future__ import annotations
+
+import dataclasses
 import textwrap
 
 from etils import epy
@@ -60,49 +63,61 @@ def test_lines():
 def test_lines_block():
   assert epy.Lines.make_block('A', {}) == 'A()'
   assert epy.Lines.make_block('A', {}, braces='[') == 'A[]'
-  assert epy.Lines.make_block('A', {'x': '1'}) == 'A(x=1)'
-  assert epy.Lines.make_block('A', {'x': '1'}, braces=('<', '>')) == 'A<x=1>'
-  assert (
-      epy.Lines.make_block('', {'x': '1'}, braces='{', equal=': ') == '{x: 1}'
-  )
+  assert epy.Lines.make_block('A', {'x': 1}) == 'A(x=1)'
+  assert epy.Lines.make_block('A', {'x': 1}, braces=('<', '>')) == 'A<x=1>'
+  assert epy.Lines.make_block('', {'x': 1}, braces='{', equal=': ') == '{x: 1}'
   assert epy.Lines.make_block(
       'A',
       {
-          'x': '111',
-          'y': '222',
-          'z': '333',
+          'x': 111,
+          'y': 222,
+          'z': 333,
       },
   ) == epy.dedent(
       """
-      A(
-          x=111,
-          y=222,
-          z=333,
-      )
+      A(x=111, y=222, z=333)
       """
   )
-  assert epy.Lines.make_block(
-      'A',
-      epy.Lines.make_block(
-          'A',
-          {
-              'x': '111',
-              'y': '222',
-              'z': '333',
-          },
+
+  assert epy.Lines.make_block('', ['a', 'b'], braces='[') == "['a', 'b']"
+
+
+def test_lines_std():
+  @dataclasses.dataclass
+  class B:
+    x: int = 1
+    y: int = 2
+
+  @dataclasses.dataclass
+  class A:
+    t: tuple[str, ...] = ()
+    l: list[int] = dataclasses.field(default_factory=list)
+    d: dict[str, int] = dataclasses.field(default_factory=dict)
+    dc: B = dataclasses.field(default_factory=B)  # pytype: disable=invalid-annotation,name-error
+    s: str = 'aaa'
+
+  a = A(
+      t=('aaaaaaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbbbbbb'),
+      l=[1, 2, 3, 4],
+      d={'aaaaaaaaaaaaaaaaaaaa': 1, 'bbbbbbbbbbbbbbbbbbbb': 1},
+  )
+
+  repr_ = epy.Lines.repr(a)  # pytype: disable=wrong-arg-types
+  assert repr_ == epy.dedent("""
+  A(
+      t=(
+          'aaaaaaaaaaaaaaaaaaaa',
+          'bbbbbbbbbbbbbbbbbbbb',
       ),
-  ) == epy.dedent(
-      """
-      A(
-          A(
-              x=111,
-              y=222,
-              z=333,
-          ),
-      )
-      """
+      l=[1, 2, 3, 4],
+      d={
+          'aaaaaaaaaaaaaaaaaaaa': 1,
+          'bbbbbbbbbbbbbbbbbbbb': 1,
+      },
+      dc=B(x=1, y=2),
+      s='aaa',
   )
-  assert epy.Lines.make_block('', ['a', 'b'], braces='[') == '[a, b]'
+  """)
 
 
 def test_lines_nested_indent():
