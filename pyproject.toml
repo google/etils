@@ -47,7 +47,7 @@ ecolab = [
     "etils[epy]",
 ]
 edc = [
-    "typing_extensions",
+    # Do not add anything here. `edc` is an alias for `epy`
     "etils[epy]",
 ]
 enp = [

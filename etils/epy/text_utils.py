@@ -19,7 +19,7 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import textwrap
-from typing import Iterable, Iterator, Union
+from typing import Any, Iterable, Iterator, Union
 
 _BRACE_TO_BRACES = {
     '(': ('(', ')'),
@@ -131,11 +131,11 @@ class Lines:
   def make_block(
       cls,
       header: str = '',
-      content: str | dict[str, str] | list[str] | tuple[str, ...] = (),
+      content: str | dict[str, Any] | list[Any] | tuple[Any, ...] = (),
       *,
       braces: Union[str, tuple[str, str]] = '(',
       equal: str = '=',
-      limit: int = 10,
+      limit: int = 20,
   ) -> str:
     """Util function to create a code block.
 
@@ -178,9 +178,9 @@ class Lines:
       content = [content]
 
     if isinstance(content, dict):
-      parts = [f'{k}{equal}{v}' for k, v in content.items()]
+      parts = [f'{k}{equal}{_repr_value(v)}' for k, v in content.items()]
     elif isinstance(content, (list, tuple)):
-      parts = [f'{v}' for v in content]
+      parts = [f'{_repr_value(v)}' for v in content]
     else:
       raise TypeError(f'Invalid fields {type(content)}')
 
@@ -202,6 +202,38 @@ class Lines:
     lines += f'{brace_end}'
 
     return lines.join(collapse=collapse)
+
+  @classmethod
+  def repr(cls, obj: Any) -> str:
+    """Pretty print object."""
+    return _repr_value(obj)
+
+
+def _repr_value(obj: Any) -> str:
+  """Object representation, pretty-display for list, dict,..."""
+  from etils import edc  # pylint: disable=g-import-not-at-top
+
+  if isinstance(obj, str):
+    return repr(obj)
+  elif type(obj) in (list, tuple):  # Skip sub-class as could have custom repr
+    return Lines.make_block(
+        content=obj,
+        braces='[' if isinstance(obj, list) else '(',
+    )
+  elif type(obj) is dict:  # pylint: disable=unidiomatic-typecheck
+    return Lines.make_block(
+        content={repr(k): v for k, v in obj.items()},
+        braces='{',
+        equal=': ',
+    )
+  elif (
+      not isinstance(obj, type)
+      and dataclasses.is_dataclass(obj)
+      and edc.dataclass_utils.has_default_repr(type(obj))
+  ):
+    return edc.repr(obj)
+  else:
+    return repr(obj)
 
 
 def dedent(text: str) -> str:

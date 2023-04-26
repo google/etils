@@ -34,7 +34,7 @@ def test_kw_only():
   assert a.y == 2
 
   with pytest.raises(TypeError, match='contructor is keyword-only.'):
-    _ = KwOnly(1, 2)
+    _ = KwOnly(1, 2)  # pylint: disable=missing-kwoa
 
 
 @edc.dataclass
@@ -104,18 +104,12 @@ class R1Field:
 
 
 def test_repr():
-  assert repr(R(123, R11(y='abc'))) == epy.dedent(
-      """
+  assert repr(R(123, R11(y='abc'))) == epy.dedent("""
   R(
       x=123,
-      y=R11(
-          x=None,
-          y='abc',
-          z=None,
-      ),
+      y=R11(x=None, y='abc', z=None),
   )
-  """
-  )
+  """)
 
   # Curstom __repr__
   assert repr(R2()) == 'R2 repr'
@@ -129,11 +123,4 @@ def test_repr():
   x = R()
   x.x = x
   assert repr(x) == edc.repr(x)
-  assert repr(x) == epy.dedent(
-      """
-  R(
-      x=...,
-      y=None,
-  )
-  """
-  )
+  assert repr(x) == 'R(x=..., y=None)'

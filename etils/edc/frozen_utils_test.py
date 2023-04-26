@@ -72,16 +72,11 @@ def test_unfrozen_call_twice():
   y = x.y
   x.x = 123
 
-  assert repr(x) == epy.dedent(
-      """
+  assert repr(x) == epy.dedent("""
       _MutableProxy(A(
           x=123,
-          y=A(
-              x=456,
-              y=None,
-          ),
-      ))"""
-  )
+          y=A(x=456, y=None),
+      ))""")
 
   # Attribute still accessible
   assert x.not_a_dataclass_attr() == 123
