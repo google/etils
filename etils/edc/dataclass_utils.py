@@ -303,7 +303,7 @@ def __repr__(self) -> str:  # pylint: disable=invalid-name
   return epy.Lines.make_block(
       header=self.__class__.__name__,
       content={
-          field.name: repr(getattr(self, field.name))
+          field.name: getattr(self, field.name)
           for field in all_fields
           if field.repr
       },
