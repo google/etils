@@ -201,7 +201,7 @@ class _GPath(abstract_path.Path):
       else:
         raise
 
-  def open(
+  def open(  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
       self,
       mode: str = 'r',
       *,
