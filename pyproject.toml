@@ -113,7 +113,9 @@ dev = [
     "pytest-xdist",
     "pyink",
     "pylint>=2.6.0",
+    # Lazy deps
     "chex",
+    # "grain",  # For `etree.spec_like`  # TODO(epot): Add once released
     "torch",
     "optree",  # For `etree.optree`
 ]

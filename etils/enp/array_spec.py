@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import functools
+import sys
 from typing import Any, Optional
 
 from etils.enp import numpy_utils
@@ -101,6 +102,11 @@ class ArraySpec:
       dtype = array.dtype.as_numpy_dtype
     elif lazy.has_tf and isinstance(array, type(_get_none_spec())):
       return None  # Special case for `NoneTensorSpec()`
+    elif 'grain.tensorflow' in sys.modules and isinstance(
+        array, sys.modules['grain.tensorflow'].ArraySpec
+    ):
+      shape = array.shape
+      dtype = array.dtype
     elif isinstance(array, array_types.ArrayAliasMeta):
       try:
         shape = (int(s) for s in array.shape.split())

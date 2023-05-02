@@ -18,6 +18,9 @@ Changelog follow https://keepachangelog.com/ format.
         wrapped in `contextvars.ContextVars`.
     *   Fix error when using `_: dataclasses.KW_ONLY`
     *   `__repr__` now also pretty-print nested dataclasses, list, dict,...
+*   `enp`:
+    *   `ArraySpec` support `grain.ArraySpec` (allow support
+        `etree.spec_like(ds.element_spec)` on grain datasets)
 *   `epy`:
     *   Better `epy.Lines.make_block` for custom pretty print classes, list,...
 
