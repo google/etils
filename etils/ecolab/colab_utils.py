@@ -93,7 +93,17 @@ def _collapse_widget(name: str = '') -> Iterator[None]:
   accordion.selected_index = None
   IPython.display.display(accordion)
   with out:
-    yield
+    try:
+      yield
+    except Exception as e:
+      # ipywidgets.Output erase exceptions, so we save it and reraise it after
+      # the scope.
+      exc = e
+      raise
+    else:
+      exc = None
+  if exc is not None:
+    raise exc
 
 
 def json(value: Json) -> None:
