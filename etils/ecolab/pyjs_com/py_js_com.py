@@ -64,7 +64,7 @@ class _Colab(_NotebookBackend):
     return IPython.display.JSON(out)
 
   def register_fn(self, fn: _Fn) -> None:
-    from google.colab import output  # pylint: disable=g-import-not-at-top
+    from google.colab import output  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
     # TODO(epot): Fragile if multiple functions have the same name. How to
     # specify namespace ?
