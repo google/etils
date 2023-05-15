@@ -84,7 +84,8 @@ def _wrap_init(init_fn):
 
   @functools.wraps(init_fn)
   def new_init(self, *args, **kwargs):
-    if hasattr(self, '_epy_is_init_done'):
+    # Do NOT use `hasattr` to support children with custom `__getattr__`
+    if '_epy_is_init_done' in self.__dict__:
       # `_epy_is_init_done` already created, so it means we're
       # a `super().__init__` call.
       return init_fn(self, *args, **kwargs)
