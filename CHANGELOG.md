@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Fix `@epy.frozen` when class has custom `__getattr__`
+
 ## [1.3.0] - 2023-05-12
 
 *   `ecolab`:
