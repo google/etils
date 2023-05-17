@@ -10,6 +10,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epy`:
     *   Fix `@epy.frozen` when class has custom `__getattr__`
+*   `ecolab`:
+    *   `ecolab.collapse()`
+        *   Breaking: Remove `widget=True` argument to  (widget always enabled).
+        *   Add `expanded: bool` kwargs to control whether the widget is
+            expanded or collapsed by default.
 
 ## [1.3.0] - 2023-05-12
 

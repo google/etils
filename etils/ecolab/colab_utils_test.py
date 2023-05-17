@@ -17,8 +17,11 @@
 import sys
 
 from etils import ecolab
+import pytest
 
 
+# IPython widget do not work in unittests
+@pytest.mark.skip
 def test_capture_stdout():
   with ecolab.collapse():
     print('Abcd')

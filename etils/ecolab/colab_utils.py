@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import contextlib
 import html
-import io
 import json as json_std
 import signal
 import threading
@@ -36,61 +35,25 @@ _T = TypeVar('_T')
 
 
 @contextlib.contextmanager
-def _collapse_std(
-    *,
-    name: str,
-    redirect_fn,
-) -> Iterator[None]:
-  """Base colapsible implementation."""
-  name = html.escape(name)
-  f = io.StringIO()
-  with redirect_fn(f):
-    yield
-  content = f.getvalue()
-  content = html.escape(content)
-  content = f'<pre><code>{content}</code></pre>'
-  content = IPython.display.HTML(
-      f'<details><summary>{name}</summary>{content}</details>'
-  )
-  IPython.display.display(content)
-
-
-@contextlib.contextmanager
-def _redirect_stdall(new_target: io.StringIO) -> Iterator[None]:
-  with contextlib.redirect_stderr(new_target):
-    with contextlib.redirect_stdout(new_target):
-      yield
-
-
-@contextlib.contextmanager
-def collapse(name: str = '', *, widget: bool = False) -> Iterator[None]:
-  """Capture stderr/stdout and display it in a collapsible block.
+def collapse(name: str = '', *, expanded: bool = False) -> Iterator[None]:
+  """Capture all outputs and display it in a collapsible block.
 
   Args:
     name: Name of the collapsible section.
-    widget: If True, use `ipywidgets` backend. Will become the default in the
-      future (output appear in real time, support HTML,...)
+    expanded: If `True`, the section is expanded by default.
 
   Yields:
     None
   """
-  if widget:
-    with _collapse_widget(name):
-      yield
-  else:
-    with _collapse_std(name=name, redirect_fn=_redirect_stdall):
-      yield
-
-
-@contextlib.contextmanager
-def _collapse_widget(name: str = '') -> Iterator[None]:
-  """Widget implementation of Collapsible widget."""
   import ipywidgets  # pylint: disable=g-import-not-at-top
 
   out = ipywidgets.Output()
   accordion = ipywidgets.Accordion(children=[out])
   accordion.set_title(0, name)
-  accordion.selected_index = None
+  if expanded:
+    accordion.selected_index = 0
+  else:
+    accordion.selected_index = None
   IPython.display.display(accordion)
   with out:
     try:
@@ -103,7 +66,7 @@ def _collapse_widget(name: str = '') -> Iterator[None]:
     else:
       exc = None
   if exc is not None:
-    raise exc
+    raise exc  # pylint: disable=g-doc-exception
 
 
 def json(value: Json) -> None:
