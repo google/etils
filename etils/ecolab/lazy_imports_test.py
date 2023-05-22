@@ -61,7 +61,9 @@ def test_lazy_imports():
   assert lazy_imports._etils_state.module_loaded  # pytype: disable=module-attr
   del lazy_imports
 
-  assert ecolab.lazy_imports._current_import_statements() == epy.dedent(
+  assert ecolab.lazy_utils.current_import_statements(
+      ecolab.lazy_imports.LAZY_MODULES
+  ) == epy.dedent(
       """
       from etils import epy
       import jax

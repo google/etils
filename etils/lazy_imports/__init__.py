@@ -21,8 +21,6 @@ from etils.ecolab.lazy_imports import *
 # additional symbols
 LAZY_MODULES = lazy_imports.LAZY_MODULES
 print_current_imports = lazy_imports.print_current_imports
-LazyModule = lazy_imports.LazyModule
-LazyModuleState = lazy_imports.LazyModuleState
 
 __dir__ = lazy_imports.__dir__
 __all__ = lazy_imports.__all__
