@@ -168,11 +168,22 @@ class _OsPathBackend(Backend):
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:
     st = os.stat(path)
+    if os.name == 'nt':
+      owner = None
+      group = None
+    else:
+      import grp  # pylint: disable=g-import-not-at-top
+      import pwd  # pylint: disable=g-import-not-at-top
+
+      owner = pwd.getpwuid(st.st_uid).pw_name
+      group = grp.getgrgid(st.st_gid).gr_name
 
     return stat_utils.StatResult(
         is_directory=stat_lib.S_ISDIR(st.st_mode),
         length=st.st_size,
         mtime=int(st.st_mtime),
+        owner=owner,
+        group=group,
     )
 
 
@@ -301,6 +312,8 @@ class _TfBackend(Backend):
         is_directory=st.is_directory,
         length=st.length,
         mtime=st.mtime_nsec // 1_000_000_000,
+        owner=None,  # Not available.
+        group=None,  # Not available.
     )
 
 tf_backend = _TfBackend()

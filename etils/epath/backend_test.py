@@ -17,8 +17,10 @@
 from __future__ import annotations
 
 import dataclasses
+import grp
 import os
 import pathlib
+import pwd
 from typing import Dict, Union
 
 from etils import epath
@@ -446,6 +448,8 @@ def _test_stat(
     tmp_path: pathlib.Path,
 ):
   _make_default_path(tmp_path)
+  owner = pwd.getpwuid(os.geteuid()).pw_name
+  group = grp.getgrgid(os.getegid()).gr_name
 
   for name in _DIR_NAMES:
     p = tmp_path / name
@@ -454,6 +458,12 @@ def _test_stat(
     assert st.is_directory
     assert st.length == st_gt.st_size
     assert st.mtime == int(st_gt.st_mtime)
+    if backend == epath.backend.tf_backend:
+      assert not st.owner
+      assert not st.group
+    else:
+      assert st.owner == owner
+      assert st.group == group
 
   for name in _FILE_NAMES:
     p = tmp_path / name
@@ -462,6 +472,12 @@ def _test_stat(
     assert not st.is_directory
     assert st.length == st_gt.st_size
     assert st.mtime == int(st_gt.st_mtime)
+    if backend == epath.backend.tf_backend:
+      assert not st.owner
+      assert not st.group
+    else:
+      assert st.owner == owner
+      assert st.group == group
 
 
 @pytest.mark.usefixtures('with_subtests')

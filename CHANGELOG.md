@@ -15,6 +15,9 @@ Changelog follow https://keepachangelog.com/ format.
         *   Breaking: Remove `widget=True` argument to  (widget always enabled).
         *   Add `expanded: bool` kwargs to control whether the widget is
             expanded or collapsed by default.
+*   `epath`:
+    *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for Windows nor when `tf.io.gfile` is used.
+
 
 ## [1.3.0] - 2023-05-12
 

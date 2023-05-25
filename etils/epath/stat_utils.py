@@ -15,18 +15,23 @@
 """Container for stat objects."""
 
 import dataclasses
+from typing import Optional
 
 
 @dataclasses.dataclass
 class StatResult:
-  """Retults of `path.stat()`.
+  """Results of `path.stat()`.
 
   Attributes:
     is_directory: Whether the file is a directory
     length: Size in bytes
     mtime: Time since last modification (in sec since the epoch)
+    owner: the owner of the path.
+    group: the group of the path.
   """
 
   is_directory: bool
   length: int
   mtime: int
+  owner: Optional[str] = None
+  group: Optional[str] = None
