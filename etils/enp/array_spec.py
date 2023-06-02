@@ -69,6 +69,9 @@ class ArraySpec:
     else:
       return (other.shape, other.dtype) == (self.shape, self.dtype)
 
+  def __hash__(self) -> int:
+    return hash((self.shape, self.dtype))
+
   @classmethod
   def is_array(cls, array: Any) -> bool:
     """Returns `True` if the given value can be converted to `ArraySpec`."""
