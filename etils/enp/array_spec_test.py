@@ -28,6 +28,9 @@ def _array_repr(x) -> str:
 
 def test_array_spec_valid():
   assert enp.ArraySpec((), np.float32) == enp.ArraySpec([], np.dtype('float32'))
+  assert hash(enp.ArraySpec((), np.float32)) == hash(
+      enp.ArraySpec([], np.dtype('float32'))
+  )
 
   assert not enp.ArraySpec.is_array(123)
   assert not enp.ArraySpec.is_array('123')

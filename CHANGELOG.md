@@ -15,6 +15,8 @@ Changelog follow https://keepachangelog.com/ format.
         *   Breaking: Remove `widget=True` argument to  (widget always enabled).
         *   Add `expanded: bool` kwargs to control whether the widget is
             expanded or collapsed by default.
+*   `enp`:
+    *   Make array spec (e.g. `etree.spec_like()`) hashable.
 *   `epath`:
     *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for Windows nor when `tf.io.gfile` is used.
 
