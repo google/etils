@@ -104,12 +104,12 @@ class Path(pathlib.PurePosixPath):
 
   @abstractmethod
   def glob(self: _T, pattern: str) -> Iterator[_T]:
-    """Yielding all matching files (of any kind)."""
+    """Yields all matching files (of any kind)."""
     # Might be able to implement using `iterdir` (recursivelly for `rglob`).
     raise NotImplementedError
 
   def rglob(self: _T, pattern: str) -> Iterator[_T]:
-    """Yielding all matching files recursivelly (of any kind)."""
+    """Yields all matching files recursively (of any kind)."""
     return self.glob(f'**/{pattern}')
 
   def expanduser(self: _T) -> _T:
@@ -140,7 +140,7 @@ class Path(pathlib.PurePosixPath):
       return f.read()
 
   def read_text(self, encoding: Optional[str] = None) -> str:
-    """Reads contents of self as bytes."""
+    """Reads contents of self as a string."""
     with self.open('r', encoding=encoding) as f:
       return f.read()
 
