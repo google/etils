@@ -16,6 +16,7 @@
 
 import functools
 
+from etils.ecolab import ip_utils
 from etils.ecolab import pyjs_com
 from etils.ecolab.inspects import core
 from etils.ecolab.inspects import nodes
@@ -27,18 +28,11 @@ import IPython.display
 @functools.lru_cache(None)
 def auto_inspect() -> None:
   """Add a button on each cell outputs to switch output to `ecolab.inspect`."""
-  ip = IPython.get_ipython()
-
-  # Remove the previous callback (if any)
-  for callback in ip.events.callbacks['post_run_cell']:
-    if hasattr(callback, '__is_auto_inspect__'):
-      ip.events.unregister('post_run_cell', callback)
-      break
-
-  # Mark the function (so it can be cleared when reloaded)
-  _post_run_cell_add_inspect.__is_auto_inspect__ = True
-
-  ip.events.register('post_run_cell', _post_run_cell_add_inspect)
+  ip_utils.register_once(
+      'post_run_cell',
+      _post_run_cell_add_inspect,
+      '__is_auto_inspect__',
+  )
 
 
 def _post_run_cell_add_inspect(*args) -> None:
