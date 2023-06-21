@@ -61,7 +61,7 @@ def collapse(name: str = '', *, expanded: bool = False) -> Iterator[None]:
     except Exception as e:
       # ipywidgets.Output erase exceptions, so we save it and reraise it after
       # the scope.
-      exc = e
+      exc = e  # pylint: disable=unused-variable
       raise
     else:
       exc = None
@@ -155,6 +155,7 @@ def interruptible(inner: Iterable[_T] | Iterator[_T]) -> Iterator[_T]:
   A second SIGINT will raise a KeyboardInterrupt Exception as usual.
 
   Examples:
+
   ```python
   for i in interruptible(range(10)):
     print(i)

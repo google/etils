@@ -24,6 +24,19 @@ from typing import Sequence, NoReturn, Optional, Union
 StrOrStrList = Union[str, Sequence[str]]
 
 
+def get_module_names(restrict: StrOrStrList) -> list[str]:
+  """Returns all `sys.modules` matching the restrict name."""
+
+  modules = normalize_str_to_list(restrict)
+  assert all('/' not in module for module in modules)
+
+  # List all the currently loaded modules matching `modules`
+
+  modules = tuple(modules)
+  modules = [m for m in sys.modules if m.startswith(modules)]
+  return modules
+
+
 def clear_cached_modules(
     modules: StrOrStrList,
     *,
@@ -50,13 +63,7 @@ def clear_cached_modules(
     invalidate: If `True` (default), the instances of the module will raise an
       error when used (to avoid using 2 versions of a module at the same time)
   """
-  modules = normalize_str_to_list(modules)
-  assert all('/' not in module for module in modules)
-
-  # List all the currently loaded modules matching `modules`
-
-  modules = tuple(modules)
-  modules_to_clear = [m for m in sys.modules if m.startswith(modules)]
+  modules_to_clear = get_module_names(modules)
 
   # TODO(epot): Make it work with ecolab.lazy_imports
   for module_name in modules_to_clear:
@@ -69,7 +76,7 @@ def clear_cached_modules(
     # Note that `reload=['etils']` will still clear `ecolab` from `sys.modules`
     # even if it is not reloaded. In practice, this is fine as `ecolab`
     # should only be imported once in the colab.
-    if invalidate and not module_name.startswith('etils.ecolab'):
+    if invalidate and not module_name.startswith('etils'):
       # Mutate the existing modules to raise an error if accessed
       _invalidate_module(sys.modules[module_name])
 

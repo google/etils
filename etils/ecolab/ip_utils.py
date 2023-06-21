@@ -24,12 +24,12 @@ def register_once(
     callback: Callable[..., None],
     info: Hashable,
 ) -> None:
-  """Register the IPython even once (replace the previous event if exists).
+  """Register the IPython event once (replace the previous event if exists).
 
-  Alias for `InteractiveShell.events.register` but replace previous event
+  Alias for `InteractiveShell.events.register` but replaces previous event
   if it exists.
 
-  This avoid duplicated events after ecolab reload or running cell twice.
+  This avoids duplicated events after ecolab reload or running cell twice.
 
   Args:
     event_name: Forwarded to `ip.events.register`
