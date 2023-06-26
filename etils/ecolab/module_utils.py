@@ -64,8 +64,9 @@ def clear_cached_modules(
       error when used (to avoid using 2 versions of a module at the same time)
   """
   modules_to_clear = get_module_names(modules)
+  if not modules_to_clear:
+    return
 
-  # TODO(epot): Make it work with ecolab.lazy_imports
   for module_name in modules_to_clear:
     if verbose:
       print(f'Clearing {module_name}')

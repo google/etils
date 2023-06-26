@@ -14,6 +14,8 @@
 
 """Colab public API."""
 
+# pylint: disable=g-importing-member
+
 from etils.ecolab.array_as_img import auto_plot_array
 from etils.ecolab.colab_utils import collapse
 from etils.ecolab.colab_utils import interruptible

@@ -13,15 +13,15 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   `ecolab.collapse()`
         *   Breaking: Remove `widget=True` argument to  (widget always enabled).
-        *   Add `expanded: bool` kwargs to control whether the widget is
-            expanded or collapsed by default.
+            *   Add `expanded: bool` kwargs to control whether the widget is
+                expanded or collapsed by default.
     *   Breaking: Remove `keep_proto` kwargs from `clear_cached_modules` and
         `import_proto` kwargs from `adhoc` (proto always supported)
 *   `enp`:
     *   Make array spec (e.g. `etree.spec_like()`) hashable.
 *   `epath`:
-    *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for Windows nor when `tf.io.gfile` is used.
-
+    *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for
+        Windows nor when `tf.io.gfile` is used.
 
 ## [1.3.0] - 2023-05-12
 
@@ -50,7 +50,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Add `ecolab.auto_inspect()` to allow inspecting all colab outputs.
     *   Fix various `ecolab.inspect` issues (e.g. when used on metaclasses,...).
-    *   Add `ecolab.inspect` support for Jupyter notebook (non-Colab).
+        *   Add `ecolab.inspect` support for Jupyter notebook (non-Colab).
 
 ## [1.1.1] - 2023-03-20
 
@@ -62,9 +62,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `enp`:
     *   **Add `torch` support!**
-    *   Add `enp.lazy.LazyArray` to lazily check
-        `isinstance(array, enp.lazy.LazyArray)` without triggering `TF`,
-        `jax`,... imports
+    *   Add `enp.lazy.LazyArray` to lazily check `isinstance(array,
+        enp.lazy.LazyArray)` without triggering `TF`, `jax`,... imports
     *   Add `skip=['jnp', ...]` kwarg to `enp.testing.parametrize_xnp` to
         exclude a specific xnp module from tests.
     *   Add `enp.compat` function to fix compatibility issues between Jax, TF,
@@ -84,8 +83,8 @@ Changelog follow https://keepachangelog.com/ format.
             and `show_videos_kwargs`
     *   Add `ecolab.interruptible` for graceful interruption of loops.
     *   Fixed: Pytype/pylance support for `lazy_imports`: unlock auto-complete,
-        docstring tooltip, do not trigger linter errors anymore
-        (`"xxx" is not definedPylancereportUndefinedVariable`).
+        docstring tooltip, do not trigger linter errors anymore (`"xxx" is not
+        definedPylancereportUndefinedVariable`).
 *   `etree`:
     *   `from etils import etree` now expose the Python backend (
         `etree.map`,...). Other backend are still available as previously
@@ -178,8 +177,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epy.ContextManager` to create yield-based contextmanager class
         (see
         [discussion](https://discuss.python.org/t/yield-based-contextmanager-for-classes/8453))
-    *   Added: `epy.issubclass` (like `issubclass` but does not raises error for
-        non-types)
+                    *   Added: `epy.issubclass` (like `issubclass` but does not
+                        raises error for non-types)
     *   Added: `epy.groupby`, like `itertools.groupby` but returns a `dict`.
     *   Added: `epy.Lines.make_block` helper to create code blocks (function
         calls,...)
@@ -203,8 +202,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `enp.project_onto_vector` and `enp.project_onto_plane` geometry
         utils.
 *   Other:
-    *   Added: Guide on
-        [API design principles](https://github.com/google/etils/blob/main/docs/api-design.md).
+    *   Added: Guide on [API design
+        principles](https://github.com/google/etils/blob/main/docs/api-design.md).
 
 ## [0.6.0] - 2022-05-31
 
