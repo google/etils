@@ -186,6 +186,13 @@ def _mock_autoreload() -> None:
       autoreload.update_generic, _new_update_generic
   )
 
+  # Also update tuple
+  assert autoreload.UPDATE_RULES[0][1].__name__ == "update_class"
+  autoreload.UPDATE_RULES[0] = (
+      autoreload.UPDATE_RULES[0][0],
+      autoreload.update_class,
+  )
+
 
 def _wrap_fn(old_fn, new_fn):
   # Recover the original function (to support colab reload)

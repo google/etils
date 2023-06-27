@@ -21,6 +21,7 @@ from etils.ecolab.colab_utils import collapse
 from etils.ecolab.colab_utils import interruptible
 from etils.ecolab.colab_utils import json
 from etils.ecolab.highlight_util import highlight_html
+from etils.ecolab.inplace_reload import ReloadMode
 from etils.ecolab.inspects.auto_utils import auto_inspect
 from etils.ecolab.inspects.core import inspect
 from etils.ecolab.module_utils import clear_cached_modules

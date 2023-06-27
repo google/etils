@@ -2,7 +2,7 @@
 name = "etils"
 description = "Collection of common python utils"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [{name = "Conchylicultor", email="etils@google.com"}]
 classifiers = [
