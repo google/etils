@@ -103,6 +103,13 @@ class R1Field:
   x: Any = None
 
 
+@edc.dataclass
+@dataclasses.dataclass(repr=False)
+class NoRepr:
+  x: Any = None
+  y: Any = None
+
+
 def test_repr():
   assert repr(R(123, R11(y='abc'))) == epy.dedent("""
   R(
@@ -118,6 +125,8 @@ def test_repr():
   assert repr(R0Field()) == edc.repr(R0Field())
   assert repr(R0Field()) == 'R0Field()'
   assert repr(R1Field()) == 'R1Field(x=None)'
+
+  assert repr(NoRepr()).startswith('<etils.')
 
   # Recursive
   x = R()

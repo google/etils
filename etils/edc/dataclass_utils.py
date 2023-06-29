@@ -280,16 +280,16 @@ def replace(self: _T, **kwargs: Any) -> _T:
 
 def has_default_repr(cls: _Cls) -> bool:
   return (
-      # Use `cls.__dict__` and not `hasattr` to ignore parent classes
-      '__repr__' not in cls.__dict__
-      # `__repr__` exists but is the default dataclass implementation
-      or inspect.unwrap(cls.__repr__).__qualname__
+      inspect.unwrap(cls.__repr__).__qualname__
       == '__create_fn__.<locals>.__repr__'
   )
 
 
 def add_repr(cls: _ClsT) -> _ClsT:
   """Add a `.__repr__` method to the class, if not already present."""
+  # Use `cls.__dict__` and not `hasattr` to ignore parent classes
+  if '__repr__' not in cls.__dict__:
+    return cls
   if has_default_repr(cls):
     cls.__repr__ = __repr__
   return cls

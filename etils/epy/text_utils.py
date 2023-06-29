@@ -229,6 +229,7 @@ def _repr_value(obj: Any) -> str:
   elif (
       not isinstance(obj, type)
       and dataclasses.is_dataclass(obj)
+      and obj.__dataclass_params__.repr
       and edc.dataclass_utils.has_default_repr(type(obj))
   ):
     return edc.repr(obj)
