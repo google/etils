@@ -2,6 +2,7 @@
 
 [![Unittests](https://github.com/google/etils/actions/workflows/pytest_and_autopublish.yml/badge.svg)](https://github.com/google/etils/actions/workflows/pytest_and_autopublish.yml)
 [![PyPI version](https://badge.fury.io/py/etils.svg)](https://badge.fury.io/py/etils)
+[![Documentation Status](https://readthedocs.org/projects/etils/badge/?version=latest)](https://etils.readthedocs.io/en/latest/?badge=latest)
 
 etils (eclectic utils) is an open-source collection of utils for python.
 
@@ -23,15 +24,15 @@ jax,...)
 
 ## Documentation
 
-* [`etils.epath`](https://github.com/google/etils/tree/main/etils/epath): pathlib-like API for `gs://`, `s3://`,...
-* [`etils.etree`](https://github.com/google/etils/tree/main/etils/etree): Tree utils for `tf.nest`, `jax.tree_utils`, DeepMind `tree`.
-* [`etils.enp`](https://github.com/google/etils/tree/main/etils/enp): Numpy utils.
-* [`etils.ecolab`](https://github.com/google/etils/tree/main/etils/ecolab): Colab utils.
-* [`etils.array_types`](https://github.com/google/etils/tree/main/etils/array_types): Typing annotations for jax, numpy,... arrays
-* [`etils.edc`](https://github.com/google/etils/tree/main/etils/edc): Dataclasses utils.
-* [`etils.epy`](https://github.com/google/etils/tree/main/etils/epy): Collection of generic python utils.
-* [`etils.eapp`](https://github.com/google/etils/tree/main/etils/eapp): Absl flags/app utils.
-*  [API design guide](https://github.com/google/etils/tree/main/docs/api-design.md).
+* [`etils.epath`](https://etils.readthedocs.io/en/latest/epath.html): pathlib-like API for `gs://`, `s3://`,...
+* [`etils.etree`](https://etils.readthedocs.io/en/latest/etree.html): Tree utils for `tf.nest`, `jax.tree_utils`, DeepMind `tree`.
+* [`etils.enp`](https://etils.readthedocs.io/en/latest/enp.html): Numpy utils.
+* [`etils.ecolab`](https://etils.readthedocs.io/en/latest/ecolab.html): Colab utils.
+* [`etils.array_types`](https://etils.readthedocs.io/en/latest/array_types.html): Typing annotations for jax, numpy,... arrays
+* [`etils.edc`](https://etils.readthedocs.io/en/latest/edc.html): Dataclasses utils.
+* [`etils.epy`](https://etils.readthedocs.io/en/latest/epy.html): Collection of generic python utils.
+* [`etils.eapp`](https://etils.readthedocs.io/en/latest/eapp.html): Absl flags/app utils.
+*  [API design guide](https://etils.readthedocs.io/en/latest/api-design.html).
 
 ## Installation
 
