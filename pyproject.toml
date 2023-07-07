@@ -119,6 +119,10 @@ dev = [
     "torch",
     "optree",  # For `etree.optree`
 ]
+docs = [
+    "sphinx-apitree[ext] @ https://github.com/conchylicultor/sphinx-apitree",
+    "etils[dev,all]",  # Install lazy deps
+]
 
 [tool.flit.sdist]
 # Do not release tests, doc on PyPI
