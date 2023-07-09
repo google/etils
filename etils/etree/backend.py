@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import abc
+import collections
 import collections.abc
 import itertools
 import types
@@ -192,9 +193,13 @@ class Python(Backend):
     if isinstance(tree0, _SEQUENCE_TYPES):
       return type(tree0)(self.map(map_fn, *v) for v in zip(*trees))
     elif isinstance(tree0, _MAPPING_TYPES):
-      return type(tree0)(
-          (k, self.map(map_fn, *v)) for k, v in epy.zip_dict(*trees)
-      )
+      new_items = ((k, self.map(map_fn, *v)) for k, v in epy.zip_dict(*trees))
+      if isinstance(tree0, collections.defaultdict):
+        new_tree = type(tree0)(tree0.default_factory)
+        new_tree.update(new_items)
+        return new_tree
+      else:
+        return type(tree0)(new_items)
     else:  # leaf
       return map_fn(*trees)
 

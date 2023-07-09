@@ -22,6 +22,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epath`:
     *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for
         Windows nor when `tf.io.gfile` is used.
+*   `etree`:
+    *   Fix `etree.map` for `collections.defaultdict`
 
 ## [1.3.0] - 2023-05-12
 

@@ -55,3 +55,12 @@ def test_py_map():
 
   assert flat0 == [5, 4, 2, 1]
   assert etree.py.backend.unflatten(tree_struct, flat0) == tree_struct
+
+
+def test_py_map_defaultdict():
+  d = collections.defaultdict(int)
+  d[0] = 1
+
+  d = etree.map(lambda x: x + 1, d)
+  assert d[0] == 2
+  assert isinstance(d, collections.defaultdict)
