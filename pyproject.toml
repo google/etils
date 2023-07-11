@@ -120,7 +120,7 @@ dev = [
     "optree",  # For `etree.optree`
 ]
 docs = [
-    "sphinx-apitree[ext] @ git+https://github.com/conchylicultor/sphinx-apitree",
+    "sphinx-apitree[ext]",
     "etils[dev,all]",  # Install lazy deps
 ]
 
