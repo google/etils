@@ -17,8 +17,10 @@
 # Forked from TFDS
 
 # TODO(epot): Could try to unify with
+# - etils/ecolab/lazy_utils.py
 # - kauldron/konfig/fake_import_utils.py
 # - visu3d/utils/py_utils.py
+# - tensorflow_datasets/core/utils/lazy_imports_utils.py
 
 from __future__ import annotations
 
@@ -27,11 +29,8 @@ import contextlib
 import dataclasses
 import functools
 import importlib
-import time
 import types
-from typing import Any, Callable, Iterator, Optional, Tuple
-
-Callback = Callable[..., None]
+from typing import Any, Iterator
 
 
 @dataclasses.dataclass
@@ -39,90 +38,48 @@ class LazyModule:
   """Module loaded lazily during first call."""
 
   module_name: str
-  module: Optional[types.ModuleType] = None
-  fromlist: Optional[Tuple[str, ...]] = ()
-  error_callback: Optional[Callback] = None
-  success_callback: Optional[Callback] = None
+  _submodules: dict[str, LazyModule] = dataclasses.field(default_factory=dict)
 
-  @classmethod
-  @functools.lru_cache(maxsize=None)
-  def from_cache(cls, **kwargs):
-    """Factory to cache all instances of module.
-
-    Note: The cache is global to all instances of the
-    `lazy_imports` context manager.
-
-    Args:
-      **kwargs: Init kwargs
-
-    Returns:
-      New object
-    """
-    return cls(**kwargs)
+  @functools.cached_property
+  def _module(self) -> types.ModuleType:
+    return importlib.import_module(self.module_name)
 
   def __getattr__(self, name: str) -> Any:
-    if name in self.fromlist:
-      module_name = f"{self.module_name}.{name}"
-      return self.from_cache(
-          module_name=module_name,
-          module=self.module,
-          fromlist=self.fromlist,
-          error_callback=self.error_callback,
-          success_callback=self.success_callback,
-      )
-    if self.module is None:  # Load on first call
-      try:
-        start_import_time = time.perf_counter()
-        self.module = importlib.import_module(self.module_name)
-        import_time_ms = (time.perf_counter() - start_import_time) * 1000
-        if self.success_callback is not None:
-          self.success_callback(
-              import_time_ms=import_time_ms,
-              module=self.module,
-              module_name=self.module_name,
-          )
-      except ImportError as exception:
-        if self.error_callback is not None:
-          self.error_callback(exception=exception, module_name=self.module_name)
-        raise exception
-    return getattr(self.module, name)
+    if name in self._submodules:
+      # known submodule accessed. Do not trigger import
+      return self._submodules[name]
+    else:
+      return getattr(self._module, name)
+
+  # TODO(epot): Also support __setattr__
+
+
+def _register_submodule(module: LazyModule, name: str) -> LazyModule:
+  child_module = LazyModule(
+      module_name=f"{module.module_name}.{name}",
+  )
+  module._submodules[name] = child_module  # pylint: disable=protected-access
+  return child_module
 
 
 @contextlib.contextmanager
-def lazy_imports(
-    *,
-    error_callback: Optional[Callback] = None,
-    success_callback: Optional[Callback] = None,
-) -> Iterator[None]:  # pylint: disable=g-doc-args
+def lazy_imports() -> Iterator[None]:  # pylint: disable=g-doc-args
   """Context Manager which lazy loads packages.
 
   Their import is not executed immediately, but is postponed to the first
   call of one of their attributes.
 
-  Warning: mind current implementation's limitations:
+  Limitation:
 
   - You can only lazy load modules (`from x import y` will not work if `y` is a
     constant or a function or a class).
-  - You cannot `import x.y` if `y` is not imported in the `x/__init__.py`.
 
   Usage:
 
   ```python
-  from tensorflow_datasets.core.utils.lazy_imports_utils import lazy_imports
-
-  with lazy_imports():
+  with epy.lazy_imports():
     import tensorflow as tf
   ```
-
-  Args:
-    error_callback: a callback to trigger when an import fails. The callback is
-      passed kwargs containing: 1) exception (ImportError): the exception that
-      was raised after the error; 2) module_name (str): the name of the imported
-      module.
-    success_callback: a callback to trigger when an import succeeds. The
-      callback is passed kwargs containing: 1) import_time_ms (float): the
-      import time (in milliseconds); 2) module (Any): the imported module; 3)
-      module_name (str): the name of the imported module.
 
   Yields:
     None
@@ -131,11 +88,7 @@ def lazy_imports(
   # to modify the `sys.modules` cache in any way)
   original_import = builtins.__import__
   try:
-    builtins.__import__ = functools.partial(
-        _lazy_import,
-        error_callback=error_callback,
-        success_callback=success_callback,
-    )
+    builtins.__import__ = _lazy_import
     yield
   finally:
     builtins.__import__ = original_import
@@ -147,9 +100,6 @@ def _lazy_import(
     locals_=None,
     fromlist: tuple[str, ...] = (),
     level: int = 0,
-    *,
-    error_callback: Optional[Callback],
-    success_callback: Optional[Callback],
 ):
   """Mock of `builtins.__import__`."""
   del globals_, locals_  # Unused
@@ -157,21 +107,22 @@ def _lazy_import(
   if level:
     raise ValueError(f"Relative import statements not supported ({name}).")
 
-  if not fromlist:
+  root_name, *parts = name.split(".")
+  root = LazyModule(module_name=root_name)
+
+  # Extract inner-most module
+  child = root
+  for name in parts:
+    child = _register_submodule(child, name)
+
+  if fromlist:
+    # from x.y.z import a, b
+
+    for fl in fromlist:
+      _register_submodule(child, fl)
+
+    return child  # return the inner-most module (`x.y.z`)
+  else:
     # import x.y.z
     # import x.y.z as z
-    # In that case, Python would usually import the entirety of `x` if each
-    # submodule is imported in its parent's `__init__.py`. So we do the same.
-    root_name = name.split(".")[0]
-    return LazyModule.from_cache(
-        module_name=root_name,
-        error_callback=error_callback,
-        success_callback=success_callback,
-    )
-  # from x.y.z import a, b
-  return LazyModule.from_cache(
-      module_name=name,
-      fromlist=fromlist,
-      error_callback=error_callback,
-      success_callback=success_callback,
-  )
+    return root  # return the top-level module (`x`)

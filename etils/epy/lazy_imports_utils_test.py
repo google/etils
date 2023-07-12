@@ -15,7 +15,6 @@
 """Tests."""
 
 import sys
-from unittest import mock
 
 from etils import ecolab
 from etils import epy
@@ -33,6 +32,24 @@ def _clear_cache():
 def test_nested_import():
   assert 'dataclass_array' not in sys.modules
   with epy.lazy_imports():
+    import dataclass_array.ops  # pylint: disable=g-import-not-at-top
+  assert 'dataclass_array' not in sys.modules
+  _ = dataclass_array.ops.stack
+  assert 'dataclass_array' in sys.modules
+
+
+def test_nested_import_as():
+  assert 'dataclass_array' not in sys.modules
+  with epy.lazy_imports():
+    import dataclass_array.ops as new_ops  # pylint: disable=g-import-not-at-top
+  assert 'dataclass_array' not in sys.modules
+  _ = new_ops.stack
+  assert 'dataclass_array' in sys.modules
+
+
+def test_nested_import_from():
+  assert 'dataclass_array' not in sys.modules
+  with epy.lazy_imports():
     from dataclass_array import ops  # pylint: disable=g-import-not-at-top
   assert 'dataclass_array' not in sys.modules
   _ = ops.stack
@@ -46,41 +63,3 @@ def test_import_with_alias():
   assert 'dataclass_array' not in sys.modules
   _ = dca.stack
   assert 'dataclass_array' in sys.modules
-
-
-def test_simple_import():
-  assert 'dataclass_array' not in sys.modules
-  error_callback = mock.Mock()
-  success_callback = mock.Mock()
-  with epy.lazy_imports(
-      error_callback=error_callback,
-      success_callback=success_callback,
-  ):
-    import dataclass_array  # pylint: disable=g-import-not-at-top
-  error_callback.assert_not_called()
-  success_callback.assert_not_called()
-  assert 'dataclass_array' not in sys.modules
-  _ = dataclass_array.stack
-  assert 'dataclass_array' in sys.modules
-  error_callback.assert_not_called()
-  success_callback.assert_called_once()
-  kwargs = success_callback.call_args.kwargs
-  assert kwargs['module_name'] == 'dataclass_array'
-  assert kwargs['import_time_ms'] > 0
-
-
-def test_import_failure():
-  error_callback = mock.Mock()
-  success_callback = mock.Mock()
-  with epy.lazy_imports(
-      error_callback=error_callback,
-      success_callback=success_callback,
-  ):
-    import thispackagedoesnotexist  # pylint: disable=g-import-not-at-top,unused-import  # pytype: disable=import-error
-  with pytest.raises(ImportError):
-    thispackagedoesnotexist.one_function()
-  success_callback.assert_not_called()
-  error_callback.assert_called_once()
-  kwargs = error_callback.call_args.kwargs
-  assert kwargs['module_name'] == 'thispackagedoesnotexist'
-  assert isinstance(kwargs['exception'], ModuleNotFoundError)
