@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `epy`:
+    *   Add `@epy.lazy_imports` to lazyly import modules.
     *   Fix `@epy.frozen` when class has custom `__getattr__`
 *   `ecolab`:
     *   `ecolab.collapse()`

@@ -118,6 +118,7 @@ dev = [
     # "grain",  # For `etree.spec_like`  # TODO(epot): Add once released
     "torch",
     "optree",  # For `etree.optree`
+    "dataclass_array",  # To test lazy_imports
 ]
 docs = [
     "sphinx-apitree[ext]",
