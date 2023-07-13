@@ -12,12 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Documentation."""
+"""Generate documentation.
 
-import pathlib
+Usage (from the root directory):
+
+```sh
+pip install -e .[docs]
+
+sphinx-build -b html docs/ docs/_build
+```
+"""
 
 import apitree
-from etils import epy
+
 
 modules = {
     'array_types': 'etils.array_types',
@@ -31,24 +38,10 @@ modules = {
     'lazy_imports': 'etils.lazy_imports',
 }
 
-# Could hide this in an event
-# https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx-core-events
-
-root_dir = pathlib.Path(__file__).parent
-
-for alias in modules:
-  if alias == 'lazy_imports':
-    continue  # No README.md
-  content = epy.dedent(
-      f"""
-      ```{{include}} ../etils/{alias}/README.md
-      ```
-      """
-  )
-  root_dir.joinpath(f'{alias}.md').write_text(content)
-
-
 apitree.make_project(
     modules=modules,
+    includes_paths={
+        f'etils/{alias}/README.md': f'{alias}.md' for alias in modules
+    },
     globals=globals(),
 )
