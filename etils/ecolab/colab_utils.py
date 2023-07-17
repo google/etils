@@ -69,7 +69,7 @@ def collapse(name: str = '', *, expanded: bool = False) -> Iterator[None]:
     raise exc  # pylint: disable=g-doc-exception
 
 
-def json(value: Json) -> None:
+def json(value: Json, expanded: bool = False) -> None:
   """Display the Json `dict` / `list` interactivelly (with collapsible elems).
 
   Examples:
@@ -83,6 +83,7 @@ def json(value: Json) -> None:
 
   Args:
     value: Json `dict` or `list` to inspect.
+    expanded: Whether the elements start as expanded or as collapsed.
   """
   # Unique id to make sure multiple Json display do not interact with each other
   id_ = uuid.uuid1().hex
@@ -127,11 +128,13 @@ def json(value: Json) -> None:
   """
 
   html_content = html.escape(json_std.dumps(value))
+  # if expanded is True, call viewer.expandAll()
+  expand_line = f'viewer{id_}.expandAll();\n' if expanded else ''
   html_content = f"""
   <script src="https://unpkg.com/@alenaksu/json-viewer@2.0.0/dist/json-viewer.bundle.js"></script>
   <script>
     const viewer{id_} = document.querySelector('#json{id_}');
-    viewer{id_}.expandAll();
+    {expand_line}
   </script>
   <style>
   {css_content}

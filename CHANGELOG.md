@@ -18,6 +18,8 @@ Changelog follow https://keepachangelog.com/ format.
                 expanded or collapsed by default.
     *   Breaking: Remove `keep_proto` kwargs from `clear_cached_modules` and
         `import_proto` kwargs from `adhoc` (proto always supported)
+    * Add `expanded` argument to `ecolab.json()` and change default behavior
+      to False.
 *   `enp`:
     *   Make array spec (e.g. `etree.spec_like()`) hashable.
 *   `epath`:
