@@ -83,7 +83,7 @@ def test_tree_stack(etree_api, xnp: enp.NpModule):  # pylint: disable=redefined-
       'a': xnp.asarray([[1], [2], [3]]),
       'b': xnp.asarray([[10], [20], [30]]),
   }
-  chex.assert_tree_all_close(x, y)
+  chex.assert_trees_all_close(x, y)
 
 
 @dataclasses.dataclass
