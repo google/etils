@@ -69,7 +69,7 @@ The original string representation is still available through `repr(array)`.
 
 ### Collapsible logs on colab
 
-Sometimes, you might want to log verbose informations (e.g. the content of a
+Sometimes, you might want to log verbose information (e.g. the content of a
 file). To avoid polluting the logs, you can hide the logs inside a collapsible
 block (collapsed by default).
 

@@ -18,7 +18,7 @@ from etils import ejax  # Jax utils
 ...
 ```
 
-Becauses each module is independent, only the minimal required libraries are
+Because each module is independent, only the minimal required libraries are
 imported (for example, importing `epy` won't suffer the cost of importing TF,
 jax,...)
 
