@@ -27,7 +27,8 @@ dynamic = ["version"]
 [project.urls]
 homepage = "https://github.com/google/etils"
 repository = "https://github.com/google/etils"
-# Other: `documentation`, `changelog`
+documentation = "https://etils.readthedocs.io"
+changelog = "https://github.com/google/etils/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 array-types = [
