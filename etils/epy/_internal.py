@@ -15,9 +15,11 @@
 """`etils` internal utils."""
 
 import contextlib
-from typing import Iterator
+from typing import Iterator, TypeVar
 
 from etils.epy import reraise_utils
+
+_FnT = TypeVar('_FnT')
 
 
 @contextlib.contextmanager
@@ -48,3 +50,13 @@ def check_missing_deps() -> Iterator[None]:
             '(e.g. `from etils import ecolab` -> `pip install etils[ecolab]`)'
         ),
     )
+
+
+def unwrap_on_reload(fn: _FnT) -> _FnT:
+  """Unwrap the function to support colab module reload."""
+  if hasattr(fn, '__original_fn__'):
+    fn = fn.__original_fn__
+
+  # Save the original function (to support reload)
+  fn.__original_fn__ = fn
+  return fn
