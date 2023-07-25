@@ -28,6 +28,9 @@ Changelog follow https://keepachangelog.com/ format.
         Windows nor when `tf.io.gfile` is used.
 *   `etree`:
     *   Fix `etree.map` for `collections.defaultdict`
+*   `internal`:
+    *   Add a `unwrap_on_reload` to save/restore original function after a
+        module is reloaded (e.g. on colab)
 
 ## [1.3.0] - 2023-05-12
 
