@@ -14,10 +14,18 @@
 
 """Typing utils."""
 
+# pylint: disable=g-importing-member,unused-import
+
 from etils.enp.array_types import dtypes
 from etils.enp.array_types.typing import ArrayAliasMeta
 from etils.enp.array_types.typing import ArrayLike
 import numpy as np
+
+# Automated documentation info
+# See: https://github.com/conchylicultor/sphinx-apitree
+__apitree__ = dict(
+    is_package=True,
+)
 
 Array = ArrayAliasMeta(shape=None, dtype=dtypes.AnyDType())
 FloatArray = ArrayAliasMeta(shape=None, dtype=dtypes.AnyFloat())
@@ -45,29 +53,4 @@ bool_ = ArrayAliasMeta(shape=None, dtype=np.bool_)
 PRNGKey = ui32[2]
 
 # Keep API clean
-del np
-
-__all__ = [
-    'ArrayAliasMeta',
-    'ArrayLike',
-    'Array',
-    'FloatArray',
-    'IntArray',
-    'BoolArray',
-    'StrArray',
-    'bool_',
-    'ui8',
-    'ui16',
-    'ui32',
-    'ui64',
-    'i8',
-    'i16',
-    'i32',
-    'i64',
-    'f16',
-    'f32',
-    'f64',
-    'complex64',
-    'complex128',
-    'PRNGKey',
-]
+del np, dtypes

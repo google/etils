@@ -49,7 +49,7 @@ class ArrayAliasMeta(type):
   shape: ShapeSpec
   dtype: dtypes.DType
 
-  def __new__(
+  def __new__(  # pylint: disable=bad-mcs-classmethod-argument
       cls,
       shape: Optional[_ShapeSpecInput],
       dtype: Optional[_DType],

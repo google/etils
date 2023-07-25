@@ -23,6 +23,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `enp`:
     *   Make array spec (e.g. `etree.spec_like()`) hashable.
     *   `enp.lazy.is_tf` returns `True` for `tf.TensorSpec`
+    *   Remove `array_types.dtypes` and `array_types.typing` (should use
+        `enp.dtypes` and `enp.typing` instead.
 *   `epath`:
     *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for
         Windows nor when `tf.io.gfile` is used.

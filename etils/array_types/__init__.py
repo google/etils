@@ -49,11 +49,5 @@ bool_ = enp.typing.bool_
 # Random number generator jax key
 PRNGKey = enp.typing.PRNGKey
 
-# TODO(epot): Those aliases should be deprecated. Should remame usage
-dtypes = enp.dtypes
-typing = enp.array_types.typing
-
-__all__ = enp.typing.__all__
-
 # Keep API clean
 del enp
