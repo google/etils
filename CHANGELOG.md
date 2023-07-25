@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.4.0] - 2023-07-25
+
 *   `epy`:
     *   Add `@epy.lazy_imports` to lazyly import modules.
     *   Fix `@epy.frozen` when class has custom `__getattr__`
@@ -24,7 +26,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Make array spec (e.g. `etree.spec_like()`) hashable.
     *   `enp.lazy.is_tf` returns `True` for `tf.TensorSpec`
     *   Remove `array_types.dtypes` and `array_types.typing` (should use
-        `enp.dtypes` and `enp.typing` instead.
+        `enp.dtypes` and `enp.typing` instead).
 *   `epath`:
     *   Add `owner` and `group` to `epath.Path.stat` output. Does not work for
         Windows nor when `tf.io.gfile` is used.
@@ -282,7 +284,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/google/etils/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/google/etils/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/google/etils/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/google/etils/compare/v1.1.0...v1.1.1
