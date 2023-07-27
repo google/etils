@@ -85,6 +85,7 @@ class ArraySpec:
   @classmethod
   def from_array(cls, array: Array) -> Optional[ArraySpec]:
     """Construct the `ArraySpec` from the given array."""
+    # Could refactor to support dynamic registration
     if isinstance(array, (np.ndarray, np.generic, ArraySpec)):
       shape = array.shape
       dtype = array.dtype
@@ -108,6 +109,7 @@ class ArraySpec:
     elif 'grain.tensorflow' in sys.modules and isinstance(
         array, sys.modules['grain.tensorflow'].ArraySpec
     ):
+      # Support grain `ds.element_spec`
       shape = array.shape
       dtype = array.dtype
     elif isinstance(array, array_types.ArrayAliasMeta):
