@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `lazy_imports`: More lazy imports
+
 ## [1.4.0] - 2023-07-25
 
 *   `epy`:

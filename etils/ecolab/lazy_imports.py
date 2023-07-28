@@ -155,6 +155,7 @@ with _builder.replace_imports(is_std=False):
   from flax import linen as nn
   import functorch
   import gin
+  import grain.python as grain
   import graphviz
   import imageio
   # Even though `import ipywidgets as widgets` is the common alias, widgets
@@ -162,6 +163,7 @@ with _builder.replace_imports(is_std=False):
   import ipywidgets
   import jax
   from jax import numpy as jnp
+  import jaxtyping
   import lark
   import matplotlib
   import matplotlib as mpl  # Standard alias
@@ -194,6 +196,7 @@ with _builder.replace_imports(is_std=False):
   tqdm.auto  # pylint: disable=pointless-statement
   tqdm.notebook  # pylint: disable=pointless-statement
   import tree
+  import typeguard
   import typing_extensions
   import plotly
   from plotly import express as px
