@@ -27,12 +27,13 @@ from typing import Any, ClassVar, Iterator, Optional, Type, TypeVar, Union
 from etils import epy
 from etils.epath import abstract_path
 from etils.epath import backend as backend_lib
+from etils.epath import register
 from etils.epath import stat_utils
-from etils.epath.typing import PathLike
+from etils.epath.typing import PathLike  # pylint: disable=g-multiple-import,g-importing-member
 
 _P = TypeVar('_P')
 
-URI_PREFIXES = ('gs://', 's3://')
+_URI_PREFIXES = ('gs://', 's3://')
 _URI_SCHEMES = frozenset(('gs', 's3'))
 
 _URI_MAP_ROOT = {
@@ -67,7 +68,7 @@ class _GPath(abstract_path.Path):
 
   def __new__(cls: Type[_P], *parts: PathLike) -> _P:
     full_path = '/'.join(os.fspath(p) for p in parts)
-    if full_path.startswith(URI_PREFIXES):
+    if full_path.startswith(_URI_PREFIXES):
       prefix, _ = full_path.split('://', maxsplit=1)
       prefix = f'{prefix}://'
       new_prefix = _URI_MAP_ROOT[prefix]
@@ -279,12 +280,14 @@ def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
   # pylint: enable=protected-access
 
 
+@register.register_path_cls(_URI_PREFIXES)
 class PosixGPath(_GPath):
   """Pathlib like api with gs://, s3:// support."""
 
   _PATH = posixpath
 
 
+@register.register_path_cls
 class WindowsGPath(pathlib.PureWindowsPath, _GPath):
   """Pathlib like api with gs://, s3:// support."""
 

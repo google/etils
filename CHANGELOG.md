@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `lazy_imports`: More lazy imports
+*   `epath`: Remove circular deps
 
 ## [1.4.0] - 2023-07-25
 

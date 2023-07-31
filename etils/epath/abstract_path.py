@@ -21,8 +21,9 @@ import pathlib
 import typing
 from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar
 
+from etils.epath import register
 from etils.epath import stat_utils
-from etils.epath.typing import PathLike
+from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
 
 _T = TypeVar('_T')
 
@@ -56,7 +57,6 @@ class Path(pathlib.PurePosixPath):
     Returns:
       path: The registered path
     """
-    from etils.epath import register  # pylint: disable=g-import-not-at-top
 
     if cls == Path:
       if not args:

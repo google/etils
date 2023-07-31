@@ -18,27 +18,23 @@ from __future__ import annotations
 
 import os
 import typing
-from typing import Callable, Dict, Tuple, Type, TypeVar
+from typing import Callable, TypeVar
 
 from etils.epath import abstract_path
 from etils.epath import gpath
-from etils.epath.typing import PathLike  # pylint: disable=g-multiple-import
+from etils.epath.typing import PathLike  # pylint: disable=g-multiple-import,g-importing-member
 
 _T = TypeVar('_T')
 
-_PATHLIKE_CLS: Tuple[Type[abstract_path.Path], ...] = (
-    gpath.PosixGPath,
-    gpath.WindowsGPath,
-)
-_URI_PREFIXES_TO_CLS: Dict[str, Type[abstract_path.Path]] = {
-    # Even on Windows, `gs://`,... are PosixPath
-    uri_prefix: gpath.PosixGPath
-    for uri_prefix in gpath.URI_PREFIXES
-}
+# Classes and uri are registered in `gpath.py`
+_PATHLIKE_CLS: tuple[type[abstract_path.Path], ...] = ()
+_URI_PREFIXES_TO_CLS: dict[str, type[abstract_path.Path]] = {}
 
 
 @typing.overload
-def register_path_cls(path_cls_or_uri_prefix: str) -> Callable[[_T], _T]:
+def register_path_cls(
+    path_cls_or_uri_prefix: str | list[str] | tuple[str, ...]
+) -> Callable[[_T], _T]:
   ...
 
 
@@ -67,10 +63,14 @@ def register_path_cls(path_cls_or_uri_prefix):
     The decorator or decoratorated class
   """
   global _PATHLIKE_CLS
-  if isinstance(path_cls_or_uri_prefix, str):
+  if isinstance(path_cls_or_uri_prefix, (str, list, tuple)):
 
     def register_path_cls_decorator(cls: _T) -> _T:
-      _URI_PREFIXES_TO_CLS[path_cls_or_uri_prefix] = cls
+      if isinstance(path_cls_or_uri_prefix, str):
+        _URI_PREFIXES_TO_CLS[path_cls_or_uri_prefix] = cls
+      elif isinstance(path_cls_or_uri_prefix, (list, tuple)):
+        for uri_prefix in path_cls_or_uri_prefix:
+          _URI_PREFIXES_TO_CLS[uri_prefix] = cls
       return register_path_cls(cls)
 
     return register_path_cls_decorator
