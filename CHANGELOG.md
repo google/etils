@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.4.1] - 2023-07-31
+
 *   `lazy_imports`: More lazy imports
 *   `epath`: Remove circular deps
 
@@ -287,7 +289,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.4.1...HEAD
+[1.4.0]: https://github.com/google/etils/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/google/etils/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/google/etils/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/google/etils/compare/v1.1.1...v1.2.0
