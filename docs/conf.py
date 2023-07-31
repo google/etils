@@ -23,7 +23,16 @@ sphinx-build -b html docs/ docs/_build
 ```
 """
 
+import sys
+
 import apitree
+
+
+# Force re-triggering etils import (as it is used both for documentation
+# and in apitree
+for module_name in list(sys.modules):
+  if module_name.startswith('etils'):
+    del sys.modules[module_name]
 
 
 modules = {
