@@ -174,6 +174,8 @@ with _builder.replace_imports(is_std=False):
   import numpy as np
   import optax
   import orbax
+  from orbax import checkpoint as ocp
+  from orbax import export as oex
   import pandas as pd
   import PIL
   from PIL import Image  # Common alias
