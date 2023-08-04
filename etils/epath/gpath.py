@@ -188,18 +188,20 @@ class _GPath(abstract_path.Path):
       raise ValueError(f'Directory {self._path_str} is not empty')
     self._backend.rmtree(self._path_str)
 
-  def rmtree(self) -> None:
+  def rmtree(self, missing_ok: bool = False) -> None:
     """Remove the directory."""
-    self._backend.rmtree(self._path_str)
+    try:
+      self._backend.rmtree(self._path_str)
+    except FileNotFoundError:
+      if not missing_ok:
+        raise
 
   def unlink(self, missing_ok: bool = False) -> None:
     """Remove this file or symbolic link."""
     try:
       self._backend.remove(self._path_str)
     except FileNotFoundError:
-      if missing_ok:
-        pass
-      else:
+      if not missing_ok:
         raise
 
   def open(  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks

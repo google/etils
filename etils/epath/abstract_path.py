@@ -167,7 +167,7 @@ class Path(pathlib.PurePosixPath):
     raise NotImplementedError
 
   @abstractmethod
-  def rmtree(self) -> None:
+  def rmtree(self, missing_ok: bool = False) -> None:
     """Remove the directory, including all sub-files."""
     raise NotImplementedError
 

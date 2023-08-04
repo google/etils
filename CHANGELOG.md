@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epath`: Add `missing_ok=False` kwargs to `path.rmtree`.
+
 ## [1.4.1] - 2023-07-31
 
 *   `lazy_imports`: More lazy imports

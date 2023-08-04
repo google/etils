@@ -294,6 +294,23 @@ def test_unlink():
   assert not path.exists()
 
 
+@pytest.mark.usefixtures('gcs_mocked_path')
+def test_rmtree():
+  path = epath.Path('gs://bucket/a')
+  path.joinpath('sub_folder/sub_folder').mkdir(parents=True)
+  path.joinpath('sub_folder/other').mkdir(parents=True)
+  path.joinpath('another_subfolder').mkdir(parents=True)
+
+  assert path.exists()
+  path.rmtree()
+  assert not path.exists()
+
+  with pytest.raises(FileNotFoundError):
+    path.rmtree()
+
+  path.rmtree(missing_ok=True)  # no-op if missing_ok=True
+
+
 def test_mkdir(gcs_mocked_path: pathlib.Path):
   g_path = epath.Path('gs://bucket')
   assert not g_path.exists()
