@@ -125,7 +125,14 @@ class _LazyImporter:
     return isinstance(x, (np.ndarray, np.generic))
 
   def is_tf(self, x: Array) -> bool:
-    return self.has_tf and isinstance(x, (self.tnp.ndarray, self.tf.TensorSpec))
+    return self.has_tf and isinstance(
+        x,
+        (
+            self.tnp.ndarray,
+            self.tf.TensorSpec,
+            self.tf.__internal__.types.Tensor,
+        ),
+    )
 
   def is_jax(self, x: Array) -> bool:
     return self.has_jax and isinstance(x, self.jnp.ndarray)
