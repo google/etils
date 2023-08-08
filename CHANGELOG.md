@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epath`: Add `missing_ok=False` kwargs to `path.rmtree`.
 *   `enp`: Fix `ArraySpec.from_array` when TF is in graph mode.
+*   `epy`: Add `epy.diff_str` for pretty diff print of 2 objects.
 
 ## [1.4.1] - 2023-07-31
 

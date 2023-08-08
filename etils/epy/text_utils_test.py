@@ -181,3 +181,16 @@ def test_lines_collapse():
       )
       """
   )
+
+
+def test_diff():
+  a = ('xxx', 'aaaaaaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbbbbbb')
+  b = ('aaaaaaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbbbbbbnn')
+  assert epy.diff_str(a, b) == """  (
+-     'xxx',
+      'aaaaaaaaaaaaaaaaaaaa',
+-     'bbbbbbbbbbbbbbbbbbbb',
++     'bbbbbbbbbbbbbbbbbbbbnn',
+?                          ++
+
+  )"""

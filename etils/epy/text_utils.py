@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import difflib
 import textwrap
 from typing import Any, Iterable, Iterator, Union
 
@@ -270,3 +271,14 @@ def dedent(text: str) -> str:
     The dedented text
   """
   return textwrap.dedent(text).strip()
+
+
+def diff_str(a: str | object, b: str | object) -> str:
+  """Pretty diff between 2 objects."""
+  if not isinstance(a, str):
+    a = Lines.repr(a).split('\n')
+  if not isinstance(b, str):
+    b = Lines.repr(b).split('\n')
+
+  diff = difflib.ndiff(a, b)
+  return '\n'.join(diff)
