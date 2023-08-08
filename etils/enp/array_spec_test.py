@@ -58,6 +58,10 @@ def test_array_spec_tensors():
   # ====== TensorFlow ======
   # tf.Tensor
   assert _array_repr(tf.zeros((3,))) == 'f32[3]'
+
+  with tf.Graph().as_default():
+    assert _array_repr(tf.zeros((3,))) == 'f32[3]'
+
   # tf.TensorSpec
   assert _array_repr(tf.TensorSpec((None,), dtype=tf.int32)) == 'i32[_]'
   assert _array_repr(tf.TensorSpec((None, 3), dtype=tf.int32)) == 'i32[_ 3]'

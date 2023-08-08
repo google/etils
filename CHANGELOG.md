@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `epath`: Add `missing_ok=False` kwargs to `path.rmtree`.
+*   `enp`: Fix `ArraySpec.from_array` when TF is in graph mode.
 
 ## [1.4.1] - 2023-07-31
 

@@ -102,6 +102,8 @@ class ArraySpec:
         (lazy.tf.TensorSpec, lazy.tf.Tensor),
     ):
       shape = array.shape
+      # In graph mode, `.shape` values can be `Dimension(32)`
+      shape = (int(s) if s is not None else s for s in shape)
       dtype = array.dtype.as_numpy_dtype
     elif lazy.has_tf and isinstance(array, type(_get_none_spec())):
       return None  # Special case for `NoneTensorSpec()`
