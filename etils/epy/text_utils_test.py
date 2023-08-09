@@ -102,7 +102,7 @@ def test_lines_std():
       d={'aaaaaaaaaaaaaaaaaaaa': 1, 'bbbbbbbbbbbbbbbbbbbb': 1},
   )
 
-  repr_ = epy.Lines.repr(a)  # pytype: disable=wrong-arg-types
+  repr_ = epy.pretty_repr(a)  # pytype: disable=wrong-arg-types
   assert repr_ == epy.dedent("""
   A(
       t=(

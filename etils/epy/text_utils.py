@@ -179,9 +179,9 @@ class Lines:
       content = [content]
 
     if isinstance(content, dict):
-      parts = [f'{k}{equal}{_repr_value(v)}' for k, v in content.items()]
+      parts = [f'{k}{equal}{pretty_repr(v)}' for k, v in content.items()]
     elif isinstance(content, (list, tuple)):
-      parts = [f'{_repr_value(v)}' for v in content]
+      parts = [f'{pretty_repr(v)}' for v in content]
     else:
       raise TypeError(f'Invalid fields {type(content)}')
 
@@ -204,14 +204,10 @@ class Lines:
 
     return lines.join(collapse=collapse)
 
-  @classmethod
-  def repr(cls, obj: Any) -> str:
-    """Pretty print object."""
-    return _repr_value(obj)
 
+def pretty_repr(obj: Any) -> str:
+  """Pretty `repr(obj)` for nested list, dict, dataclasses,..."""
 
-def _repr_value(obj: Any) -> str:
-  """Object representation, pretty-display for list, dict,..."""
   from etils import edc  # pylint: disable=g-import-not-at-top
 
   if isinstance(obj, str):
@@ -276,9 +272,9 @@ def dedent(text: str) -> str:
 def diff_str(a: str | object, b: str | object) -> str:
   """Pretty diff between 2 objects."""
   if not isinstance(a, str):
-    a = Lines.repr(a).split('\n')
+    a = pretty_repr(a).split('\n')
   if not isinstance(b, str):
-    b = Lines.repr(b).split('\n')
+    b = pretty_repr(b).split('\n')
 
   diff = difflib.ndiff(a, b)
   return '\n'.join(diff)
