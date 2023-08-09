@@ -85,6 +85,7 @@ class ArraySpec:
   @classmethod
   def from_array(cls, array: Array) -> Optional[ArraySpec]:
     """Construct the `ArraySpec` from the given array."""
+    # Could refactor with some dynamic registration mechanism.
     if isinstance(array, (np.ndarray, np.generic, ArraySpec)):
       shape = array.shape
       dtype = array.dtype
@@ -107,9 +108,10 @@ class ArraySpec:
       dtype = array.dtype.as_numpy_dtype
     elif lazy.has_tf and isinstance(array, type(_get_none_spec())):
       return None  # Special case for `NoneTensorSpec()`
-    elif 'grain.tensorflow' in sys.modules and isinstance(
-        array, sys.modules['grain.tensorflow'].ArraySpec
-    ):
+    elif _is_grain(array):
+      shape = array.shape
+      dtype = array.dtype
+    elif _is_orbax(array):
       shape = array.shape
       dtype = array.dtype
     elif isinstance(array, array_types.ArrayAliasMeta):
@@ -124,3 +126,23 @@ class ArraySpec:
       raise UnknownArrayError(f'Unknown array-like type: {type(array)}')
     # Should we also handle `bytes` case ?
     return cls(shape=shape, dtype=dtype)
+
+
+def _is_grain(array: Array) -> bool:
+  gain = sys.modules.get('grain.tensorflow')
+  if gain is None:
+    return False
+  return isinstance(array, gain.ArraySpec)
+
+
+def _is_orbax(array: Array) -> bool:
+  ocp = sys.modules.get('orbax.checkpoint')
+  if ocp is None:
+    return False
+  return isinstance(
+      array,
+      (
+          ocp.type_handlers.ArrayMetadata,
+          ocp.type_handlers.ScalarMetadata,
+      ),
+  )
