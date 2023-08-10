@@ -19,6 +19,8 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import difflib
+import inspect
+import reprlib
 import textwrap
 from typing import Any, Iterable, Iterator, Union
 
@@ -205,10 +207,9 @@ class Lines:
     return lines.join(collapse=collapse)
 
 
+@reprlib.recursive_repr()
 def pretty_repr(obj: Any) -> str:
   """Pretty `repr(obj)` for nested list, dict, dataclasses,..."""
-
-  from etils import edc  # pylint: disable=g-import-not-at-top
 
   if isinstance(obj, str):
     return repr(obj)
@@ -227,11 +228,26 @@ def pretty_repr(obj: Any) -> str:
       not isinstance(obj, type)
       and dataclasses.is_dataclass(obj)
       and obj.__dataclass_params__.repr
-      and edc.dataclass_utils.has_default_repr(type(obj))
+      and (has_default_repr(type(obj)) or type(obj).__repr__ is pretty_repr)
   ):
-    return edc.repr(obj)
+    all_fields = dataclasses.fields(obj)
+
+    return Lines.make_block(
+        header=obj.__class__.__name__,
+        content={
+            field.name: getattr(obj, field.name)
+            for field in all_fields
+            if field.repr
+        },
+    )
   else:
     return repr(obj)
+
+
+def has_default_repr(cls: Any) -> bool:
+  """Returns `True` if the dataclass do not overwrite `__repr__`."""
+  repr_fn = inspect.unwrap(cls.__repr__)
+  return repr_fn.__qualname__ == '__create_fn__.<locals>.__repr__'
 
 
 def dedent(text: str) -> str:

@@ -18,8 +18,6 @@ from __future__ import annotations
 
 import dataclasses
 import functools
-import inspect
-import reprlib
 import typing
 from typing import Any, Callable, TypeVar
 
@@ -278,33 +276,14 @@ def replace(self: _T, **kwargs: Any) -> _T:
   return dataclasses.replace(self, **kwargs)
 
 
-def has_default_repr(cls: _Cls) -> bool:
-  return (
-      inspect.unwrap(cls.__repr__).__qualname__
-      == '__create_fn__.<locals>.__repr__'
-  )
-
-
 def add_repr(cls: _ClsT) -> _ClsT:
   """Add a `.__repr__` method to the class, if not already present."""
   # Use `cls.__dict__` and not `hasattr` to ignore parent classes
   if '__repr__' not in cls.__dict__:
     return cls
-  if has_default_repr(cls):
+  if epy.text_utils.has_default_repr(cls):
     cls.__repr__ = __repr__
   return cls
 
 
-@reprlib.recursive_repr()
-def __repr__(self) -> str:  # pylint: disable=invalid-name
-  """Pretty-print `repr`."""
-  all_fields = dataclasses.fields(self)
-
-  return epy.Lines.make_block(
-      header=self.__class__.__name__,
-      content={
-          field.name: getattr(self, field.name)
-          for field in all_fields
-          if field.repr
-      },
-  )
+__repr__ = epy.pretty_repr
