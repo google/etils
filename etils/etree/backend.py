@@ -24,7 +24,7 @@ import types
 from typing import Any, Callable, TypeVar
 
 from etils import epy
-from etils.etree.typing import Tree
+from etils.etree.typing import Tree  # pylint: disable=g-importing-member
 
 _T = TypeVar('_T')
 _Tin = Any  # TypeVar('_Tin')

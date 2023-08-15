@@ -19,6 +19,8 @@ from etils.enp.typing import f32
 import jax
 import jax.numpy as jnp
 import numpy as np
+# TODO(epot): Add tests
+# from orbax import checkpoint as ocp
 import tensorflow as tf
 
 
