@@ -17,12 +17,13 @@
 from __future__ import annotations
 
 import abc
+import contextlib
 import glob as glob_lib
 import os
 import shutil
 import stat as stat_lib
 import typing
-from typing import NoReturn, Union
+from typing import Iterator, NoReturn, Union
 
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike
@@ -204,12 +205,17 @@ class _TfBackend(Backend):
   def gfile(self):
     return self.tf.io.gfile
 
+  @contextlib.contextmanager
   def open(
       self,
       path: PathLike,
       mode: str,
-  ) -> typing.IO[Union[str, bytes]]:
-    return self.gfile.GFile(path, mode)  # pytype: disable=bad-return-type
+  ) -> Iterator[typing.IO[Union[str, bytes]]]:
+    with self.gfile.GFile(path, mode) as f:  # pytype: disable=bad-return-type
+      try:
+        yield f
+      except self.tf.errors.NotFoundError as e:
+        raise FileNotFoundError(e) from None
 
   def exists(self, path: PathLike) -> bool:
     return self.gfile.exists(path)

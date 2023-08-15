@@ -90,6 +90,11 @@ def _test_open(
   with backend.open(p, 'r') as f:
     assert f.read() == 'abc统一码def'
 
+  # Opening non-existing path.
+  with pytest.raises(OSError):
+    with backend.open('non-existing/path', 'r') as f:
+      f.read()
+
   # TODO(epot): Add test with non-utf-8 character to make
   # sure errors are consistents.
 
