@@ -1,6 +1,6 @@
 ## Numpy utils
 
-### Code that works with `np.array`, `jnp.array`, `tf.Tensor`
+### Code that works with `np.array`, `jnp.ndarray`, `tf.Tensor`
 
 Use `enp.get_np_module(t)` to write function which works with both `tf`, `jax`
 and `numpy`:
