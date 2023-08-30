@@ -206,6 +206,7 @@ class Path(pathlib.PurePosixPath):
         raise FileExistsError(f'{self} already exists.')
     self.write_text('')
 
+  # pytype: disable=bad-return-type
   @abstractmethod
   def rename(self: _T, target: PathLike) -> _T:
     """Renames the path."""
@@ -217,3 +218,4 @@ class Path(pathlib.PurePosixPath):
   @abstractmethod
   def copy(self: _T, dst: PathLike, overwrite: bool = False) -> _T:
     """Copy the current file to the given destination."""
+  # pytype: enable=bad-return-type
