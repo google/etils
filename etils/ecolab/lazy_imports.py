@@ -145,8 +145,6 @@ with _builder.replace_imports(is_std=False):
   from absl import app
   from absl import flags
   import apache_beam as beam
-  import colabtools
-  from colabtools import interactive_forms
   import chex
   import dataclass_array as dca
   import einops
