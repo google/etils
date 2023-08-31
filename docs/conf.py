@@ -23,16 +23,16 @@ sphinx-build -b html docs/ docs/_build
 ```
 """
 
+import os
+import pathlib
 import sys
 
-import apitree
+# `apitree` depend on `etils` so add the local `etils` to `sys.module` before
+# importing.
+repo_dir = pathlib.Path(__file__).parent.parent  # <repo>/docs/conf.py
+sys.path.insert(0, os.fspath(repo_dir))
 
-
-# Force re-triggering etils import (as it is used both for documentation
-# and in apitree
-for module_name in list(sys.modules):
-  if module_name.startswith('etils'):
-    del sys.modules[module_name]
+import apitree  # pylint: disable=g-import-not-at-top
 
 
 modules = {
