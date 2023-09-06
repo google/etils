@@ -67,6 +67,23 @@ without having to manually call `pyplot` .
 
 The original string representation is still available through `repr(array)`.
 
+### Pretty display with trailing `;`
+
+Add a trailing `;` to any statement (assignment, expression, return statement)
+to display the current line. This call `IPython.display.display()` for pretty
+display.
+
+```python
+x = my_fn();  # Display `my_fn()` output
+
+my_fn();  # Display `my_fn()` output
+```
+
+Note that `;` added to the last statement of the cell still silence the
+output (`IPython` default behavior).
+
+`;` behavior can be disabled with `ecolab.auto_display(False)`
+
 ### Collapsible logs on colab
 
 Sometimes, you might want to log verbose informations (e.g. the content of a

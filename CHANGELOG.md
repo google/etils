@@ -8,7 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
-*   `epath`: Add `missing_ok=False` kwargs to `path.rmtree`.
+*   `ecolab`:
+    *   Auto display statements ending with `;` (assignments, return
+        statements, expressions,...).
+*   `epath`:
+    *   Add `missing_ok=False` kwargs to `path.rmtree`.
 *   `enp`:
     *   `ArraySpec.from_array`:
         *   Fix when TF is in graph mode.

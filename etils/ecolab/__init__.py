@@ -17,6 +17,7 @@
 # pylint: disable=g-importing-member
 
 from etils.ecolab.array_as_img import auto_plot_array
+from etils.ecolab.auto_display_utils import auto_display
 from etils.ecolab.colab_utils import collapse
 from etils.ecolab.colab_utils import interruptible
 from etils.ecolab.colab_utils import json
@@ -29,3 +30,6 @@ from etils.ecolab.patch_utils import patch_graphviz
 from etils.ecolab.patch_utils import set_verbose
 from etils.ecolab.pyjs_com import js_import as pyjs_import
 from etils.ecolab.pyjs_com import register_js_fn
+
+# Activate auto-display by default
+auto_display()
