@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import abc
 import contextlib
+import functools
 import glob as glob_lib
 import os
 import shutil
@@ -26,7 +27,10 @@ import typing
 from typing import Iterator, NoReturn, Union
 
 from etils.epath import stat_utils
-from etils.epath.typing import PathLike
+from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
+
+if typing.TYPE_CHECKING:
+  import fsspec
 
 
 class Backend(abc.ABC):
@@ -322,5 +326,137 @@ class _TfBackend(Backend):
         group=None,  # Not available.
     )
 
+
+class _FileSystemSpecBackend(Backend):
+  """FileSystemSpec backend entirely relying on fsspec."""
+
+  @functools.lru_cache()
+  def _get_filesystem(self, name: str) -> fsspec.AbstractFileSystem:
+    """Caches the filesystem."""
+    try:
+      import fsspec  # pylint: disable=g-import-not-at-top
+    except ImportError as e:
+      raise ImportError(
+          "To use epath.Path with gs://, fsspec should be installed.'"
+      ) from e
+    return fsspec.filesystem(name)
+
+  def fs(self, path: PathLike) -> fsspec.AbstractFileSystem:
+    """Returns the proper fsspec filsystem: GCS, S3 or file."""
+    path = os.fspath(path)
+    if path.startswith('gs://'):
+      return self._get_filesystem('gcs')
+    elif path.startswith('s3://'):
+      return self._get_filesystem('s3')
+    else:
+      return self._get_filesystem('file')
+
+  def open(self, path: PathLike, mode: str) -> typing.IO[Union[str, bytes]]:
+    return self.fs(path).open(path, mode=mode)
+
+  def exists(self, path: PathLike) -> bool:
+    return self.fs(path).exists(path)
+
+  def isdir(self, path: PathLike) -> bool:
+    return self.fs(path).isdir(path)
+
+  def listdir(self, path: PathLike) -> list[str]:
+    paths = self.fs(path).listdir(path, detail=False)
+    return [os.path.basename(p) for p in paths if not p.endswith('~')]
+
+  def glob(self, path: PathLike) -> list[str]:
+    return self.fs(path).glob(path)
+
+  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
+    return self.fs(path).makedirs(path, exist_ok=exist_ok)
+
+  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+    try:
+      return self.fs(path).mkdir(path, create_parents=False)
+    except FileExistsError:
+      if exist_ok and self.isdir(path):
+        return
+      raise FileExistsError(
+          f'The operation failed because the specified {path=} already exists.'
+      ) from None
+
+  def rmtree(self, path: PathLike) -> None:
+    return self.fs(path).rm(path, recursive=True)
+
+  def remove(self, path: PathLike) -> None:
+    try:
+      return self.fs(path).rm(path, recursive=False)
+    except (IsADirectoryError, ValueError):
+      return self.fs(path).rmdir(path)
+
+  def rename(self, path: PathLike, dst: PathLike) -> None:
+    if self.exists(dst):
+      raise FileExistsError(f'{dst} already exists. Cannot rename {path}.')
+    if self.isdir(path) and not self.isdir(dst):
+      if self.exists(dst):
+        raise FileExistsError(
+            f'Cannot rename a file ({path}) to a directory ({dst})'
+        )
+    # Check that `dst` is in an existing folder
+    dst_folder = os.path.dirname(dst)
+    if not self.exists(dst_folder):
+      raise FileNotFoundError(f'folder {dst_folder} does not exist')
+    # Stringify paths, because PosixPaths do not implement len:
+    path, dst = os.fspath(path), os.fspath(dst)
+    return self.fs(path).rename(path, dst, recursive=True)
+
+  def replace(self, path: PathLike, dst: PathLike) -> None:
+    if self.isdir(dst):
+      raise IsADirectoryError(f'Cannot overwrite: {dst} is a directory')
+    if not self.exists(path):
+      raise FileNotFoundError(f'Cannot replace: path {path} does not exist')
+    if self.isdir(path) and self.exists(dst):
+      raise NotADirectoryError(
+          f'Cannot replace a directory {path} by a file {dst}'
+      )
+    # Check that `dst` is in an existing folder
+    dst_folder = os.path.dirname(dst)
+    if not self.exists(dst_folder):
+      raise FileNotFoundError(f'folder {dst_folder} does not exist')
+    # Stringify paths, because PosixPaths do not implement len:
+    path, dst = os.fspath(path), os.fspath(dst)
+    return self.fs(path).rename(path, dst, recursive=True)
+
+  def copy(self, path: PathLike, dst: PathLike, overwrite: bool) -> None:
+    if not overwrite and self.exists(dst):
+      raise FileExistsError(f'{dst} already exists. Cannot copy {path}.')
+    is_dir_dst = self.isdir(dst)
+    if self.isdir(path) and not is_dir_dst:
+      raise IsADirectoryError(
+          f'Cannot copy to {dst}. Path {path} is a directory'
+      )
+    if overwrite and is_dir_dst:
+      raise IsADirectoryError(
+          f'Cannot overwrite {path}. Destination {dst} is a directory'
+      )
+    # Stringify paths, because PosixPaths do not implement len:
+    path, dst = os.fspath(path), os.fspath(dst)
+    chunksize = 1024 * 1024  # 1 MB
+    with self.open(path, mode='rb') as src:
+      with self.open(dst, mode='wb') as dst:
+        while True:
+          data = src.read(chunksize)
+          if not data:
+            break
+          dst.write(data)
+
+  def stat(self, path: PathLike) -> stat_utils.StatResult:
+    info = self.fs(path).info(path)
+    mtime = int(info.get('mtime', 0.0))
+    return stat_utils.StatResult(
+        is_directory=info.get('type') == 'directory',
+        length=info.get('size'),
+        mtime=mtime,
+        owner=info.get('owner'),
+        group=info.get('group'),
+    )
+
+
 tf_backend = _TfBackend()
 os_backend = _OsPathBackend()
+fsspec_backend = _FileSystemSpecBackend()

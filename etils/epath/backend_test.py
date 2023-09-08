@@ -463,7 +463,7 @@ def _test_stat(
     assert st.is_directory
     assert st.length == st_gt.st_size
     assert st.mtime == int(st_gt.st_mtime)
-    if backend == epath.backend.tf_backend:
+    if backend in {epath.backend.tf_backend, epath.backend.fsspec_backend}:
       assert not st.owner
       assert not st.group
     else:
@@ -477,7 +477,7 @@ def _test_stat(
     assert not st.is_directory
     assert st.length == st_gt.st_size
     assert st.mtime == int(st_gt.st_mtime)
-    if backend == epath.backend.tf_backend:
+    if backend in {epath.backend.tf_backend, epath.backend.fsspec_backend}:
       assert not st.owner
       assert not st.group
     else:
@@ -516,6 +516,7 @@ def test_backend(
       'os': epath.backend.os_backend,
       # Due to remaining small inconsistencies, do not test open source
       # tf backend
+      'fsspec': epath.backend.fsspec_backend,
   }
   for backend_name, backend in backends.items():
     # Test each backend in a self contained dir
@@ -651,7 +652,7 @@ _SRC_DST_ITEMS = (
     _TestItem(
         src_file={'file.txt': b'abc'},
         dst_file={'nonexistent/nested': _NOT_EXIST},
-        expected_rename=FileNotFoundError(),  # dst parent don't exists
+        expected_rename=FileNotFoundError(),  # dst parent doesn't exist
         expected_replace=FileNotFoundError(),
     ),
     # Rename/replace/copy an empty folder
@@ -692,7 +693,7 @@ _SRC_DST_ITEMS = (
     _TestItem(
         src_file={'folder0': None},
         dst_file={'nonexistent/nested': _NOT_EXIST},
-        expected_rename=FileNotFoundError(),  # dst parent don't exists
+        expected_rename=FileNotFoundError(),  # dst parent doesn't exist
         expected_replace=FileNotFoundError(),
         # Only files can be copied
         expected_copy=IsADirectoryError(),
@@ -754,8 +755,8 @@ _SRC_DST_ITEMS = (
             'folderfull/f.txt': b'abc',
         },
         dst_file={'nonexistent/nested': _NOT_EXIST},
-        expected_rename=FileNotFoundError(),  # dst parent don't exists
-        expected_replace=FileNotFoundError(),  # dst parent don't exists
+        expected_rename=FileNotFoundError(),  # dst parent doesn't exist
+        expected_replace=FileNotFoundError(),  # dst parent doesn't exist
         # Only files can be copied
         expected_copy=IsADirectoryError(),
         expected_copy_overwrite=IsADirectoryError(),

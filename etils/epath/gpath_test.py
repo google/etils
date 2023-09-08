@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+from unittest import mock
 
 from etils import epath
 from etils import epy
@@ -30,6 +31,7 @@ _GCS_SCHEME = 'gs://'
 @pytest.fixture(
     params=[
         epath.backend.os_backend,
+        epath.backend.fsspec_backend,
     ]
 )
 def gcs_mocked_path(tmp_path: pathlib.Path, request):
@@ -67,7 +69,8 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
       mkdir=_call(backend.mkdir),
       remove=_call(backend.remove),
       rmtree=_call(backend.rmtree),
-  ):
+      # Mock _is_tf_installed in order not to default to tf_backend:
+  ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
     yield tmp_path
 
 
@@ -414,6 +417,13 @@ def test_use_backend():
 
   gs_backend = epath.backend.tf_backend
   loc_backend = epath.backend.os_backend
+  with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
+    assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend
+  with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
+    assert (
+        epath.gpath._get_backend(gs_path, gs_path)
+        == epath.backend.fsspec_backend
+    )
 
   assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
   assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pytype: disable=wrong-arg-types

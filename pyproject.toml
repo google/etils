@@ -56,10 +56,17 @@ enp = [
     "etils[epy]",
 ]
 epath = [
+    "fsspec",
     "importlib_resources",
     "typing_extensions",
     "zipp",
     "etils[epy]",
+]
+epath-gcs = [
+    "gcsfs",
+]
+epath-s3 = [
+    "s3fs",
 ]
 epy = [
     "typing_extensions",
@@ -97,6 +104,8 @@ all = [
     "etils[edc]",
     "etils[enp]",
     "etils[epath]",
+    "etils[epath-gcs]",
+    "etils[epath-s3]",
     "etils[epy]",
     "etils[etqdm]",
     "etils[etree]",

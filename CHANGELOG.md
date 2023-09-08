@@ -13,6 +13,11 @@ Changelog follow https://keepachangelog.com/ format.
         statements, expressions,...).
 *   `epath`:
     *   Add `missing_ok=False` kwargs to `path.rmtree`.
+    *   Add `fsspec_backend` relying on fsspec to handle GCS/S3 without needing
+        TensorFlow. This means that `gcsfs` and `s3fs` become required
+        dependencies to read respectively GCS and S3. TensorFlow is no more
+        required. **Warning**: If TensorFlow is installed, we still default to
+        the `tf_backend` in order to be backward compatible.
 *   `enp`:
     *   `ArraySpec.from_array`:
         *   Fix when TF is in graph mode.

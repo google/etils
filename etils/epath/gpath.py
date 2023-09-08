@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+import functools
+import importlib.util
 import ntpath
 import os
 import pathlib
@@ -42,19 +44,24 @@ _URI_MAP_ROOT = {
 }
 
 _PREFIX_TO_BACKEND = {
-    'gs': backend_lib.tf_backend,
-    's3': backend_lib.tf_backend,
+    'gs': backend_lib.fsspec_backend,
+    's3': backend_lib.fsspec_backend,
     None: backend_lib.os_backend,
 }
-_GCS_BACKENDS = frozenset(
-    {
-        backend_lib.tf_backend,
-    }
-)
+_GCS_BACKENDS = frozenset({
+    backend_lib.fsspec_backend,
+    backend_lib.tf_backend,
+})
 
 # Available modes (from tensorflow/python/lib/io/file_io.py;l=55)
 # Also exclude `+` as broken in gfile
 _OPEN_MODES = ('r', 'w', 'a')
+
+
+@functools.cache
+def _is_tf_installed() -> bool:
+  """Checks whether TensorFlow is installed."""
+  return importlib.util.find_spec('tensorflow') is not None
 
 
 class _GPath(abstract_path.Path):
@@ -96,7 +103,13 @@ class _GPath(abstract_path.Path):
   @property
   def _backend(self) -> backend_lib.Backend:
     try:
-      return _PREFIX_TO_BACKEND[self._uri_scheme]
+      backend = _PREFIX_TO_BACKEND[self._uri_scheme]
+      # Choose tf_backend if tf is installed. We don't use FSSpec by default
+      # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
+      # may not be installed. fsspec_backend was indeed introduced later.
+      if _is_tf_installed() and self._uri_scheme is not None:
+        return backend_lib.tf_backend
+      return backend
     except KeyError:
       supported = ', '.join(f'`{k}://`' for k in _PREFIX_TO_BACKEND)
       raise NotImplementedError(
