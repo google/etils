@@ -214,6 +214,9 @@ def _has_trailing_semicolon(
     if line and not line.startswith('#'):
       is_last_statement = False
       break
+  if last_line.startswith(' '):
+    # statement is inside `if` / `with` / ...
+    is_last_statement = False
   return has_trailing, is_last_statement
 
 

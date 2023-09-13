@@ -132,3 +132,17 @@ def test_ignore_last(code):
   assert auto_display_utils._has_trailing_semicolon(
       code.splitlines(), node.body[-1]
   )[1]
+
+
+def test_ignore_last_not_last():
+  code = textwrap.dedent("""
+  if x:
+    a = 1;
+  """)
+  node = ast.parse(code)
+
+  has_trailing, is_last_statement = auto_display_utils._has_trailing_semicolon(
+      code.splitlines(), node.body[-1].body[-1]  # pytype: disable=attribute-error
+  )
+  assert has_trailing
+  assert not is_last_statement
