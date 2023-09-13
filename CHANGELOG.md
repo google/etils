@@ -11,6 +11,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Auto display statements ending with `;` (assignments, return
         statements, expressions,...).
+    *   Adhoc proto now supports message extensions.
 *   `epath`:
     *   Add `missing_ok=False` kwargs to `path.rmtree`.
     *   Add `fsspec_backend` relying on fsspec to handle GCS/S3 without needing
