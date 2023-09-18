@@ -56,6 +56,7 @@ def test_parsing():
   code = epy.dedent("""
   a=1
   b = 3
+  ann: int;
   c=3  # asdasd
   (
       a  # aa
@@ -82,7 +83,7 @@ def test_parsing():
   for stmt in node.body:
     assert not auto_display_utils._has_trailing_semicolon(
         code.splitlines(), stmt
-    )[0]
+    )[0], f"Error for: `{ast.unparse(stmt)}`"
 
   code = epy.dedent("""
   a=1;

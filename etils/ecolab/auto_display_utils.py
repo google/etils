@@ -156,12 +156,14 @@ class _AddDisplayStatement(ast.NodeTransformer):
     """Wrap the node in a `display()` call."""
     try:
       has_trailing, is_last_statement = _has_trailing_semicolon(
-          self.lines_recorder.last_lines, node.value
+          self.lines_recorder.last_lines, node
       )
       if has_trailing:
         if is_last_statement and isinstance(node, ast.Expr):
           # Last expressions are already displayed by IPython, so instead
           # IPython silence the statement
+          pass
+        elif node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
           pass
         else:
           node.value = ast.Call(
@@ -193,6 +195,8 @@ def _has_trailing_semicolon(
     node: ast.AST,
 ) -> tuple[bool, bool]:
   """Check if `node` has trailing `;`."""
+  if isinstance(node, ast.AnnAssign) and node.value is None:
+    return False, False  # `AnnAssign().value` can be `None` (`a: int`)
   # Extract the lines of the statement
   last_line = code_lines[node.end_lineno - 1]  # lineno starts at `1`
   # Check if the last character is a `;` token
