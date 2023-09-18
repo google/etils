@@ -309,7 +309,7 @@ out.grad
 
 ### Reduce verbosity (when possible)
 
-It is a good programing practice to give explicit code (good variable names,
+It is a good programming practice to give explicit code (good variable names,
 semantic type rather than builtins,...). However, sometimes it might actually
 make the API worse by adding verbosity without giving more information.
 
