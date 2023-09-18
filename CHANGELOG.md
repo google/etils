@@ -19,6 +19,7 @@ Changelog follow https://keepachangelog.com/ format.
         dependencies to read respectively GCS and S3. TensorFlow is no more
         required. **Warning**: If TensorFlow is installed, we still default to
         the `tf_backend` in order to be backward compatible.
+    *   Changed: `path.glob` raise an error if insufficient permission.
 *   `enp`:
     *   `ArraySpec.from_array`:
         *   Fix when TF is in graph mode.
