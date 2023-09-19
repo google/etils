@@ -15,7 +15,13 @@
 """Test."""
 
 import collections
+import typing
 from etils import etree
+
+
+class NamedTuple(typing.NamedTuple):
+  a: int
+  b: int
 
 
 def test_py_map():
@@ -23,6 +29,7 @@ def test_py_map():
       'b': 1,
       'a': [
           (),
+          NamedTuple(a=7, b=6),
           collections.UserDict(a=5),
           [{3: 2, 1: 4}],
       ],
@@ -31,6 +38,7 @@ def test_py_map():
       'b': 10,
       'a': [
           (),
+          NamedTuple(a=10, b=20),
           collections.UserDict(a=10),
           [{3: 10, 1: 20}],
       ],
@@ -39,6 +47,7 @@ def test_py_map():
       'b': 11,
       'a': [
           (),
+          NamedTuple(a=17, b=26),
           collections.UserDict(a=15),
           [{3: 12, 1: 24}],
       ],
@@ -46,15 +55,19 @@ def test_py_map():
   tree_out = etree.py.map(lambda x, y: x + y, tree0, tree1)
   assert tree_out == expected_tree
   # type preserved
-  assert isinstance(tree_out['a'][1], collections.UserDict)
+  assert isinstance(tree_out['a'][1], NamedTuple)
+  assert isinstance(tree_out['a'][2], collections.UserDict)
   # dict key order preserved
   assert list(tree_out) == ['b', 'a']
 
   # Round-trip flatten / unflatten
   flat0, tree_struct = etree.py.backend.flatten(tree0)
 
-  assert flat0 == [5, 4, 2, 1]
-  assert etree.py.backend.unflatten(tree_struct, flat0) == tree_struct
+  assert flat0 == [7, 6, 5, 4, 2, 1]
+  unflat = etree.py.backend.unflatten(tree_struct, flat0)
+  assert unflat == tree_struct
+  assert isinstance(unflat['a'][1], NamedTuple)
+  assert isinstance(unflat['a'][2], collections.UserDict)
 
 
 def test_py_map_defaultdict():
@@ -64,3 +77,9 @@ def test_py_map_defaultdict():
   d = etree.map(lambda x: x + 1, d)
   assert d[0] == 2
   assert isinstance(d, collections.defaultdict)
+
+  flat0, tree_struct = etree.py.backend.flatten(d)
+
+  d2 = etree.py.backend.unflatten(tree_struct, flat0)
+  assert d2 == d
+  assert isinstance(d2, collections.defaultdict)

@@ -26,6 +26,7 @@ from etils.epy.itertools import splitby
 from etils.epy.itertools import zip_dict
 from etils.epy.lazy_imports_utils import lazy_imports
 from etils.epy.py_utils import frozen
+from etils.epy.py_utils import is_namedtuple
 from etils.epy.py_utils import issubclass_ as issubclass  # pylint: disable=redefined-builtin
 from etils.epy.py_utils import StrEnum
 from etils.epy.reraise_utils import maybe_reraise

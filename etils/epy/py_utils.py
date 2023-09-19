@@ -71,6 +71,20 @@ class StrEnum(str, enum.Enum):
       return type(enum.Enum).__iter__(cls)
 
 
+def is_namedtuple(x) -> bool:
+  """Returns `True` if the value is instance of `NamedTuple`.
+
+  This is using some heuristic by checking for a `._field` attribute.
+
+  Args:
+    x: Object to check
+
+  Returns:
+    `True` if the object is a `namedtuple`
+  """
+  return isinstance(x, tuple) and hasattr(x, '_fields')
+
+
 def issubclass_(
     cls: Any,
     types: Union[type[Any], tuple[type[Any], ...]],

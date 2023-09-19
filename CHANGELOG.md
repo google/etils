@@ -17,8 +17,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `fsspec_backend` relying on fsspec to handle GCS/S3 without needing
         TensorFlow. This means that `gcsfs` and `s3fs` become required
         dependencies to read respectively GCS and S3. TensorFlow is no more
-        required. **Warning**: If TensorFlow is installed, we still default to
-        the `tf_backend` in order to be backward compatible.
+        required. **Note**: If TensorFlow is installed, we still default to
+        the `tf_backend` for backward compatibility.
     *   Changed: `path.glob` raise an error if insufficient permission.
 *   `enp`:
     *   `ArraySpec.from_array`:
@@ -27,6 +27,9 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`:
     *   Add `epy.pretty_repr` for pretty print an object (including dataclass).
     *   Add `epy.diff_str` for pretty diff print of 2 objects.
+    *   Add `epy.is_namedtuple`
+*   `etree`:
+    *   Fix `etree.map` for `namedtuple` (Python backend)
 
 ## [1.4.1] - 2023-07-31
 

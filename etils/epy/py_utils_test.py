@@ -14,7 +14,9 @@
 
 """Tests for py_utils."""
 
+import collections
 import enum
+import typing
 
 from etils import epy
 import pytest
@@ -38,6 +40,17 @@ def test_str_enum():
     MyEnum('non-existing')
 
   assert [e.value for e in MyEnum] == ['my_other_attr', 'my_attr']
+
+
+def test_is_namedtuple():
+  class MyTuple0(typing.NamedTuple):
+    x: int
+    y: int
+
+  MyTuple1 = collections.namedtuple('MyTuple1', 'x, y')
+
+  epy.is_namedtuple(MyTuple0(0, 1))
+  epy.is_namedtuple(MyTuple1(0, 1))
 
 
 @epy.frozen

@@ -191,7 +191,11 @@ class Python(Backend):
   def map(self, map_fn, *trees):
     tree0 = trees[0]
     if isinstance(tree0, _SEQUENCE_TYPES):
-      return type(tree0)(self.map(map_fn, *v) for v in zip(*trees))
+      new_items = (self.map(map_fn, *v) for v in zip(*trees))
+      if epy.is_namedtuple(tree0):
+        return type(tree0)(*new_items)
+      else:
+        return type(tree0)(new_items)
     elif isinstance(tree0, _MAPPING_TYPES):
       new_items = ((k, self.map(map_fn, *v)) for k, v in epy.zip_dict(*trees))
       if isinstance(tree0, collections.defaultdict):
@@ -220,15 +224,27 @@ class Python(Backend):
     return self._unflatten(structure, iter(flat_sequence))
 
   def _unflatten(self, structure, flat_iter):
+    """`unflatten` recursive implementation."""
     if isinstance(structure, _SEQUENCE_TYPES):
-      return type(structure)(self._unflatten(v, flat_iter) for v in structure)
+      new_items = (self._unflatten(v, flat_iter) for v in structure)
+      if epy.is_namedtuple(structure):
+        return type(structure)(*new_items)
+      else:
+        return type(structure)(new_items)
     elif isinstance(structure, _MAPPING_TYPES):
       # Flatten sort the keys, so reconstruct the ordered sorted
       ordered_items = {
           k: self._unflatten(v, flat_iter) for k, v in sorted(structure.items())
       }
       # Restore original dict order
-      return type(structure)((k, ordered_items[k]) for k in structure)
+      new_items = ((k, ordered_items[k]) for k in structure)
+
+      if isinstance(structure, collections.defaultdict):
+        new_tree = type(structure)(structure.default_factory)
+        new_tree.update(new_items)
+        return new_tree
+      else:
+        return type(structure)(new_items)
     else:  # leaf
       return next(flat_iter)
 
