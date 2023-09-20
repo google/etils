@@ -20,11 +20,17 @@ import enum
 import functools
 import typing
 from typing import Any, TypeVar, Union
+import sys
 
 _Cls = TypeVar('_Cls')
 
 
-class StrEnum(str, enum.Enum):
+_StrEnum = (
+    (enum.StrEnum,) if sys.version_info[:2] >= (3, 11) else (str, enum.Enum)
+)
+
+
+class StrEnum(*_StrEnum):
   """Like `Enum`, but `enum.auto()` assigns `str` rather than `int`.
 
   ```python
