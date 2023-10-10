@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `edc`:
+    *   Changed: Raise an error if `allow_unfrozen=` is used on a non-frozen
+        dataclass
+
 ## [1.5.0] - 2023-09-19
 
 *   `ecolab`:
