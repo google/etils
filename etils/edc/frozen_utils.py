@@ -30,6 +30,11 @@ _is_tree_registered = False
 
 def add_unfrozen(cls: _Cls) -> _Cls:
   """Add the `frozen`, `unfrozen` methods."""
+  if not cls.__dataclass_params__.frozen:
+    raise ValueError(
+        'allow_unfrozen require the dataclass to be defined with'
+        f' `frozen=True`. For {cls}'
+    )
   cls_frozen = getattr(cls, 'frozen', None)
   cls_unfrozen = getattr(cls, 'has_unfrozen', None)
 
