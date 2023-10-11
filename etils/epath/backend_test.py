@@ -574,6 +574,17 @@ def _make_default_path(tmp_path: pathlib.Path):
     (tmp_path / name).write_text('abc')
 
 
+def test_get_protocol():
+  # pylint: disable=g-explicit-bool-comparison
+  assert epath.backend._get_protocol(epath.Path('aas/bbb/ccc')) == ''
+  assert epath.backend._get_protocol(epath.Path('/aas/bbb/ccc')) == ''
+  assert epath.backend._get_protocol(epath.Path('gs://aas/bbb/')) == 'gs://'
+  assert epath.backend._get_protocol('gcs://aas/bbb/ccc') == 'gcs://'
+  assert epath.backend._get_protocol('s3://aas/bbb/ccc') == 's3://'
+  assert epath.backend._get_protocol('/aas/bbb/ccc') == ''
+  # pylint: enable=g-explicit-bool-comparison
+
+
 # Utils to test rename, replace, copy
 
 

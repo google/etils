@@ -365,7 +365,8 @@ class _FileSystemSpecBackend(Backend):
     return [os.path.basename(p) for p in paths if not p.endswith('~')]
 
   def glob(self, path: PathLike) -> list[str]:
-    return self.fs(path).glob(path)
+    protocol = _get_protocol(path)
+    return [protocol + p for p in self.fs(path).glob(path)]
 
   def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
     return self.fs(path).makedirs(path, exist_ok=exist_ok)
@@ -455,6 +456,15 @@ class _FileSystemSpecBackend(Backend):
         owner=info.get('owner'),
         group=info.get('group'),
     )
+
+
+def _get_protocol(path: PathLike) -> str:
+  """Extract the protocol."""
+  path = os.fspath(path)
+  if '://' in path:
+    return path.split('://', 1)[0] + '://'
+  else:
+    return ''
 
 
 tf_backend = _TfBackend()

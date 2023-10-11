@@ -64,9 +64,11 @@ epath = [
 ]
 epath-gcs = [
     "gcsfs",
+    "etils[epath]",
 ]
 epath-s3 = [
     "s3fs",
+    "etils[epath]",
 ]
 epy = [
     "typing_extensions",
