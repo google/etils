@@ -8,6 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.5.1] - 2023-10-10
+
+*   `epath`:
+    *   Fix `glob` issue when used with ffspec.
+
 ## [1.5.0] - 2023-09-19
 
 *   `ecolab`:
@@ -314,7 +319,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.5.1...HEAD
+[1.5.0]: https://github.com/google/etils/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/google/etils/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/google/etils/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/google/etils/compare/v1.3.0...v1.4.0
