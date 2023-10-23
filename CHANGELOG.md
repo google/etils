@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epath`:
+    *   Fix resource_path when used on a adhoc-imported module.
+
 ## [1.5.1] - 2023-10-10
 
 *   `epath`:
