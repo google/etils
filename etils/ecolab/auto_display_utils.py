@@ -18,15 +18,19 @@ from __future__ import annotations
 
 import ast
 import traceback
+import typing
 from typing import TypeVar
 
 from etils import epy
 import IPython
+import packaging
 
 _T = TypeVar('_T')
 
 # Old API (before IPython 7.0)
-_IS_LEGACY_API = hasattr(IPython.core, 'inputtransformer')
+_IS_LEGACY_API = packaging.version.parse(
+    IPython.__version__
+) < packaging.version.parse('7')
 
 
 def auto_display(activate: bool = True) -> None:
@@ -104,7 +108,7 @@ def _append_transform(list_, transform):
   list_.append(transform)
 
 
-if _IS_LEGACY_API:
+if _IS_LEGACY_API and not typing.TYPE_CHECKING:
 
   class _RecordLines(IPython.core.inputtransformer.InputTransformer):
     """Record lines."""

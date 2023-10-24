@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.5.2] - 2023-10-24
+
+*   `ecolab`:
+    *   Fix import error in IPython when 7.0 &lt;= version &lt; 8
 *   `epath`:
     *   Fix resource_path when used on a adhoc-imported module.
 
@@ -322,8 +326,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.5.1...HEAD
-[1.5.0]: https://github.com/google/etils/compare/v1.5.0...v1.5.1
+[Unreleased]: https://github.com/google/etils/compare/v1.5.2...HEAD
+[1.5.2]: https://github.com/google/etils/compare/v1.5.1...v1.5.2
+[1.5.1]: https://github.com/google/etils/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/google/etils/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/google/etils/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/google/etils/compare/v1.3.0...v1.4.0

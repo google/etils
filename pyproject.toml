@@ -44,6 +44,7 @@ ecolab = [
     "jupyter",
     "numpy",
     "mediapy",
+    "packaging",
     "etils[enp]",
     "etils[epy]",
 ]
