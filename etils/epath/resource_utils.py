@@ -109,20 +109,29 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
   Returns:
     The read-only path to the root module directory
   """
-  path = importlib_resources.files(package)  # pytype: disable=module-attr
+  try:
+    path = importlib_resources.files(package)  # pytype: disable=module-attr
+  except AttributeError:
+    is_adhoc = True
+  else:
+    if isinstance(
+        path, importlib_resources._adapters.CompatibilityFiles.SpecPath  # pylint: disable=protected-access
+    ):
+      is_adhoc = True
+    else:
+      is_adhoc = False
 
-  # TODO(b/260333695): Adhoc import fail with adhoc imports
-  # When module are imported with adhoc, `importlib_resources.files` returns
-  # a non-path object, so convert manually.
-  if isinstance(
-      path, importlib_resources._adapters.CompatibilityFiles.SpecPath  # pylint: disable=protected-access
-  ):
+  if is_adhoc:
+    # TODO(b/260333695): `importlib_resources` fail with adhoc imports
+    # When module are imported with adhoc, `importlib_resources.files` returns
+    # a non-path object, so convert manually.
     # Note this is not the true path (`/google_src/` vs
     # `/export/.../server/ml_notebook.runfiles`), but should be equivalent.
     path = pathlib.Path(sys.modules[package].__file__)
     if path.name == '__init__.py':
       path = path.parent
 
+  # pylint: disable=undefined-variable
   if isinstance(path, pathlib.Path):
     # TODO(etils): To ensure compatibility with zipfile.Path, we should ensure
     # that the returned `pathlib.Path` isn't missused. More specifically:
@@ -137,6 +146,7 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
     return typing.cast(abstract_path.Path, path)
   else:
     raise TypeError(f'Unknown resource path: {type(path)}: {path}')
+  # pylint: enable=undefined-variable
 
 
 def to_write_path(path: abstract_path.Path) -> abstract_path.Path:
