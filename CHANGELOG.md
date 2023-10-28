@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   Added protobuf repeated fields support to `ecolab.inspect`
+
 ## [1.5.2] - 2023-10-24
 
 *   `ecolab`:
