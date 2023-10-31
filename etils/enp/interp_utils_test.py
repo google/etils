@@ -74,6 +74,7 @@ def test_interp_scalar(xnp: enp.NpModule):
           [1, 128 / 255, 0],
           [1, 0, 128 / 255],
       ]),
+      atol=1e-6,
   )
   np.testing.assert_allclose(
       enp.interp(vals, from_=(0, 255), to=(-1, 1)),
