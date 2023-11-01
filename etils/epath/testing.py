@@ -104,6 +104,7 @@ class _MockBackend(_backend_cls):
     return self._get_fn('remove')(path)
 
   def rename(self, path: PathLike, dst: PathLike) -> None:
+    print('rename', path, dst)
     return self._get_fn('rename')(path, dst)
 
   def replace(self, path: PathLike, dst: PathLike) -> None:
