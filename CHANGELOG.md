@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `ecolab`:
     *   Added protobuf repeated fields support to `ecolab.inspect`
+    *   Fixed auto-display when the line contain UTF-8 character
 
 ## [1.5.2] - 2023-10-24
 
