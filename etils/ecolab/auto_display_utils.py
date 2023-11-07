@@ -205,7 +205,12 @@ def _has_trailing_semicolon(
   last_line = code_lines[node.end_lineno - 1]  # lineno starts at `1`
   # Check if the last character is a `;` token
   has_trailing = False
-  for char in last_line[node.end_col_offset :]:
+
+  # `node.end_col_offset` is in bytes, so UTF-8 characters count 3.
+  last_part_of_line = last_line.encode('utf-8')
+  last_part_of_line = last_part_of_line[node.end_col_offset :]
+  last_part_of_line = last_part_of_line.decode('utf-8')
+  for char in last_part_of_line:
     if char == ';':
       has_trailing = True
     elif char == ' ':
