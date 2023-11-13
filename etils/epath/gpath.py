@@ -110,7 +110,7 @@ class _GPath(abstract_path.Path):
       # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
       # may not be installed. fsspec_backend was indeed introduced later.
       if (_is_tf_installed() and self._uri_scheme is not None and
-          self._uri_scheme != 'az://'):
+          self._uri_scheme != 'az'):
         return backend_lib.tf_backend
       return backend
     except KeyError:
