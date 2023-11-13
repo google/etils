@@ -109,8 +109,7 @@ class _GPath(abstract_path.Path):
       # Choose tf_backend if tf is installed. We don't use FSSpec by default
       # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
       # may not be installed. fsspec_backend was indeed introduced later.
-      if (_is_tf_installed() and self._uri_scheme is not None and
-          self._uri_scheme != 'az'):
+      if _is_tf_installed() and self._uri_scheme is not None:
         return backend_lib.tf_backend
       return backend
     except KeyError:
