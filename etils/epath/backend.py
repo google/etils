@@ -348,6 +348,8 @@ class _FileSystemSpecBackend(Backend):
       return self._get_filesystem('gcs')
     elif path.startswith('s3://'):
       return self._get_filesystem('s3')
+    elif path.startswith('az://'):
+      return self._get_filesystem('az')
     else:
       return self._get_filesystem('file')
 

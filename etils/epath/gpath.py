@@ -35,7 +35,7 @@ from etils.epath.typing import PathLike  # pylint: disable=g-multiple-import,g-i
 
 _P = TypeVar('_P')
 
-_URI_PREFIXES = ('gs://', 's3://')
+_URI_PREFIXES = ('gs://', 's3://', 'az://')
 _URI_SCHEMES = frozenset(('gs', 's3'))
 
 _URI_MAP_ROOT = {
@@ -107,7 +107,8 @@ class _GPath(abstract_path.Path):
       # Choose tf_backend if tf is installed. We don't use FSSpec by default
       # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
       # may not be installed. fsspec_backend was indeed introduced later.
-      if _is_tf_installed() and self._uri_scheme is not None:
+      if (_is_tf_installed() and self._uri_scheme is not None and
+          self._uri_scheme != 'az://'):
         return backend_lib.tf_backend
       return backend
     except KeyError:
