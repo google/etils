@@ -53,6 +53,7 @@ def show(*objs, **kwargs) -> None:
 
 def auto_plot_array(
     *,
+    # If updating this, also update `_array_repr_html_inner` !!!
     video_min_num_frames: int = 15,
     # Images outside this range are rescalled
     height: None | int | tuple[int, int] = (100, 250),
@@ -79,11 +80,8 @@ def auto_plot_array(
   if ipython is None:
     return  # Non-notebook environement
 
-  show_images_kwargs = show_images_kwargs or {}
-  show_videos_kwargs = show_videos_kwargs or {}
-
   array_repr_html_fn = functools.partial(
-      _array_repr_html,
+      array_repr_html,
       video_min_num_frames=video_min_num_frames,
       height=height,
       show_images_kwargs=show_images_kwargs,
@@ -126,7 +124,7 @@ def auto_plot_array(
   formatter.for_type(enp.lazy.np.ndarray, array_repr_html_fn)
 
 
-def _array_repr_html(
+def array_repr_html(
     array: Array,
     **kwargs: Any,
 ) -> Optional[str]:
@@ -142,12 +140,15 @@ def _array_repr_html(
 def _array_repr_html_inner(
     img: Array,
     *,
-    video_min_num_frames: int,
-    height: None | int | tuple[int, int],
-    show_images_kwargs: dict[str, Any],
-    show_videos_kwargs: dict[str, Any],
+    # If updating this, also update `auto_plot_array` !!!
+    video_min_num_frames: int = 15,
+    height: None | int | tuple[int, int] = (100, 250),
+    show_images_kwargs: Optional[dict[str, Any]] = None,
+    show_videos_kwargs: Optional[dict[str, Any]] = None,
 ) -> Optional[str]:
   """Display the normalized img, or `None` if the input is not an image."""
+  show_images_kwargs = show_images_kwargs or {}
+  show_videos_kwargs = show_videos_kwargs or {}
 
   if not enp.lazy.is_array(img):  # Not an array
     return None

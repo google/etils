@@ -73,14 +73,25 @@ Add a trailing `;` to any statement (assignment, expression, return statement)
 to display the current line. This call `IPython.display.display()` for pretty
 display.
 
+Format:
+
+*   `my_obj;`: Alias for `IPython.display.display(x)`
+*   `my_obj;s`: (`spec`) Alias for `IPython.display.display(etree.spec_like(x))`
+*   `my_obj;i`: (`inspect`) Alias for `ecolab.inspect(x)`
+*   `my_obj;a`: (`array`) Alias for `media.show_images(x)` /
+    `media.show_videos(x)` (`ecolab.auto_plot_array` behavior)
+*   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
+
 ```python
 x = my_fn();  # Display `my_fn()` output
 
 my_fn();  # Display `my_fn()` output
+my_fn();i  # Inspect `my_fn()` output
 ```
 
-Note that `;` added to the last statement of the cell still silence the
-output (`IPython` default behavior).
+Note that contrary to `IPython` default behavior, `;` added to the last
+statement of the cell will display the line. To silence the last output, use
+`;q`.
 
 `;` behavior can be disabled with `ecolab.auto_display(False)`
 

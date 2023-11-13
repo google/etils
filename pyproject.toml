@@ -2,7 +2,7 @@
 name = "etils"
 description = "Collection of common python utils"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [{name = "Conchylicultor", email="etils@google.com"}]
 classifiers = [
@@ -48,6 +48,7 @@ ecolab = [
     "protobuf",
     "etils[enp]",
     "etils[epy]",
+    "etils[etree]",
 ]
 edc = [
     # Do not add anything here. `edc` is an alias for `epy`

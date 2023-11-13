@@ -15,7 +15,6 @@
 """Test."""
 
 import ast
-import textwrap
 
 from etils import epy
 from etils.ecolab import auto_display_utils
@@ -49,9 +48,9 @@ def test_parsing():
   node = ast.parse(code)
 
   for stmt in node.body:
-    assert auto_display_utils._has_trailing_semicolon(code.splitlines(), stmt)[
-        0
-    ]
+    assert auto_display_utils._has_trailing_semicolon(
+        code.splitlines(), stmt
+    ).has_trailing
 
   code = epy.dedent("""
   a=1
@@ -64,6 +63,8 @@ def test_parsing():
       1,
   3,)  # asdasd
   a=1;b=2
+  a=1;iii
+  a=1 # ;a
   d  =  3     # AAA
   (
       1,
@@ -83,67 +84,43 @@ def test_parsing():
   for stmt in node.body:
     assert not auto_display_utils._has_trailing_semicolon(
         code.splitlines(), stmt
-    )[0], f"Error for: `{ast.unparse(stmt)}`"
-
-  code = epy.dedent("""
-  a=1;
-  b=2;
-  """)
-  node = ast.parse(code)
-
-  assert auto_display_utils._has_trailing_semicolon(
-      code.splitlines(), node.body[0]
-  ) == (True, False)
-  assert auto_display_utils._has_trailing_semicolon(
-      code.splitlines(), node.body[1]
-  ) == (True, True)
+    ).has_trailing, f'Error for: `{ast.unparse(stmt)}`'
 
 
 @pytest.mark.parametrize(
-    "code",
+    'code, alias',
     [
-        """
-        b = 2
-        other = 123;
-
-        a = 1;
-        """,
-        """
-        a=1;
-
-        # Some comment
-        # other comment
-        """,
-        """
-        a=1;
-
-
-        """,
-        "a=1;  # Comment",
+        ('x;', ''),
+        ('x;#i', ''),
+        ('x;a', 'a'),
+        ('x;i', 'i'),
+        ('x   ;i', 'i'),
+        ('x   ;  i', 'i'),
+        ('x; i', 'i'),
+        ('x;  i  ', 'i'),
+        ('x;i#Comment', 'i'),
+        ('x;i    #Comment', 'i'),
+        ('x;  i  # Comment', 'i'),
     ],
 )
-def test_ignore_last(code):
-  code = textwrap.dedent(code)
+def test_alias(code: str, alias: str):
   node = ast.parse(code)
-
-  for stmt in node.body[:-1]:
-    assert not auto_display_utils._has_trailing_semicolon(
-        code.splitlines(), stmt
-    )[1]
-  assert auto_display_utils._has_trailing_semicolon(
-      code.splitlines(), node.body[-1]
-  )[1]
-
-
-def test_ignore_last_not_last():
-  code = textwrap.dedent("""
-  if x:
-    a = 1;
-  """)
-  node = ast.parse(code)
-
-  has_trailing, is_last_statement = auto_display_utils._has_trailing_semicolon(
-      code.splitlines(), node.body[-1].body[-1]  # pytype: disable=attribute-error
+  info = auto_display_utils._has_trailing_semicolon(
+      code.splitlines(), node.body[0]
   )
-  assert has_trailing
-  assert not is_last_statement
+  assert info.has_trailing
+  assert info.alias == alias
+
+
+@pytest.mark.parametrize(
+    'code',
+    [
+        'x;aa',
+        'x;a=1',
+    ],
+)
+def test_noalias(code):
+  node = ast.parse(code)
+  assert not auto_display_utils._has_trailing_semicolon(
+      code.splitlines(), node.body[0]
+  ).has_trailing

@@ -17,11 +17,17 @@
 from __future__ import annotations
 
 import ast
+import dataclasses
+import functools
+import re
 import traceback
 import typing
 from typing import TypeVar
 
 from etils import epy
+from etils.ecolab import array_as_img
+from etils.ecolab.inspects import core as inspects
+from etils.etree import jax as etree  # pylint: disable=g-importing-member
 import IPython
 import packaging
 
@@ -40,8 +46,8 @@ def auto_display(activate: bool = True) -> None:
   statement) to display the current line.
   This call `IPython.display.display()` for pretty display.
 
-  Note that `;` added to the last statement of the cell still silence the
-  output (`IPython` default behavior).
+  This change the default IPython behavior where `;` added to the last statement
+  of the cell still silence the output.
 
   ```python
   x = my_fn();  # Display `my_fn()`
@@ -50,6 +56,16 @@ def auto_display(activate: bool = True) -> None:
   ```
 
   `;` behavior can be disabled with `ecolab.auto_display(False)`
+
+  Format:
+
+  *   `my_obj;`: Alias for `IPython.display.display(x)`
+  *   `my_obj;s`: (`spec`) Alias for
+      `IPython.display.display(etree.spec_like(x))`
+  *   `my_obj;i`: (`inspect`) Alias for `ecolab.inspect(x)`
+  *   `my_obj;a`: (`array`) Alias for `media.show_images(x)` /
+      `media.show_videos(x)` (`ecolab.auto_plot_array` behavior)
+  *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
 
   Args:
     activate: Allow to disable `auto_display`
@@ -116,6 +132,8 @@ if _IS_LEGACY_API and not typing.TYPE_CHECKING:
     def __init__(self):
       self._lines = []
       self.last_lines = []
+
+      self.trailing_stmt_line_nums = {}
       super().__init__()
 
     def push(self, line):
@@ -132,6 +150,8 @@ if _IS_LEGACY_API and not typing.TYPE_CHECKING:
         for line in self._lines:
           self.last_lines.extend(line.split('\n'))
       self._lines.clear()
+
+      self.trailing_stmt_line_nums.clear()
       return
 
 else:
@@ -141,9 +161,13 @@ else:
 
     def __init__(self):
       self.last_lines = []
+      # Additional state (reset at each cell) to keep track of which lines
+      # contain trailing statements
+      self.trailing_stmt_line_nums = {}
 
     def __call__(self, lines: list[str]) -> list[str]:
       self.last_lines = [l.rstrip('\n') for l in lines]
+      self.trailing_stmt_line_nums = {}
       return lines
 
 
@@ -159,21 +183,24 @@ class _AddDisplayStatement(ast.NodeTransformer):
   ) -> ast.AST:
     """Wrap the node in a `display()` call."""
     try:
-      has_trailing, is_last_statement = _has_trailing_semicolon(
-          self.lines_recorder.last_lines, node
-      )
-      if has_trailing:
-        if is_last_statement and isinstance(node, ast.Expr):
-          # Last expressions are already displayed by IPython, so instead
-          # IPython silence the statement
-          pass
-        elif node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
+      if self._is_alias_stmt(node):  # Alias statements should be no-op
+        return ast.Pass()
+
+      line_info = _has_trailing_semicolon(self.lines_recorder.last_lines, node)
+      if line_info.has_trailing:
+        if node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
           pass
         else:
+
+          fn_name = _ALIAS_TO_DISPLAY_FN[line_info.alias].__name__
+
           node.value = ast.Call(
-              func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
+              func=_parse_expr(f'ecolab.auto_display_utils.{fn_name}'),
               args=[node.value],
               keywords=[],
+          )
+          self.lines_recorder.trailing_stmt_line_nums[line_info.line_num] = (
+              line_info
           )
     except Exception as e:
       code = '\n'.join(self.lines_recorder.last_lines)
@@ -181,6 +208,19 @@ class _AddDisplayStatement(ast.NodeTransformer):
       traceback.print_exception(e)
       raise
     return node
+
+  def _is_alias_stmt(self, node: ast.AST) -> bool:
+    match node:
+      case ast.Expr(value=ast.Name(id=name)):
+        pass
+      case _:
+        return False
+    if name not in _ALIAS_TO_DISPLAY_FN:
+      return False
+    # The alias is not in the same line as a trailing `;`
+    if node.end_lineno - 1 not in self.lines_recorder.trailing_stmt_line_nums:
+      return False
+    return True
 
   # pylint: disable=invalid-name
   visit_Assign = _maybe_display
@@ -194,46 +234,100 @@ def _parse_expr(code: str) -> ast.AST:
   return ast.parse(code, mode='eval').body
 
 
+@dataclasses.dataclass(frozen=True)
+class _LineInfo:
+  has_trailing: bool
+  alias: str
+  line_num: int
+
+
 def _has_trailing_semicolon(
     code_lines: list[str],
     node: ast.AST,
-) -> tuple[bool, bool]:
+) -> _LineInfo:
   """Check if `node` has trailing `;`."""
   if isinstance(node, ast.AnnAssign) and node.value is None:
-    return False, False  # `AnnAssign().value` can be `None` (`a: int`)
+    return _LineInfo(
+        has_trailing=False,
+        alias='',
+        line_num=-1,
+    )  # `AnnAssign().value` can be `None` (`a: int`)
+
   # Extract the lines of the statement
-  last_line = code_lines[node.end_lineno - 1]  # lineno starts at `1`
-  # Check if the last character is a `;` token
-  has_trailing = False
+  line_num = node.end_lineno - 1
+  last_line = code_lines[line_num]  # lineno starts at `1`
 
   # `node.end_col_offset` is in bytes, so UTF-8 characters count 3.
   last_part_of_line = last_line.encode('utf-8')
   last_part_of_line = last_part_of_line[node.end_col_offset :]
   last_part_of_line = last_part_of_line.decode('utf-8')
-  for char in last_part_of_line:
-    if char == ';':
-      has_trailing = True
-    elif char == ' ':
-      continue
-    elif char == '#':  # Comment,...
-      break
-    else:  # e.g. `a=1;b=2`
-      has_trailing = False
-      break
 
-  is_last_statement = True  # Assume statement is the last one
-  for line in code_lines[node.end_lineno :]:  # Next statements are all empty
-    line = line.strip()
-    if line and not line.startswith('#'):
-      is_last_statement = False
-      break
-  if last_line.startswith(' '):
-    # statement is inside `if` / `with` / ...
-    is_last_statement = False
-  return has_trailing, is_last_statement
+  # Check if the last character is a `;` token
+  has_trailing = False
+  alias = ''
+  if match := _detect_trailing_regex().match(last_part_of_line):
+    has_trailing = True
+    if match.group(1):
+      alias = match.group(1)
+
+  return _LineInfo(
+      has_trailing=has_trailing,
+      alias=alias,
+      line_num=line_num,
+  )
+
+
+@functools.cache
+def _detect_trailing_regex() -> re.Pattern[str]:
+  """Check if the last character is a `;` token."""
+  # Match:
+  # * `; a`
+  # * `; a # Some comment`
+  # * `; # Some comment`
+  # Do not match:
+  # * `; a; b`
+  # * `; a=1`
+  available_chars = ''.join(_ALIAS_TO_DISPLAY_FN)
+  return re.compile(f' *; *([{available_chars}])? *(?:#.*)?$')
 
 
 def _display_and_return(x: _T) -> _T:
   """Print `x` and return `x`."""
   IPython.display.display(x)
   return x
+
+
+def _display_specs_and_return(x: _T) -> _T:
+  """Print `x` and return `x`."""
+  IPython.display.display(etree.spec_like(x))
+  return x
+
+
+def _inspect_and_return(x: _T) -> _T:
+  """Print `x` and return `x`."""
+  inspects.inspect(x)
+  return x
+
+
+def _display_array_and_return(x: _T) -> _T:
+  """Print `x` and return `x`."""
+  html = array_as_img.array_repr_html(x)
+  if html is None:
+    IPython.display.display(x)
+  else:
+    IPython.display.display(IPython.display.HTML(html))
+  return x
+
+
+def _return_quietly(x: _T) -> _T:
+  """Return `x` without display."""
+  return x
+
+
+_ALIAS_TO_DISPLAY_FN = {
+    '': _display_and_return,
+    's': _display_specs_and_return,
+    'i': _inspect_and_return,
+    'a': _display_array_and_return,
+    'q': _return_quietly,
+}
