@@ -20,6 +20,8 @@ import dataclasses
 import typing
 from typing import Any, Callable, Generic, Optional, Type, TypeVar
 
+from etils import epy
+
 _Dataclass = Any
 _In = Any
 _Out = Any
@@ -69,7 +71,7 @@ class _Field(Generic[_InT, _OutT]):
     self._attribute_name: Optional[str] = None
     self._objtype: Optional[Type[_Dataclass]] = None
 
-    self._validate = validate
+    self._validate_fn = validate
     self._field_kwargs = field_kwargs
 
     # Whether `__get__` has not been called yet. See `__get__` for details.
@@ -114,6 +116,12 @@ class _Field(Generic[_InT, _OutT]):
     """Called as `my_dataclass.x = value`."""
     # Validate the value during assignement
     _setattr(obj, self._attribute_name, self._validate(value))
+
+  def _validate(self, value: _InT) -> _OutT:
+    try:
+      return self._validate_fn(value)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+      epy.reraise(e, prefix=f'Error assigning {self._attribute_name!r}: ')
 
 
 # Because there is one instance of the `_Field` per class, shared across all
