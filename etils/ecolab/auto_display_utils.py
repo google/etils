@@ -40,7 +40,7 @@ _IS_LEGACY_API = packaging.version.parse(
 
 
 def auto_display(activate: bool = True) -> None:
-  """Activate auto display statements ending with `;` (activated by default).
+  r"""Activate auto display statements ending with `;` (activated by default).
 
   Add a trailing `;` to any statement (assignment, expression, return
   statement) to display the current line.
@@ -65,7 +65,12 @@ def auto_display(activate: bool = True) -> None:
   *   `my_obj;i`: (`inspect`) Alias for `ecolab.inspect(x)`
   *   `my_obj;a`: (`array`) Alias for `media.show_images(x)` /
       `media.show_videos(x)` (`ecolab.auto_plot_array` behavior)
+  *   `my_obj;p`: (`pretty_display`) Alias for `print(epy.pretty_repr(x))`.
+      Can be combined with `s`. Used for pretty print `dataclasses` or print
+      strings containing new lines (rather than displaying `\n`).
   *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
+
+  `p` and `s` can be combined.
 
   Args:
     activate: Allow to disable `auto_display`
@@ -287,8 +292,9 @@ def _detect_trailing_regex() -> re.Pattern[str]:
   # Do not match:
   # * `; a; b`
   # * `; a=1`
-  available_chars = ''.join(_ALIAS_TO_DISPLAY_FN)
-  return re.compile(f' *; *([{available_chars}])? *(?:#.*)?$')
+
+  available_suffixes = '|'.join(list(_ALIAS_TO_DISPLAY_FN)[1:])
+  return re.compile(f' *; *({available_suffixes})? *(?:#.*)?$')
 
 
 def _display_and_return(x: _T) -> _T:
@@ -319,6 +325,24 @@ def _display_array_and_return(x: _T) -> _T:
   return x
 
 
+def _pretty_display_return(x: _T) -> _T:
+  """Print `x` and return `x`."""
+  # 2 main use-case:
+  # * Print strings (including `\n`)
+  # * Pretty-print dataclasses
+  if isinstance(x, str):
+    print(x)
+  else:
+    print(epy.pretty_repr(x))
+  return x
+
+
+def _pretty_display_specs_and_return(x: _T) -> _T:
+  """Print `x` and return `x`."""
+  print(epy.pretty_repr(etree.spec_like(x)))
+  return x
+
+
 def _return_quietly(x: _T) -> _T:
   """Return `x` without display."""
   return x
@@ -329,5 +353,8 @@ _ALIAS_TO_DISPLAY_FN = {
     's': _display_specs_and_return,
     'i': _inspect_and_return,
     'a': _display_array_and_return,
+    'p': _pretty_display_return,
+    'ps': _pretty_display_specs_and_return,
+    'sp': _pretty_display_specs_and_return,
     'q': _return_quietly,
 }

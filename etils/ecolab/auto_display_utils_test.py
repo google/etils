@@ -93,6 +93,8 @@ def test_parsing():
         ('x;', ''),
         ('x;#i', ''),
         ('x;a', 'a'),
+        ('x;sp', 'sp'),
+        ('x;ps', 'ps'),
         ('x;i', 'i'),
         ('x   ;i', 'i'),
         ('x   ;  i', 'i'),
@@ -116,6 +118,8 @@ def test_alias(code: str, alias: str):
     'code',
     [
         'x;aa',
+        'x;ap',
+        'x;spp',
         'x;a=1',
     ],
 )

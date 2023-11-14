@@ -80,6 +80,9 @@ Format:
 *   `my_obj;i`: (`inspect`) Alias for `ecolab.inspect(x)`
 *   `my_obj;a`: (`array`) Alias for `media.show_images(x)` /
     `media.show_videos(x)` (`ecolab.auto_plot_array` behavior)
+*   `my_obj;p`: (`pretty_display`) Alias for `print(epy.pretty_repr(x))`.
+    Can be combined with `s`. Used for pretty print `dataclasses` or print
+    strings containing new lines (rather than displaying `\n`).
 *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
 
 ```python
