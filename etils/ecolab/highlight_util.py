@@ -14,8 +14,9 @@
 
 """Syntax highlighting utils."""
 
-from etils import epy
+import html
 
+from etils import epy
 from etils.ecolab.inspects import resource_utils
 
 
@@ -47,12 +48,13 @@ def highlight_html(code: str) -> str:
   theme = resource_utils.resource_import(
       'static/highlight.css', module='etils.ecolab'
   )
-  html = """
+  # html
+  html_str = """
   {theme}
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
   <pre><code class="language-python">{code}</code></pre>
   """
-  html = epy.dedent(html)
-  html = html.format(theme=theme, code=code)
-  return html
+  html_str = epy.dedent(html_str)
+  html_str = html_str.format(theme=theme, code=html.escape(code))
+  return html_str

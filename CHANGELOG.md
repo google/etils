@@ -14,6 +14,7 @@ Changelog follow https://keepachangelog.com/ format.
         *   Support specifiers to customize auto-display (`;s`, `;a`, `;i`,
             `;p`,...)
         *   Fixed auto-display when the line contain UTF-8 character
+    *   Fix a bug for `ecolab.highlight_html` to escape HTML string.
 
 ## [1.5.2] - 2023-10-24
 
