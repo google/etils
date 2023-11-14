@@ -15,6 +15,9 @@ Changelog follow https://keepachangelog.com/ format.
             `;p`,...)
         *   Fixed auto-display when the line contain UTF-8 character
     *   Fix a bug for `ecolab.highlight_html` to escape HTML string.
+*   `epy`:
+    *   `epy.lazy_imports()` support adhoc imports (will re-create the original
+        `ecolab.adhoc` context when resolved)
 
 ## [1.5.2] - 2023-10-24
 

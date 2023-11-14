@@ -29,6 +29,7 @@ import contextlib
 import dataclasses
 import functools
 import importlib
+import sys
 import types
 from typing import Any, Iterator
 
@@ -38,11 +39,26 @@ class LazyModule:
   """Module loaded lazily during first call."""
 
   module_name: str
+  adhoc_kwargs: dict[str, Any] | None
   _submodules: dict[str, LazyModule] = dataclasses.field(default_factory=dict)
 
   @functools.cached_property
   def _module(self) -> types.ModuleType:
-    return importlib.import_module(self.module_name)
+    """Resolve the module."""
+    # Recreate the adhoc import context used during the original import
+    if self.adhoc_kwargs is None:
+      adhoc = contextlib.nullcontext()
+    else:
+      from etils import ecolab  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+      # If the lazy-import is resolved from within an adhoc, keep the adhoc.
+      # Is it the right thing to do ?
+      if ecolab.adhoc_imports.get_curr_adhoc_kwargs() is not None:
+        adhoc = contextlib.nullcontext()
+      else:
+        adhoc = ecolab.adhoc(**self.adhoc_kwargs)
+    with adhoc:
+      return importlib.import_module(self.module_name)
 
   def __getattr__(self, name: str) -> Any:
     if name in self._submodules:
@@ -57,6 +73,7 @@ class LazyModule:
 def _register_submodule(module: LazyModule, name: str) -> LazyModule:
   child_module = LazyModule(
       module_name=f"{module.module_name}.{name}",
+      adhoc_kwargs=module.adhoc_kwargs,
   )
   module._submodules[name] = child_module  # pylint: disable=protected-access
   return child_module
@@ -80,6 +97,9 @@ def lazy_imports() -> Iterator[None]:  # pylint: disable=g-doc-args
   with epy.lazy_imports():
     import tensorflow as tf
   ```
+
+  This support `ecolab.adhoc` imports: When the lazy-import is resolved,
+  the original `ecolab.adhoc` context is re-created to import the lazy module.
 
   Yields:
     None
@@ -107,8 +127,19 @@ def _lazy_import(
   if level:
     raise ValueError(f"Relative import statements not supported ({name}).")
 
+  if adhoc_imports := sys.modules.get("etils.ecolab.adhoc_imports", None):
+    adhoc_kwargs = adhoc_imports.get_curr_adhoc_kwargs()
+
+    # Lazy-imports don't trigger reload
+    if adhoc_kwargs is not None:
+      adhoc_kwargs.pop("reload", None)
+      adhoc_kwargs.pop("restrict_reload", None)
+      adhoc_kwargs.pop("build_targets", None)
+  else:
+    adhoc_kwargs = None
+
   root_name, *parts = name.split(".")
-  root = LazyModule(module_name=root_name)
+  root = LazyModule(module_name=root_name, adhoc_kwargs=adhoc_kwargs)
 
   # Extract inner-most module
   child = root
