@@ -18,6 +18,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`:
     *   `epy.lazy_imports()` support adhoc imports (will re-create the original
         `ecolab.adhoc` context when resolved)
+    *   Added: `epy.is_ipython_terminal()` to detect when running in
+        non-notebook terminal environment.
 
 ## [1.5.2] - 2023-10-24
 
