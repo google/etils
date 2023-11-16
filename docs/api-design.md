@@ -1,6 +1,123 @@
 # API design principles
 
-Good practices for designing API, in Python.
+Good practices for designing APIs, mainly targeted for Python.
+
+## Miller's law and cognitive overhead
+
+The human brain has a limited capacity that is well known by neuroscientists.
+**It cannot store more than 7±2 information (chunks) at the same time** (5 on a
+bad day).
+
+This fact is known as Miller's law:
+
+*   https://lawsofux.com/millers-law/
+*   https://en.wikipedia.org/wiki/The_Magical_Number_Seven,_Plus_or_Minus_Two
+
+A chunk is the largest meaningful unit that the person recognizes. For example,
+`12031982` is difficult to parse for our brain (since 8 digits exceed our number
+of registers), while `12 03 1982` is quite easy (as we chunk the information into
+3 pieces, each already known (dates), and therefore much easier to process).
+
+### How this apply to API design ?
+
+The same principles apply to API design. The main goal of API design is to
+reduce the cognitive overhead by chunking logic into higher level abstractions.
+
+For example, the following code generates uniformly distributed numbers between 50
+and 250:
+
+```python
+x = 50 + random.random() * 200
+```
+
+That might look simple, but for someone new reading the code, understanding the
+semantic already take up 3 cognitive registers (out of the limited 7±2). By
+opposition, the following code is semantically exactly equivalent:
+
+```python
+x = random.uniform(50, 200)
+```
+
+It's about the same number of characters, but like the number example, it takes
+much less mental capacity because it wraps the logic into a higher abstraction,
+therefore only taking a single register.
+
+Now we can take more a complicated example. What is this code doing?
+
+```python
+x = [vals[int(random.random() * len(vals))] for i in range(10)]
+```
+
+This is a single line of code that only uses very standard primitives, so it
+should be simple. However, this takes more registers than our brain can handle,
+so parsing this code requires quite a cognitive effort (~1min), just for a single
+line!
+
+Writing good code is about reducing the number of registers required. For
+example:
+
+```python
+x = [vals[random.randint(len(vals))] for i in range(10)]
+```
+
+Which can be simplified even further:
+
+```python
+x = random.choices(vals, k=10)
+```
+
+Because the logic is wrapped inside an abstraction, it's very easy to parse and
+understand.
+
+### Practical examples
+
+The above concepts might sound trivial, but every API could be simplified:
+
+*   Using `jax.jit` require `functools.partial`, taking up 1 register for no
+    good reason:
+
+    ```python
+    @functools.partial(jax.jit, static_argnames=('self',))
+    def my_func_jit(self, x):
+      ...
+    ```
+
+    ```python
+    @jax.jit(static_argnames=('self',))
+    def my_func_jit(self, x):
+      ...
+    ```
+
+*   Jax array sharding might only use simple primitives, however writing an
+    end-to-end example takes too many lines. This should be a good signal a
+    higher level abstraction is required:
+
+    ```python
+    local_shape = local_array.shape
+    global_mesh = Mesh(np.array(jax.devices()), ('devices'))
+    global_shape = (jax.process_count() * local_shape[0], ) + local_shape[1:]
+    arrays = jax.device_put(
+        np.split(local_array, len(global_mesh.local_devices), axis = 0),
+        global_mesh.local_devices,
+    )
+    sharding = jax.sharding.NamedSharding(global_mesh, P(('devices'), ))
+    array = jax.make_array_from_single_device_arrays(global_shape, sharding, arrays)
+    ```
+
+    Parsing this code requires the user to read each line to reverse engineer the
+    logic behind the code. Someone new reading this code will have no idea this
+    snippet is doing data-parallel shading.
+
+    Jax could instead provide simpler abstractions, so users can write code that
+    users directly understand, such as:
+
+    ```python
+    array = jax.device_put(array, jax.sharding.SHARDED)
+    ```
+
+    When the libraries you're using don't provide good abstractions, you will
+    have to create your own (e.g. the `kd.sharding.SHARDED` from this example
+    was implemented in [Kauldron](https://github.com/google-research/kauldron)).
 
 ## High level
 
@@ -192,6 +309,16 @@ new ones:
 
 *   `tensor2tensor` -> `tensorflow_datasets`
 *   `jax3d.nerfstatic` ->`visu3d`
+
+### Don't be afraid of refactoring
+
+As the API evolves, features start to be duplicated, arguments start to be
+obsolete, complexity increases... To reduce the API surface to keep things
+minimal, it's important to regularly deprecate and remove symbols and arguments,
+or to re-organize symbols in a more structured way.
+
+Of course, there's a balance between breaking users and keeping things simple,
+but over the long term, the short user disruption is often worth it.
 
 ### There is no absolute rule
 
