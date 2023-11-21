@@ -21,6 +21,7 @@ import dataclasses
 import difflib
 import inspect
 import reprlib
+import sys
 import textwrap
 from typing import Any, Iterable, Iterator, Union
 
@@ -210,7 +211,6 @@ class Lines:
 @reprlib.recursive_repr()
 def pretty_repr(obj: Any) -> str:
   """Pretty `repr(obj)` for nested list, dict, dataclasses,..."""
-
   if isinstance(obj, str):
     return repr(obj)
   elif type(obj) in (list, tuple):  # Skip sub-class as could have custom repr
@@ -237,6 +237,17 @@ def pretty_repr(obj: Any) -> str:
         content={
             field.name: getattr(obj, field.name)
             for field in all_fields
+            if field.repr
+        },
+    )
+  elif (attr := sys.modules.get('attr')) and attr.has(type(obj)):
+    all_fields = attr.fields_dict(type(obj))
+
+    return Lines.make_block(
+        header=obj.__class__.__name__,
+        content={
+            field.name: getattr(obj, field.name)
+            for field in all_fields.values()
             if field.repr
         },
     )

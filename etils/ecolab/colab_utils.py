@@ -58,7 +58,7 @@ def collapse(name: str = '', *, expanded: bool = False) -> Iterator[None]:
   with out:
     try:
       yield
-    except Exception as e:
+    except BaseException as e:  # BaseException to support KeyboardInterupt
       # ipywidgets.Output erase exceptions, so we save it and reraise it after
       # the scope.
       exc = e  # pylint: disable=unused-variable
