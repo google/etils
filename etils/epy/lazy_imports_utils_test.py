@@ -15,6 +15,7 @@
 """Tests."""
 
 import sys
+from unittest import mock
 
 from etils import ecolab
 from etils import epy
@@ -63,3 +64,34 @@ def test_import_with_alias():
   assert 'dataclass_array' not in sys.modules
   _ = dca.stack
   assert 'dataclass_array' in sys.modules
+
+
+def test_error_callback():
+  success_callback = mock.MagicMock()
+  error_callback = mock.MagicMock()
+  with epy.lazy_imports(
+      error_callback=error_callback, success_callback=success_callback
+  ):
+    import doesnotexist  # pylint: disable=g-import-not-at-top,unused-import # pytype: disable=import-error
+  error_callback.assert_not_called()
+  success_callback.assert_not_called()
+  try:
+    _ = doesnotexist.stack
+  except ImportError:
+    pass
+  error_callback.assert_called_once_with('doesnotexist')
+  success_callback.assert_not_called()
+
+
+def test_success_callback():
+  success_callback = mock.MagicMock()
+  error_callback = mock.MagicMock()
+  with epy.lazy_imports(
+      error_callback=error_callback, success_callback=success_callback
+  ):
+    from dataclass_array import ops  # pylint: disable=g-import-not-at-top
+  error_callback.assert_not_called()
+  success_callback.assert_not_called()
+  _ = ops.stack
+  error_callback.assert_not_called()
+  success_callback.assert_called_once_with('dataclass_array.ops')

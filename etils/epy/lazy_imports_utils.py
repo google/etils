@@ -31,15 +31,21 @@ import functools
 import importlib
 import sys
 import types
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 
 
-@dataclasses.dataclass
+_ErrorCallback = Callable[[str], None]
+_SuccessCallback = Callable[[str], None]
+
+
+@dataclasses.dataclass(kw_only=True)
 class LazyModule:
   """Module loaded lazily during first call."""
 
   module_name: str
   adhoc_kwargs: dict[str, Any] | None
+  error_callback: _ErrorCallback | None
+  success_callback: _SuccessCallback | None
   _submodules: dict[str, LazyModule] = dataclasses.field(default_factory=dict)
 
   @functools.cached_property
@@ -58,7 +64,15 @@ class LazyModule:
       else:
         adhoc = ecolab.adhoc(**self.adhoc_kwargs)
     with adhoc:
-      return importlib.import_module(self.module_name)
+      try:
+        module = importlib.import_module(self.module_name)
+        if self.success_callback is not None:
+          self.success_callback(self.module_name)
+        return module
+      except ImportError:
+        if self.error_callback is not None:
+          self.error_callback(self.module_name)
+        raise
 
   def __getattr__(self, name: str) -> Any:
     if name in self._submodules:
@@ -74,13 +88,19 @@ def _register_submodule(module: LazyModule, name: str) -> LazyModule:
   child_module = LazyModule(
       module_name=f"{module.module_name}.{name}",
       adhoc_kwargs=module.adhoc_kwargs,
+      error_callback=module.error_callback,
+      success_callback=module.success_callback,
   )
   module._submodules[name] = child_module  # pylint: disable=protected-access
   return child_module
 
 
 @contextlib.contextmanager
-def lazy_imports() -> Iterator[None]:  # pylint: disable=g-doc-args
+def lazy_imports(
+    *,
+    error_callback: _ErrorCallback | None = None,
+    success_callback: _SuccessCallback | None = None,
+) -> Iterator[None]:
   """Context Manager which lazy loads packages.
 
   Their import is not executed immediately, but is postponed to the first
@@ -96,10 +116,19 @@ def lazy_imports() -> Iterator[None]:  # pylint: disable=g-doc-args
   ```python
   with epy.lazy_imports():
     import tensorflow as tf
+
+  with epy.lazy_imports(success_callback=check_tf_version):
+    import tensorflow as tf
   ```
 
   This support `ecolab.adhoc` imports: When the lazy-import is resolved,
   the original `ecolab.adhoc` context is re-created to import the lazy module.
+
+  Args:
+    error_callback: a callback to trigger when an import fails. The callback is
+      passed the name of the imported module as an arg.
+    success_callback: a callback to trigger when an import succeeds. The
+      callback is passed the name of the imported module as an arg.
 
   Yields:
     None
@@ -108,7 +137,11 @@ def lazy_imports() -> Iterator[None]:  # pylint: disable=g-doc-args
   # to modify the `sys.modules` cache in any way)
   original_import = builtins.__import__
   try:
-    builtins.__import__ = _lazy_import
+    builtins.__import__ = functools.partial(
+        _lazy_import,
+        error_callback=error_callback,
+        success_callback=success_callback,
+    )
     yield
   finally:
     builtins.__import__ = original_import
@@ -120,6 +153,9 @@ def _lazy_import(
     locals_=None,
     fromlist: tuple[str, ...] = (),
     level: int = 0,
+    *,
+    error_callback: _ErrorCallback | None,
+    success_callback: _SuccessCallback | None,
 ):
   """Mock of `builtins.__import__`."""
   del globals_, locals_  # Unused
@@ -139,7 +175,12 @@ def _lazy_import(
     adhoc_kwargs = None
 
   root_name, *parts = name.split(".")
-  root = LazyModule(module_name=root_name, adhoc_kwargs=adhoc_kwargs)
+  root = LazyModule(
+      module_name=root_name,
+      adhoc_kwargs=adhoc_kwargs,
+      error_callback=error_callback,
+      success_callback=success_callback,
+  )
 
   # Extract inner-most module
   child = root
