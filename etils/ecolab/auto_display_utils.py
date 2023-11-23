@@ -69,6 +69,8 @@ def auto_display(activate: bool = True) -> None:
       Can be combined with `s`. Used for pretty print `dataclasses` or print
       strings containing new lines (rather than displaying `\n`).
   *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
+  *   `my_obj;l`: (`line`) Also display the line (can be combined with previous
+      statements). Has to be at the end.
 
   `p` and `s` can be combined.
 
@@ -176,6 +178,21 @@ else:
       return lines
 
 
+# TODO(epot): During the first parsing stage, could implement a fault-tolerant
+# parsing to support `line;=` Rather than `line;l`
+# Something like that but that would chunk the code in blocks of valid
+# statements
+# def fault_tolerant_parsing(code: str):
+#   lines = code.split('\n')
+#   for i in range(len(lines)):
+#     try:
+#       last_valid = ast.parse('\n'.join(lines[:i]))
+#     except SyntaxError:
+#       break
+
+#   return ast.unparse(last_valid)
+
+
 class _AddDisplayStatement(ast.NodeTransformer):
   """Transform the `ast` to add the `IPython.display.display` statements."""
 
@@ -196,13 +213,18 @@ class _AddDisplayStatement(ast.NodeTransformer):
         if node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
           pass
         else:
-
-          fn_name = _ALIAS_TO_DISPLAY_FN[line_info.alias].__name__
+          fn_kwargs = [
+              ast.keyword('alias', ast.Constant(line_info.alias)),
+          ]
+          if line_info.print_line:
+            fn_kwargs.append(
+                ast.keyword('line_code', ast.Constant(ast.unparse(node)))
+            )
 
           node.value = ast.Call(
-              func=_parse_expr(f'ecolab.auto_display_utils.{fn_name}'),
+              func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
               args=[node.value],
-              keywords=[],
+              keywords=fn_kwargs,
           )
           self.lines_recorder.trailing_stmt_line_nums[line_info.line_num] = (
               line_info
@@ -220,7 +242,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
         pass
       case _:
         return False
-    if name not in _ALIAS_TO_DISPLAY_FN:
+    if name.removesuffix('l') not in _ALIAS_TO_DISPLAY_FN:
       return False
     # The alias is not in the same line as a trailing `;`
     if node.end_lineno - 1 not in self.lines_recorder.trailing_stmt_line_nums:
@@ -244,6 +266,7 @@ class _LineInfo:
   has_trailing: bool
   alias: str
   line_num: int
+  print_line: bool
 
 
 def _has_trailing_semicolon(
@@ -252,11 +275,13 @@ def _has_trailing_semicolon(
 ) -> _LineInfo:
   """Check if `node` has trailing `;`."""
   if isinstance(node, ast.AnnAssign) and node.value is None:
+    # `AnnAssign().value` can be `None` (`a: int`), do not print anything
     return _LineInfo(
         has_trailing=False,
         alias='',
         line_num=-1,
-    )  # `AnnAssign().value` can be `None` (`a: int`)
+        print_line=False,
+    )
 
   # Extract the lines of the statement
   line_num = node.end_lineno - 1
@@ -270,15 +295,18 @@ def _has_trailing_semicolon(
   # Check if the last character is a `;` token
   has_trailing = False
   alias = ''
+  print_line = False
   if match := _detect_trailing_regex().match(last_part_of_line):
     has_trailing = True
-    if match.group(1):
-      alias = match.group(1)
+    if match.group('suffix'):
+      alias = match.group('suffix')
+    print_line = match.group('equal')
 
   return _LineInfo(
       has_trailing=has_trailing,
       alias=alias,
       line_num=line_num,
+      print_line=bool(print_line),
   )
 
 
@@ -294,10 +322,29 @@ def _detect_trailing_regex() -> re.Pattern[str]:
   # * `; a=1`
 
   available_suffixes = '|'.join(list(_ALIAS_TO_DISPLAY_FN)[1:])
-  return re.compile(f' *; *({available_suffixes})? *(?:#.*)?$')
+  return re.compile(
+      ' *; *'  # Trailing `;` (surrounded by spaces)
+      f'(?P<suffix>{available_suffixes})?'  # Optionally a `suffix` letter
+      '(?P<equal>l)?'  # Optionally a `=`
+      ' *(?:#.*)?$'  # Line can end by a `# comment`
+  )
 
 
-def _display_and_return(x: _T) -> _T:
+def _display_and_return(
+    x: _T,
+    *,
+    alias: str,
+    line_code: str | None = None,
+) -> _T:
+  if line_code:
+    # Note that when the next element is a `IPython.display`, the next element
+    # will be displayed on a new line. This is because `display()` create a new
+    # <div> section.
+    print(line_code + '=', end='')
+  return _ALIAS_TO_DISPLAY_FN[alias](x)
+
+
+def _display_and_return_simple(x: _T) -> _T:
   """Print `x` and return `x`."""
   IPython.display.display(x)
   return x
@@ -349,7 +396,7 @@ def _return_quietly(x: _T) -> _T:
 
 
 _ALIAS_TO_DISPLAY_FN = {
-    '': _display_and_return,
+    '': _display_and_return_simple,
     's': _display_specs_and_return,
     'i': _inspect_and_return,
     'a': _display_array_and_return,
