@@ -63,6 +63,8 @@ _OPEN_MODES = ('r', 'w', 'a')
 @functools.cache
 def _is_tf_installed() -> bool:
   """Checks whether TensorFlow is installed."""
+  if os.environ['EPATH_USE_TF'].lower() in ['false', 'no', 'f', '0']:
+    return False
   return importlib.util.find_spec('tensorflow') is not None
 
 
