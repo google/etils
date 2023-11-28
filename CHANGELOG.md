@@ -18,6 +18,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`:
     *   `epy.lazy_imports()` support adhoc imports (will re-create the original
         `ecolab.adhoc` context when resolved)
+    *   Added: `epy.binary_adhoc()` to add adhoc imports when using Python
+        interpreter.
     *   `epy.lazy_imports()` supports error and success callbacks
         (`error_callback`/`success_callback`).
     *   Added: `epy.is_ipython_terminal()` to detect when running in
