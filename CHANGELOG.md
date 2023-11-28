@@ -15,6 +15,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epy.reverse_fstring`: Reverse fstring parsing
     *   Added: `reload=` for `epy.binary_adhoc()`, fixed behavior for
         consistency with `ecolab.adhoc`
+    *   Added: `epy.pretty_repr_top_level`
 *   `ecolab`:
     *   Changed: `ecolab.auto_display`: Better representation when line is
         displayed
