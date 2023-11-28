@@ -31,6 +31,7 @@ def test_parsing():
   )=(
       1,
   3,);  # asdasd
+  assert fn();
   d  =  3   ;  # AAA
   (
       1,

@@ -22,7 +22,7 @@ import functools
 import re
 import traceback
 import typing
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from etils import epy
 from etils.ecolab import array_as_img
@@ -193,6 +193,19 @@ else:
 #   return ast.unparse(last_valid)
 
 
+def _reraise_error(fn: _T) -> _T:
+  @functools.wraps(fn)
+  def decorated(self, node: ast.AST):
+    try:
+      return fn(self, node)  # pytype: disable=wrong-arg-types
+    except Exception as e:  # pylint: disable=broad-exception-caught
+      code = '\n'.join(self.lines_recorder.last_lines)
+      print(f'Error for code:\n-----\n{code}\n-----')
+      traceback.print_exception(e)
+
+  return decorated
+
+
 class _AddDisplayStatement(ast.NodeTransformer):
   """Transform the `ast` to add the `IPython.display.display` statements."""
 
@@ -204,36 +217,32 @@ class _AddDisplayStatement(ast.NodeTransformer):
       self, node: ast.Assign | ast.AnnAssign | ast.Expr
   ) -> ast.AST:
     """Wrap the node in a `display()` call."""
-    try:
-      if self._is_alias_stmt(node):  # Alias statements should be no-op
-        return ast.Pass()
+    if self._is_alias_stmt(node):  # Alias statements should be no-op
+      return ast.Pass()
 
-      line_info = _has_trailing_semicolon(self.lines_recorder.last_lines, node)
-      if line_info.has_trailing:
-        if node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
-          pass
-        else:
-          fn_kwargs = [
-              ast.keyword('alias', ast.Constant(line_info.alias)),
-          ]
-          if line_info.print_line:
-            fn_kwargs.append(
-                ast.keyword('line_code', ast.Constant(ast.unparse(node)))
-            )
+    line_info = _has_trailing_semicolon(self.lines_recorder.last_lines, node)
+    if line_info.has_trailing:
+      if node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
+        pass
+      else:
+        fn_kwargs = [
+            ast.keyword('alias', ast.Constant(line_info.alias)),
+        ]
+        if line_info.print_line:
+          fn_kwargs.append(
+              ast.keyword('line_code', ast.Constant(ast.unparse(node)))
+          )
 
-          node.value = ast.Call(
-              func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
-              args=[node.value],
-              keywords=fn_kwargs,
-          )
-          self.lines_recorder.trailing_stmt_line_nums[line_info.line_num] = (
-              line_info
-          )
-    except Exception as e:
-      code = '\n'.join(self.lines_recorder.last_lines)
-      print(f'Error for code:\n-----\n{code}\n-----')
-      traceback.print_exception(e)
-      raise
+        node.value = ast.Call(
+            func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
+            args=[node.value],
+            keywords=fn_kwargs,
+        )
+        node = ast.fix_missing_locations(node)
+        self.lines_recorder.trailing_stmt_line_nums[line_info.line_num] = (
+            line_info
+        )
+
     return node
 
   def _is_alias_stmt(self, node: ast.AST) -> bool:
@@ -249,16 +258,45 @@ class _AddDisplayStatement(ast.NodeTransformer):
       return False
     return True
 
+  @_reraise_error
+  def visit_Assert(self, node: ast.Assert) -> None:  # pylint: disable=invalid-name
+    # Wrap assert so the `node.value` match the expected API
+    node = _WrapAssertNode(node)
+    node = self._maybe_display(node)  # pytype: disable=wrong-arg-types
+    assert isinstance(node, _WrapAssertNode)
+    node = node._node  # Unwrap  # pylint: disable=protected-access
+    return node
+
   # pylint: disable=invalid-name
-  visit_Assign = _maybe_display
-  visit_AnnAssign = _maybe_display
-  visit_Expr = _maybe_display
-  visit_Return = _maybe_display
+  visit_Assign = _reraise_error(_maybe_display)
+  visit_AnnAssign = _reraise_error(_maybe_display)
+  visit_Expr = _reraise_error(_maybe_display)
+  visit_Return = _reraise_error(_maybe_display)
   # pylint: enable=invalid-name
 
 
 def _parse_expr(code: str) -> ast.AST:
   return ast.parse(code, mode='eval').body
+
+
+class _WrapAssertNode(ast.Assert):
+  """Like `Assert`, but rename `node.test` to `node.value`."""
+
+  def __init__(self, node: ast.Assert) -> None:
+    self._node = node
+
+  def __getattribute__(self, name: str) -> Any:
+    if name in ('value', '_node'):
+      return super().__getattribute__(name)
+    return getattr(self._node, name)
+
+  @property
+  def value(self) -> ast.AST:
+    return self._node.test
+
+  @value.setter
+  def value(self, value: ast.AST) -> None:
+    self._node.test = value
 
 
 @dataclasses.dataclass(frozen=True)
