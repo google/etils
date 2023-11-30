@@ -22,8 +22,6 @@ Changelog follow https://keepachangelog.com/ format.
         interpreter.
     *   `epy.lazy_imports()` supports error and success callbacks
         (`error_callback`/`success_callback`).
-    *   Added: `epy.is_ipython_terminal()` to detect when running in
-        non-notebook terminal environment.
     *   Added: `epy.pretty_repr` support `attr` dataclass-like objects.
 *   `exm`:
     *   Adding artifacts can be used inside `with xm.create_experiment()`
