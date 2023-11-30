@@ -18,6 +18,9 @@ from collections.abc import Iterator
 import contextlib
 import functools
 import sys
+from typing import Any
+
+from etils.epy import py_utils
 
 
 @functools.cache
@@ -39,5 +42,9 @@ def _is_ipython_terminal() -> bool:
 
 
 @contextlib.contextmanager
-def binary_adhoc() -> Iterator[None]:
+def binary_adhoc(
+    restrict: None | py_utils.StrOrStrList = None,
+    verbose: bool = False,
+    **kwargs: Any,
+) -> Iterator[None]:
   yield

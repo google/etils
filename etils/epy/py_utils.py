@@ -16,11 +16,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import enum
 import functools
-import typing
-from typing import Any, TypeVar, Union
 import sys
+import typing
+from typing import Any, Optional, TypeVar, Union
+
+
+StrOrStrList = Union[str, Sequence[str]]
 
 _Cls = TypeVar('_Cls')
 
@@ -167,3 +171,14 @@ def frozen(cls: _Cls) -> _Cls:
   cls.__init__ = _wrap_init(cls.__init__)
   cls.__setattr__ = _wrap_setattr(cls.__setattr__)
   return cls
+
+
+def normalize_str_to_list(x: Optional[StrOrStrList]) -> list[str]:
+  if x is None:
+    return []
+  elif isinstance(x, str):
+    return [v.strip() for v in x.split(',')]
+  elif not isinstance(x, (list, tuple)):
+    raise TypeError(f'Expected list. Got: {x!r}')
+  else:  # list/tuple
+    return list(x)
