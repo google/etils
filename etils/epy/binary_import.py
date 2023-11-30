@@ -16,8 +16,26 @@
 
 from collections.abc import Iterator
 import contextlib
+import functools
+import sys
 
-from etils.epy import env_utils
+
+@functools.cache
+def _is_ipython_terminal() -> bool:
+  """Returns True if running in a IPython terminal/XManager CLI environment."""
+  # XManager CLI trigger binary imports
+  # Detecting we're in `xmanager launch` is non-trivial because the script
+  # is launched with `runpy.run_module(`, hiding some XManager internals.
+  # Otherwise we could have checked if `__main__.__file__.endswith('xm_cli')`,
+  # but `__main__` get overwritten here.
+  if any(flag.startswith('--xm_launch_script=') for flag in sys.argv):
+    return True
+
+  if IPython := sys.modules.get('IPython'):  # pylint: disable=invalid-name
+    ipython = IPython.get_ipython()
+    if ipython and type(ipython).__name__ == 'TerminalInteractiveShell':
+      return True
+  return False
 
 
 @contextlib.contextmanager

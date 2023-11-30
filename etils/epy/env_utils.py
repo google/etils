@@ -23,18 +23,7 @@ def is_notebook() -> bool:
   # Use sys.module as we do not want to trigger an import (slow)
   # Check whether we're not running in a IPython terminal
   if IPython := sys.modules.get('IPython'):  # pylint: disable=invalid-name
-    get_ipython_result = IPython.get_ipython()
-    if get_ipython_result and 'IPKernelApp' in get_ipython_result.config:
+    ipython = IPython.get_ipython()
+    if ipython and 'IPKernelApp' in ipython.config:
       return True
   return False
-
-
-def is_ipython_terminal() -> bool:
-  """Returns True if running in a IPython terminal environment."""
-  if IPython := sys.modules.get('IPython'):  # pylint: disable=invalid-name
-    get_ipython_result = IPython.get_ipython()
-    if (
-        get_ipython_result
-        and type(get_ipython_result).__name__ == 'TerminalInteractiveShell'
-    ):
-      return True
