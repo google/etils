@@ -19,15 +19,15 @@ from __future__ import annotations
 import sys
 import types
 import typing
-from typing import Sequence, NoReturn, Optional, Union
+from typing import NoReturn
 
-StrOrStrList = Union[str, Sequence[str]]
+from etils.epy import py_utils
 
 
-def get_module_names(restrict: StrOrStrList) -> list[str]:
+def get_module_names(restrict: py_utils.StrOrStrList) -> list[str]:
   """Returns all `sys.modules` matching the restrict name."""
 
-  modules = normalize_str_to_list(restrict)
+  modules = py_utils.normalize_str_to_list(restrict)
   assert all('/' not in module for module in modules)
 
   # List all the currently loaded modules matching `modules`
@@ -38,7 +38,7 @@ def get_module_names(restrict: StrOrStrList) -> list[str]:
 
 
 def clear_cached_modules(
-    modules: StrOrStrList,
+    modules: py_utils.StrOrStrList,
     *,
     verbose: bool = False,
     invalidate: bool = True,
@@ -123,14 +123,3 @@ def _is_proto(module_name: str) -> bool:
   """Returns `True` if the module is a proto."""
   # Could use more complex heuristic, but is likely good enough
   return module_name.endswith('_pb2')
-
-
-def normalize_str_to_list(x: Optional[StrOrStrList]) -> list[str]:
-  if x is None:
-    return []
-  elif isinstance(x, str):
-    return [v.strip() for v in x.split(',')]
-  elif not isinstance(x, (list, tuple)):
-    raise TypeError(f'Expected list. Got: {x!r}')
-  else:  # list/tuple
-    return list(x)
