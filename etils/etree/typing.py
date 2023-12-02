@@ -14,10 +14,13 @@
 
 """Tree types."""
 
-from typing import Dict, List, Tuple, TypeVar, Union
+from collections.abc import Callable
+from typing import Any, TypeVar, Union
 
 _T = TypeVar('_T')
 
 # TODO(b/202712189): Add `Any` to the `Union`
 # Tree can be arbitrary `chex.dataclass`, jax structure,... so has to be Any
-Tree = Union[_T, List['Tree'], Tuple['Tree', ...], Dict[str, 'Tree']]  # pytype: disable=not-supported-yet
+Tree = Union[_T, list['Tree'], tuple['Tree', ...], dict[str, 'Tree']]  # pytype: disable=not-supported-yet
+
+LeafFn = Callable[[Any], bool]

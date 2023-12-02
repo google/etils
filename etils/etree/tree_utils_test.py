@@ -61,12 +61,10 @@ def test_tree_unzip(etree_api):  # pylint: disable=redefined-outer-name
   unflatten = [{'a': 1, 'b': 10}, {'a': 2, 'b': 20}, {'a': 3, 'b': 30}]
   assert (
       list(
-          etree_api.unzip(
-              {
-                  'a': np.array([1, 2, 3]),
-                  'b': np.array([10, 20, 30]),
-              }
-          )
+          etree_api.unzip({
+              'a': np.array([1, 2, 3]),
+              'b': np.array([10, 20, 30]),
+          })
       )
       == unflatten
   )
@@ -154,3 +152,42 @@ def test_tree_assert_same_structure(etree_api: etree_lib.tree_utils.TreeAPI):  #
             'y2': [],
         },
     )
+
+
+def test_is_leaf(etree_api: etree_lib.tree_utils.TreeAPI):  # pylint: disable=redefined-outer-name
+  if etree_api in (  # Not implemented
+      # etree_lib.optree,
+      etree_lib.tree,
+      etree_lib.nest,
+  ):
+    pytest.skip('is_leaf not implemented')
+
+  def _assert_dict(x):
+    assert isinstance(x, dict)
+
+  etree_api.map(
+      _assert_dict,
+      [
+          {'a': 1},
+          {'a': 1},
+          {'a': 1},
+          {'a': 1},
+      ],
+      is_leaf=lambda x: isinstance(x, dict),
+  )
+
+  assert etree_api.backend.flatten(
+      lambda x: x,
+      [
+          {'a': 1},
+          {'a': 1},
+          {'a': 1},
+          {'a': 1},
+      ],
+      is_leaf=lambda x: isinstance(x, dict),
+  ) == [
+      {'a': 1},
+      {'a': 1},
+      {'a': 1},
+      {'a': 1},
+  ]

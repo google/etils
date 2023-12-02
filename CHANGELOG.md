@@ -22,6 +22,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `exm`:
     *   Added: `exm.set_citc_source()` to specify which workspace to use when
         using XManager on Colab
+*   `etree`:
+    *   Added `is_leaf` kwarg to `.map` and `.parallel_map`
 
 ## [1.6.0] - 2023-12-11
 

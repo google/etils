@@ -21,10 +21,10 @@ import collections
 import collections.abc
 import itertools
 import types
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
 from etils import epy
-from etils.etree.typing import Tree  # pylint: disable=g-importing-member
+from etils.etree.typing import LeafFn, Tree  # pylint: disable=g-importing-member,g-multiple-import
 
 _T = TypeVar('_T')
 _Tin = Any  # TypeVar('_Tin')
@@ -63,12 +63,17 @@ class Backend(abc.ABC):
       self,
       map_fn: Callable[..., _Tout],  # Callable[[_Tin0, _Tin1,...], Tout]
       *trees: Tree[_Tin],  # _Tin0, _Tin1,...
+      is_leaf: Optional[LeafFn] = None,
   ) -> Tree[_Tout]:
     """Like `tf.nest.map_structure`."""
     raise NotImplementedError
 
   @abc.abstractmethod
-  def flatten(self, tree: Tree[_T]) -> tuple[list[_T], _TreeDef]:
+  def flatten(
+      self,
+      tree: Tree[_T],
+      is_leaf: Optional[LeafFn] = None,
+  ) -> tuple[list[_T], _TreeDef]:
     """Like `tf.nest.flatten`."""
     raise NotImplementedError
 
@@ -93,11 +98,11 @@ class Jax(Backend):
 
     return jax.tree_util
 
-  def map(self, map_fn, *trees):
-    return self.module.tree_map(map_fn, *trees)
+  def map(self, map_fn, *trees, is_leaf=None):
+    return self.module.tree_map(map_fn, *trees, is_leaf=is_leaf)
 
-  def flatten(self, tree):
-    flat_vals, treedef = self.module.tree_flatten(tree)
+  def flatten(self, tree, is_leaf=None):
+    flat_vals, treedef = self.module.tree_flatten(tree, is_leaf=is_leaf)
     return flat_vals, treedef
 
   def unflatten(self, structure, flat_sequence):
@@ -113,7 +118,7 @@ class Jax(Backend):
     if treedef0 != treedef1:
       raise ValueError(
           "The two structures don't have the same nested structure.\n"
-          f"Left: {treedef0}\nRight: {treedef1}"
+          f'Left: {treedef0}\nRight: {treedef1}'
       )
 
 
@@ -134,10 +139,14 @@ class DmTree(Backend):
 
     return tree
 
-  def map(self, map_fn, *trees):
+  def map(self, map_fn, *trees, is_leaf=None):
+    if is_leaf is not None:
+      raise NotImplementedError('is_leaf not supported for `dm-tree` backend')
     return self.module.map_structure(map_fn, *trees)
 
-  def flatten(self, tree):
+  def flatten(self, tree, is_leaf=None):
+    if is_leaf is not None:
+      raise NotImplementedError('is_leaf not supported for `dm-tree` backend')
     return self.module.flatten(tree), tree
 
   def unflatten(self, structure, flat_sequence):
@@ -159,10 +168,14 @@ class Nest(Backend):
 
     return tf.nest
 
-  def map(self, map_fn, *trees):
+  def map(self, map_fn, *trees, is_leaf=None):
+    if is_leaf is not None:
+      raise NotImplementedError('is_leaf not supported for `nest` backend')
     return self.module.map_structure(map_fn, *trees)
 
-  def flatten(self, tree):
+  def flatten(self, tree, is_leaf=None):
+    if is_leaf is not None:
+      raise NotImplementedError('is_leaf not supported for `nest` backend')
     return self.module.flatten(tree), tree
 
   def unflatten(self, structure, flat_sequence):
@@ -188,16 +201,21 @@ class Python(Backend):
   def import_module(self):
     raise RuntimeError('Python backend do not have module')
 
-  def map(self, map_fn, *trees):
+  def map(self, map_fn, *trees, is_leaf=None):
     tree0 = trees[0]
-    if isinstance(tree0, _SEQUENCE_TYPES):
-      new_items = (self.map(map_fn, *v) for v in zip(*trees))
+    if is_leaf is not None and is_leaf(tree0):
+      return map_fn(*trees)
+    elif isinstance(tree0, _SEQUENCE_TYPES):
+      new_items = (self.map(map_fn, *v, is_leaf=is_leaf) for v in zip(*trees))
       if epy.is_namedtuple(tree0):
         return type(tree0)(*new_items)
       else:
         return type(tree0)(new_items)
     elif isinstance(tree0, _MAPPING_TYPES):
-      new_items = ((k, self.map(map_fn, *v)) for k, v in epy.zip_dict(*trees))
+      new_items = (
+          (k, self.map(map_fn, *v, is_leaf=is_leaf))
+          for k, v in epy.zip_dict(*trees)
+      )
       if isinstance(tree0, collections.defaultdict):
         new_tree = type(tree0)(tree0.default_factory)
         new_tree.update(new_items)
@@ -207,15 +225,20 @@ class Python(Backend):
     else:  # leaf
       return map_fn(*trees)
 
-  def flatten(self, tree):
-    return list(self._flatten(tree)), tree
+  def flatten(self, tree, is_leaf=None):
+    return list(self._flatten(tree, is_leaf=is_leaf)), tree
 
-  def _flatten(self, tree):
-    if isinstance(tree, _SEQUENCE_TYPES):
-      return itertools.chain.from_iterable(self._flatten(v) for v in tree)
+  def _flatten(self, tree, is_leaf):
+    """`flatten` recursive implementation."""
+    if is_leaf is not None and is_leaf(tree):
+      return [tree]
+    elif isinstance(tree, _SEQUENCE_TYPES):
+      return itertools.chain.from_iterable(
+          self._flatten(v, is_leaf=is_leaf) for v in tree
+      )
     elif isinstance(tree, _MAPPING_TYPES):
       return itertools.chain.from_iterable(
-          self._flatten(v) for _, v in sorted(tree.items())
+          self._flatten(v, is_leaf=is_leaf) for _, v in sorted(tree.items())
       )
     else:  # leaf
       return [tree]

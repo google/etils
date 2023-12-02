@@ -22,7 +22,7 @@ from etils import enp
 from etils import etqdm
 from etils.array_types import Array
 from etils.etree import backend as backend_lib
-from etils.etree.typing import Tree
+from etils.etree.typing import LeafFn, Tree  # pylint: disable=g-importing-member,g-multiple-import
 
 _T = Any  # TODO(pytype): Replace by `TypeVar`
 _Tin = Any  # Could make this TypeVar if typing support variadic
@@ -39,17 +39,19 @@ class TreeAPI:
       self,
       map_fn: Callable[..., _Tout],  # Callable[[_Tin0, _Tin1,...], Tout]
       *trees: Tree[_Tin],  # _Tin0, _Tin1,...
+      is_leaf: Optional[LeafFn] = None,
   ) -> Tree[_Tout]:
     """Same as `tree.map_structure`.
 
     Args:
       map_fn: Worker function
       *trees: Nested input to pass to the `map_fn`
+      is_leaf: Don't recurse into leaf if `is_leaf(node)` is `True`
 
     Returns:
       The nested structure after `map_fn` has been applied.
     """
-    return self.backend.map(map_fn, *trees)
+    return self.backend.map(map_fn, *trees, is_leaf=is_leaf)
 
   def parallel_map(
       self,
@@ -57,6 +59,7 @@ class TreeAPI:
       *trees: Tree[_Tin],  # _Tin0, _Tin1,...
       num_threads: Optional[int] = None,
       progress_bar: bool = False,
+      is_leaf: Optional[LeafFn] = None,
   ) -> Tree[_Tout]:
     """Same as `tree.map_structure` but apply `map_fn` in parallel.
 
@@ -65,6 +68,7 @@ class TreeAPI:
       *trees: Nested input to pass to the `map_fn`
       num_threads: Number of workers (default to CPU count * 5)
       progress_bar: If True, display a progression bar.
+      is_leaf: Don't recurse into leaf if `is_leaf(node)` is `True`
 
     Returns:
       The nested structure after `map_fn` has been applied.
@@ -76,9 +80,9 @@ class TreeAPI:
         max_workers=num_threads
     ) as executor:
       launch_worker = functools.partial(executor.submit, map_fn)
-      futures = self.backend.map(launch_worker, *trees)
+      futures = self.backend.map(launch_worker, *trees, is_leaf=is_leaf)
 
-      leaves, _ = self.backend.flatten(futures)
+      leaves, _ = self.backend.flatten(futures, is_leaf=is_leaf)
 
       itr = concurrent.futures.as_completed(leaves)
       if progress_bar:
