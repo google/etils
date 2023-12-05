@@ -20,6 +20,7 @@ import functools
 import sys
 from typing import Any
 
+import __main__  # pylint: disable=g-bad-import-order
 from etils.epy import py_utils
 
 
@@ -27,10 +28,16 @@ from etils.epy import py_utils
 def _is_ipython_terminal() -> bool:
   """Returns True if running in a IPython terminal/XManager CLI environment."""
   # XManager CLI trigger binary imports
-  # Detecting we're in `xmanager launch` is non-trivial because the script
-  # is launched with `runpy.run_module(`, hiding some XManager internals.
-  # Otherwise we could have checked if `__main__.__file__.endswith('xm_cli')`,
-  # but `__main__` get overwritten here.
+
+  # `epy` is imported before the `runpy.run_module(`, so main is still the
+  # XManager binary
+  if __main__.__file__.endswith('xmanager2/client/cli/xm_cli.py'):
+    return True
+
+  # In case `epy` is imported after the XManager CLI, detecting we're in
+  # `xmanager launch` is non-trivial because the script is launched with
+  # `runpy.run_module(`, hiding some XManager internals and overwriting
+  # `__main__`.
   if any(flag.startswith('--xm_launch_script=') for flag in sys.argv):
     return True
 
