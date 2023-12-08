@@ -140,6 +140,7 @@ with _builder.replace_imports(is_std=False):
   from etils import epy
   from etils import etqdm
   from etils import etree
+  from etils import exm
   from etils.ecolab import lazy_imports
   # ====== Common third party ======
   from absl import app
