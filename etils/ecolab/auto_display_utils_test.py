@@ -129,3 +129,19 @@ def test_noalias(code):
   assert not auto_display_utils._has_trailing_semicolon(
       code.splitlines(), node.body[0]
   ).has_trailing
+
+
+@pytest.mark.parametrize(
+    'line, extracted',
+    [
+        ('a=1', 'a'),
+        ('a: int=1', 'a'),
+        ('a, b = 1', '(a, b)'),
+        ('a + 1', 'a + 1'),
+        ('fn()', 'fn()'),
+        # TODO(epot): Also support `a=b=2`
+    ],
+)
+def test_unparse_line(line: str, extracted: str):
+  node = ast.parse(line).body[0]
+  assert auto_display_utils._unparse_line(node).value == extracted

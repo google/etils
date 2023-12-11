@@ -229,9 +229,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
             ast.keyword('alias', ast.Constant(line_info.alias)),
         ]
         if line_info.print_line:
-          fn_kwargs.append(
-              ast.keyword('line_code', ast.Constant(ast.unparse(node)))
-          )
+          fn_kwargs.append(ast.keyword('line_code', _unparse_line(node)))
 
         node.value = ast.Call(
             func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
@@ -368,17 +366,35 @@ def _detect_trailing_regex() -> re.Pattern[str]:
   )
 
 
+def _unparse_line(node: ast.AST) -> ast.Constant:
+  """Extract the line code."""
+  if isinstance(node, ast.Assign):
+    node = node.targets
+  elif isinstance(node, ast.AnnAssign):
+    node = node.target
+  return ast.Constant(ast.unparse(node))
+
+
 def _display_and_return(
     x: _T,
     *,
     alias: str,
     line_code: str | None = None,
 ) -> _T:
+  """Print `x` and return `x`."""
   if line_code:
-    # Note that when the next element is a `IPython.display`, the next element
-    # will be displayed on a new line. This is because `display()` create a new
-    # <div> section.
     print(line_code + '=', end='')
+    # When the next element is a `IPython.display`, the next element is
+    # displayed on a new line. This is because `display()` create a new
+    # <div> section.
+    # To fix the most common use-cases, we hardcode the primitive to be
+    # displayed on the same line.
+    # TODO(epot): Should pretty-print by default instead ?
+    if alias == '' and isinstance(  # pylint: disable=g-explicit-bool-comparison
+        x, (str, bytes, int, float, bool, type(None))
+    ):
+      print(repr(x))
+      return
   return _ALIAS_TO_DISPLAY_FN[alias](x)
 
 

@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   `ecolab.auto_display`: Better representation when line is displayed
+
 ## [1.6.0] - 2023-12-11
 
 *   `ecolab`:
