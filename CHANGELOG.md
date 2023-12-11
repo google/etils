@@ -10,6 +10,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `ecolab`:
     *   `ecolab.auto_display`: Better representation when line is displayed
+*   `exm`:
+    *   Add `exm.set_citc_source()` to specify which workspace to use when
+        using XManager on Colab
 
 ## [1.6.0] - 2023-12-11
 
