@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.6.0] - 2023-12-11
+
 *   `ecolab`:
     *   Added protobuf repeated fields support to `ecolab.inspect`
     *   `ecolab.auto_display`:
@@ -344,7 +346,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.5.2...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/google/etils/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/google/etils/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/google/etils/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/google/etils/compare/v1.4.1...v1.5.0
