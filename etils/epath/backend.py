@@ -62,11 +62,15 @@ class Backend(abc.ABC):
     raise NotImplementedError
 
   @abc.abstractmethod
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def makedirs(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
     raise NotImplementedError
 
   @abc.abstractmethod
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def mkdir(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
     raise NotImplementedError
 
   @abc.abstractmethod
@@ -121,12 +125,22 @@ class _OsPathBackend(Backend):
   def glob(self, path: PathLike) -> list[str]:
     return glob_lib.glob(path)
 
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
-    os.makedirs(path, exist_ok=exist_ok)
+  def makedirs(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
+    os.makedirs(path, exist_ok=exist_ok, mode=mode)
 
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def mkdir(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
+    if mode != 0o777:
+      # os.path do not support setting `mode=`
+      raise NotImplementedError(
+          'mkdir with custom `mode=` not supported for os.path backend. Please'
+          ' open an issue.'
+      )
     try:
-      os.mkdir(path)
+      os.mkdir(path, mode=mode)
     except FileExistsError:
       if self.isdir(path):  # No-op if directory already exists
         if exist_ok:
@@ -233,7 +247,15 @@ class _TfBackend(Backend):
   def glob(self, path: PathLike) -> list[str]:
     return self.gfile.glob(path)
 
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def makedirs(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
+    if mode != 0o777:
+      # tf.io.gfile do not support setting `mode=`
+      raise NotImplementedError(
+          'makedirs with custom `mode=` not supported for tf.io.gfile backend.'
+          ' Please open an issue.'
+      )
     # TF do not have a `exist_ok=` kwargs, so have to first check existence.
     # This has performance impact but can be disabled with `exist_ok=True`.
     if not exist_ok and self.exists(path):
@@ -247,7 +269,16 @@ class _TfBackend(Backend):
       else:
         raise OSError(str(e)) from None
 
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def mkdir(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
+    if mode != 0o777:
+      # tf.io.gfile do not support setting `mode=`
+      raise NotImplementedError(
+          'mkdir with custom `mode=` not supported for tf.io.gfile backend.'
+          ' Please open an issue.'
+      )
+
     if not exist_ok and self.exists(path):
       raise FileExistsError(f'{path} already exists.')
 
@@ -370,10 +401,26 @@ class _FileSystemSpecBackend(Backend):
     protocol = _get_protocol(path)
     return [protocol + p for p in self.fs(path).glob(path)]
 
-  def makedirs(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def makedirs(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
+    if mode != 0o777:
+      # FileSystemSpec backend do not support setting `mode=`
+      raise NotImplementedError(
+          'makedirs with custom `mode=` not supported for FileSystemSpec'
+          ' backend. Please open an issue.'
+      )
     return self.fs(path).makedirs(path, exist_ok=exist_ok)
 
-  def mkdir(self, path: PathLike, *, exist_ok: bool = False) -> None:
+  def mkdir(
+      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+  ) -> None:
+    if mode != 0o777:
+      # FileSystemSpec backend do not support setting `mode=`
+      raise NotImplementedError(
+          'mkdir with custom `mode=` not supported for FileSystemSpec backend.'
+          ' Please open an issue.'
+      )
     try:
       return self.fs(path).mkdir(path, create_parents=False)
     except FileExistsError:
