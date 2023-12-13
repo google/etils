@@ -8,8 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Added `epy.reverse_fstring`: Reverse fstring parsing
 *   `ecolab`:
-    *   `ecolab.auto_display`: Better representation when line is displayed
+    *   Changed `ecolab.auto_display`: Better representation when line is
+        displayed
 *   `exm`:
     *   Add `exm.set_citc_source()` to specify which workspace to use when
         using XManager on Colab
