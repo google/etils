@@ -14,8 +14,10 @@
 
 """`etils` internal utils."""
 
+from collections.abc import Callable
 import contextlib
-from typing import Iterator, TypeVar
+import functools
+from typing import Any, Iterator, TypeVar
 
 from etils.epy import reraise_utils
 
@@ -54,9 +56,15 @@ def check_missing_deps() -> Iterator[None]:
 
 def unwrap_on_reload(fn: _FnT) -> _FnT:
   """Unwrap the function to support colab module reload."""
-  if hasattr(fn, '__original_fn__'):
-    fn = fn.__original_fn__
+  return getattr(fn, '__original_fn__', fn)
 
-  # Save the original function (to support reload)
-  fn.__original_fn__ = fn
-  return fn
+
+def wraps_with_reload(fn: Callable[..., Any]) -> Callable[[_FnT], _FnT]:
+  """Wrap the function to support colab module reload."""
+
+  def decorator(fn_to_wrap):
+    fn_to_wrap = functools.wraps(fn)(fn_to_wrap)
+    fn_to_wrap.__original_fn__ = fn
+    return fn_to_wrap
+
+  return decorator
