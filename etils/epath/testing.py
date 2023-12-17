@@ -69,13 +69,21 @@ class _MockBackend(_backend_cls):
     return self._get_fn('glob')(path)
 
   def makedirs(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
     del mode
     return self._get_fn('makedirs')(path, exist_ok=exist_ok)
 
   def mkdir(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
     del mode
     return self._get_fn('mkdir')(path, exist_ok=exist_ok)

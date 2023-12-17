@@ -24,7 +24,7 @@ import os
 import shutil
 import stat as stat_lib
 import typing
-from typing import Iterator, NoReturn, Union
+from typing import Iterator, NoReturn, Optional, Union
 
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
@@ -63,13 +63,21 @@ class Backend(abc.ABC):
 
   @abc.abstractmethod
   def makedirs(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
     raise NotImplementedError
 
   @abc.abstractmethod
   def mkdir(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
     raise NotImplementedError
 
@@ -126,19 +134,23 @@ class _OsPathBackend(Backend):
     return glob_lib.glob(path)
 
   def makedirs(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
+    mode = 0o777 if mode is None else mode
     os.makedirs(path, exist_ok=exist_ok, mode=mode)
 
   def mkdir(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
-    if mode != 0o777:
-      # os.path do not support setting `mode=`
-      raise NotImplementedError(
-          'mkdir with custom `mode=` not supported for os.path backend. Please'
-          ' open an issue.'
-      )
+    mode = 0o777 if mode is None else mode
     try:
       os.mkdir(path, mode=mode)
     except FileExistsError:
@@ -248,8 +260,13 @@ class _TfBackend(Backend):
     return self.gfile.glob(path)
 
   def makedirs(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
+    mode = 0o777 if mode is None else mode
     if mode != 0o777:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
@@ -270,8 +287,13 @@ class _TfBackend(Backend):
         raise OSError(str(e)) from None
 
   def mkdir(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
+    mode = 0o777 if mode is None else mode
     if mode != 0o777:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
@@ -402,8 +424,13 @@ class _FileSystemSpecBackend(Backend):
     return [protocol + p for p in self.fs(path).glob(path)]
 
   def makedirs(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
+    mode = 0o777 if mode is None else mode
     if mode != 0o777:
       # FileSystemSpec backend do not support setting `mode=`
       raise NotImplementedError(
@@ -413,8 +440,13 @@ class _FileSystemSpecBackend(Backend):
     return self.fs(path).makedirs(path, exist_ok=exist_ok)
 
   def mkdir(
-      self, path: PathLike, *, exist_ok: bool = False, mode: int = 0o777
+      self,
+      path: PathLike,
+      *,
+      exist_ok: bool = False,
+      mode: Optional[int] = None,
   ) -> None:
+    mode = 0o777 if mode is None else mode
     if mode != 0o777:
       # FileSystemSpec backend do not support setting `mode=`
       raise NotImplementedError(
