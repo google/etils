@@ -18,8 +18,9 @@
 
 import sys
 
+from etils.epy import _internal
+from etils.epy.adhoc_utils.binary_import import binary_adhoc
 from etils.epy.backports import cached_property
-from etils.epy.binary_import import binary_adhoc
 from etils.epy.contextlib import ContextManager
 from etils.epy.env_utils import is_notebook
 from etils.epy.itertools import groupby
