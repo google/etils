@@ -30,7 +30,7 @@ from etils import epath
 from etils.ecolab import adhoc_imports
 from etils.ecolab import colab_utils
 from etils.ecolab import ip_utils
-from etils.ecolab import module_utils
+from etils.epy.adhoc_utils import module_utils
 import IPython
 
 

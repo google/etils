@@ -20,8 +20,11 @@ import functools
 import sys
 from typing import Any
 
-import __main__  # pylint: disable=g-bad-import-order
 from etils.epy import py_utils
+from etils.epy.adhoc_utils import module_utils
+from etils.epy.adhoc_utils import utils as adhoc_utils
+
+import __main__  # pylint: disable=g-bad-import-order
 
 
 @functools.cache
@@ -53,6 +56,7 @@ def _is_ipython_terminal() -> bool:
 @contextlib.contextmanager
 def binary_adhoc(
     restrict: None | py_utils.StrOrStrList = None,
+    reload: None | py_utils.StrOrStrList = None,
     verbose: bool = False,
     **kwargs: Any,
 ) -> Iterator[None]:
