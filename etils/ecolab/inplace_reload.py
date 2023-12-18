@@ -29,7 +29,7 @@ from typing import Any, Iterator
 import weakref
 
 from etils import epy
-from etils.ecolab import module_utils
+from etils.epy.adhoc_utils import module_utils
 
 
 class ReloadMode(epy.StrEnum):

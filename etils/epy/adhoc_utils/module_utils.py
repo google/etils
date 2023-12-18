@@ -117,9 +117,3 @@ def _invalidate_module(module: types.ModuleType) -> None:
 
   module.__dict__.clear()
   module.__getattr__ = __getattr__
-
-
-def _is_proto(module_name: str) -> bool:
-  """Returns `True` if the module is a proto."""
-  # Could use more complex heuristic, but is likely good enough
-  return module_name.endswith('_pb2')
