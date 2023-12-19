@@ -28,6 +28,7 @@ class StatResult:
     mtime: Time since last modification (in sec since the epoch)
     owner: the owner of the path.
     group: the group of the path.
+    mode: the st_mode of the path.
   """
 
   is_directory: bool
@@ -35,3 +36,4 @@ class StatResult:
   mtime: int
   owner: Optional[str] = None
   group: Optional[str] = None
+  mode: Optional[int] = None

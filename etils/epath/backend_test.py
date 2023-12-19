@@ -469,6 +469,10 @@ def _test_stat(
     else:
       assert st.owner == owner
       assert st.group == group
+    if backend == epath.backend.tf_backend:
+      assert not st.mode
+    else:
+      assert st.mode == st_gt.st_mode
 
   for name in _FILE_NAMES:
     p = tmp_path / name
@@ -483,6 +487,10 @@ def _test_stat(
     else:
       assert st.owner == owner
       assert st.group == group
+    if backend == epath.backend.tf_backend:
+      assert not st.mode
+    else:
+      assert st.mode == st_gt.st_mode
 
 
 @pytest.mark.usefixtures('with_subtests')

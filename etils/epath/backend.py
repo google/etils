@@ -215,6 +215,7 @@ class _OsPathBackend(Backend):
         mtime=int(st.st_mtime),
         owner=owner,
         group=group,
+        mode=st.st_mode,
     )
 
 
@@ -377,6 +378,7 @@ class _TfBackend(Backend):
         mtime=st.mtime_nsec // 1_000_000_000,
         owner=None,  # Not available.
         group=None,  # Not available.
+        mode=None,
     )
 
 
@@ -536,6 +538,7 @@ class _FileSystemSpecBackend(Backend):
         mtime=mtime,
         owner=info.get('owner'),
         group=info.get('group'),
+        mode=info.get('mode')
     )
 
 

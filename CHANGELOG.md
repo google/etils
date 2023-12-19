@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epath`:
+    *   Add `mode` to `epath.Path.stat` output. Does not work for Windows nor
+        when `tf.io.gfile` is used.
 *   `epy`:
     *   Added: `epy.reverse_fstring`: Reverse fstring parsing
     *   Added: `reload=` for `epy.binary_adhoc()`, fixed behavior for
