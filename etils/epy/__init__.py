@@ -37,7 +37,8 @@ from etils.epy.reraise_utils import reraise
 from etils.epy.text_utils import dedent
 from etils.epy.text_utils import diff_str
 from etils.epy.text_utils import Lines
-from etils.epy.text_utils import pretty_repr  # pylint: disable=redefined-builtin
+from etils.epy.text_utils import pretty_repr
+from etils.epy.text_utils import pretty_repr_top_level
 
 # Inside tests, can use `epy.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import
