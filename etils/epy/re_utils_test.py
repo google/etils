@@ -20,10 +20,10 @@ from etils import epy
 def test_match():
   assert epy.reverse_fstring(
       '/home/{user}/projects/{project}',
-      '/home/conchylicultor/projects/menhir'
+      '/home/conchylicultor/projects/my-menhir',
   ) == {
       'user': 'conchylicultor',
-      'project': 'menhir',
+      'project': 'my-menhir',
   }
   assert (
       epy.reverse_fstring(
