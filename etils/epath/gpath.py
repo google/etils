@@ -24,7 +24,7 @@ import pathlib
 import posixpath
 import types
 import typing
-from typing import Any, ClassVar, Iterator, Optional, Type, TypeVar, Union
+from typing import Any, ClassVar, Iterator, Optional, Type, TypeVar, Union, Callable, Iterable
 
 from etils import epy
 from etils.epath import abstract_path
@@ -269,6 +269,26 @@ class _GPath(abstract_path.Path):
   def stat(self) -> stat_utils.StatResult:
     """Returns metadata for the file/directory."""
     return self._backend.stat(self._path_str)
+
+  def walk(
+      self: _P,
+      top_down: bool = True,
+      on_error: Optional[Callable] = None,
+      follow_symlinks: bool = False,
+      max_depth: Optional[int] = None,
+      **kwargs,
+  ) -> Iterator[_P, Iterable[_P], Iterable[_P]]:
+    for root, dirs, files in self._backend.walk(
+        top=self._path_str,
+        top_down=top_down,
+        on_error=on_error,
+        follow_symlinks=follow_symlinks,
+        max_depth=max_depth,
+        **kwargs,
+    ):
+      yield self._new(root), tuple(self._new(dir) for dir in dirs), tuple(
+          self._new(file) for file in files
+      )
 
 
 def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:

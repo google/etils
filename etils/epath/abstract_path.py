@@ -19,7 +19,7 @@ from __future__ import annotations
 import os
 import pathlib
 import typing
-from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar
+from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar, Iterable, Callable
 
 from etils.epath import register
 from etils.epath import stat_utils
@@ -111,6 +111,17 @@ class Path(pathlib.PurePosixPath):
   def rglob(self: _T, pattern: str) -> Iterator[_T]:
     """Yields all matching files recursively (of any kind)."""
     return self.glob(f'**/{pattern}')
+
+  @abstractmethod
+  def walk(
+      self: _T,
+      top_down: bool = True,
+      on_error: Optional[Callable | str] = None,
+      follow_symlinks: bool = False,
+      max_depth: Optional[int] = None,
+      **kwargs,
+  ) -> Iterator[_T, Iterable[_T], Iterable[_T]]:
+    raise NotImplementedError
 
   def expanduser(self: _T) -> _T:
     """Returns a new path with expanded `~` and `~user` constructs."""
@@ -218,4 +229,5 @@ class Path(pathlib.PurePosixPath):
   @abstractmethod
   def copy(self: _T, dst: PathLike, overwrite: bool = False) -> _T:
     """Copy the current file to the given destination."""
+
   # pytype: enable=bad-return-type

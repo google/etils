@@ -69,6 +69,7 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
       mkdir=_call(backend.mkdir),
       remove=_call(backend.remove),
       rmtree=_call(backend.rmtree),
+      walk=_call(backend.walk),
       # Mock _is_tf_installed in order not to default to tf_backend:
   ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
     yield tmp_path
@@ -397,6 +398,29 @@ def test_rglob():
 
   with pytest.raises(NotImplementedError, match='Recursive'):
     list(epath.Path('/tmp/nonexisting/test').glob('folder/**/img.jpg'))
+
+def test_walk(gcs_mocked_path: pathlib.Path):
+  root_path = epath.Path(gcs_mocked_path)
+  result = list((root_path / '/nonexisting/test').walk())
+  assert len(result) == 0
+
+  subdir = (root_path / "subdir")
+  subdir.mkdir()
+  subfiles_1 = (subdir / "file001")
+  subfiles_1.touch()
+  subfiles_2 = (subdir / "file002")
+  subfiles_2.touch()
+
+  # path, dirs, files = list((root_path).walk())
+  (path_1, dirs_1, files_1), (path_2, dirs_2, files_2) = list((root_path).walk( topdown=True))
+
+  assert path_1 == root_path
+  assert dirs_1[0] == epath.Path("subdir")
+  assert files_1 == ()
+
+  assert path_2 == subdir
+  assert dirs_2 == ()
+  assert files_2 == (epath.Path("file002"), epath.Path("file001"))
 
 
 def test_default():

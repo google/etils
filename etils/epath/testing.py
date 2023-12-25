@@ -123,6 +123,7 @@ def mock_epath(
     replace: Optional[_MockFn] = None,
     rmtree: Optional[_MockFn] = None,
     stat: Optional[_MockFn] = None,
+    walk: Optional[_MockFn] = None,
 ) -> Iterator[None]:
   """Mock epath.
 
@@ -163,7 +164,7 @@ def mock_epath(
       replace=replace,
       rmtree=rmtree,
       stat=stat,
-      # 'walk',
+      walk = walk,
   )
   mock_backend = _MockBackend(mock_fns=mock_fns)
 
