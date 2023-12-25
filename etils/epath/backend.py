@@ -24,7 +24,7 @@ import os
 import shutil
 import stat as stat_lib
 import typing
-from typing import Iterator, NoReturn, Optional, Union
+from typing import Iterator, NoReturn, Optional, Union, Callable, Iterable
 
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
@@ -103,6 +103,21 @@ class Backend(abc.ABC):
 
   @abc.abstractmethod
   def stat(self, path: PathLike) -> stat_utils.StatResult:
+    raise NotImplementedError
+
+  @abc.abstractmethod
+  def walk(
+      self,
+      top: PathLike,
+      top_down: bool = True,
+      on_error: Optional[Callable] = None,
+      follow_symlinks: bool = False,
+      max_depth: Optional[int]=None,
+  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+    """
+    follow_symlinks: not used by fsspec backend
+    max_depth: only used by fsspec backend
+    """
     raise NotImplementedError
 
 
@@ -216,6 +231,18 @@ class _OsPathBackend(Backend):
         owner=owner,
         group=group,
         mode=st.st_mode,
+    )
+
+  def walk(
+      self,
+      top: PathLike,
+      top_down: bool = True,
+      on_error: Optional[Callable] = None,
+      follow_symlinks: bool = False,
+      **_,
+  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+    yield from os.walk(
+        top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
     )
 
 
@@ -381,6 +408,18 @@ class _TfBackend(Backend):
         mode=None,
     )
 
+  def walk(
+      self,
+      top: PathLike,
+      top_down: bool = True,
+      on_error: Optional[Callable] = None,
+      follow_symlinks: bool = False,
+      **_,
+  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+    yield from self.gfile.walk(
+        top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
+    )
+
 
 class _FileSystemSpecBackend(Backend):
   """FileSystemSpec backend entirely relying on fsspec."""
@@ -538,7 +577,21 @@ class _FileSystemSpecBackend(Backend):
         mtime=mtime,
         owner=info.get('owner'),
         group=info.get('group'),
-        mode=info.get('mode')
+        mode=info.get('mode'),
+    )
+
+  def walk(
+      self,
+      top: PathLike,
+      top_down: bool = True,
+      on_error: Optional[Callable | str] = None,
+      max_depth=None,
+      **kwargs,
+  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+    if on_error is None:
+      on_error = 'omit'  # default behavior of fsspec
+    yield from self.fs(top).walk(
+        path=top, topdown=top_down, on_error=on_error, max_depth=None, **kwargs
     )
 
 

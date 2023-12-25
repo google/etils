@@ -150,6 +150,40 @@ def _test_glob(
   ]
 
 
+def _test_walk(backend: epath.backend.Backend, tmp_path):
+  nested = (tmp_path / 'abc/nested/')
+  nested.mkdir(parents=True)
+  (tmp_path / 'abc/other_nested/').mkdir(parents=True)
+  (tmp_path / 'abc/nested/001').touch()
+  (tmp_path / 'abc/nested/002').touch()
+  (tmp_path / 'abc/nested/003').touch()
+  link_dir =  (tmp_path / 'abc/link_dir').symlink_to(nested)
+
+  last_seen = None
+
+  for path, dirs, files in backend.walk(tmp_path, top_down=False, follow_symlinks=False):
+    if path == str(tmp_path):
+      assert set(dirs) == {'abc'}
+      assert len(files) == 0
+    elif path == str(tmp_path / 'abc') and not isinstance(backend, epath.backend._FileSystemSpecBackend):
+        assert set(dirs) == {'nested', 'other_nested', 'link_dir'}
+        assert len(files) == 0
+    elif path == str(tmp_path / 'abc' / 'nested'):
+      assert len(dirs) == 0
+      assert set(files) == {'001', '002', '003'}
+    elif path == str(link_dir):
+      raise RuntimeError(f"Should not walk in {link_dir}")
+
+    last_seen = path
+
+  assert last_seen == str(tmp_path)
+
+  for path, dirs, files in backend.walk(tmp_path, follow_symlinks=True):
+    if path == str(link_dir):
+      assert len(dirs) == 0
+      assert set(files) == {'001', '002', '003'}
+
+
 def _test_listdir(
     backend: epath.backend.Backend,
     tmp_path: pathlib.Path,
@@ -513,6 +547,7 @@ def _test_stat(
         _test_copy,
         _test_copy_with_overwrite,
         _test_stat,
+        _test_walk,
     ],
 )
 def test_backend(
