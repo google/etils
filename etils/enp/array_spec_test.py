@@ -79,6 +79,22 @@ def test_array_spec_tensors():
   # TODO(epot): support array_types with unknown shapes ?
 
 
+def test_array_spec_is_fake():
+  for arr in [
+      jax.ShapeDtypeStruct((None,), dtype=np.int32),
+      tf.TensorSpec((None,), dtype=tf.int32),
+      enp.ArraySpec((1, 2), dtype=np.float32),
+  ]:
+    assert enp.array_spec.is_fake_array(arr)
+
+  for arr in [
+      np.zeros((3,)),
+      tf.zeros((3,)),
+      jnp.zeros((3,)),
+  ]:
+    assert not enp.array_spec.is_fake_array(arr)
+
+
 def test_array_spec_repr():
   assert repr(enp.ArraySpec((), np.float32)) == 'f32[]'
   assert repr(enp.ArraySpec((1, 3), np.uint8)) == 'ui8[1 3]'
