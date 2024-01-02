@@ -24,6 +24,8 @@ Changelog follow https://keepachangelog.com/ format.
         using XManager on Colab
 *   `etree`:
     *   Added `is_leaf` kwarg to `.map` and `.parallel_map`
+*   `enp`:
+    *   Add `ArraySpec` support for `flax.linen.summary`.
 
 ## [1.6.0] - 2023-12-11
 

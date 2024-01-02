@@ -98,7 +98,7 @@ class ArraySpec:
       dtype = np.uint32  # `jax.random.PRNGKeyArray` is a constant
     elif lazy.has_jax and isinstance(
         array,
-        (lazy.jax.ShapeDtypeStruct, lazy.jnp.ndarray),
+        (lazy.jax.ShapeDtypeStruct, lazy.jax.Array),
     ):
       shape = array.shape
       dtype = array.dtype
@@ -118,6 +118,9 @@ class ArraySpec:
     elif _is_orbax(array):
       shape = array.shape
       dtype = array.dtype
+    elif _is_flax_summarry(array):
+      shape = array.shape
+      dtype = array.dtype
     elif isinstance(array, array_types.ArrayAliasMeta):
       try:
         shape = (int(s) for s in array.shape.split())
@@ -132,17 +135,40 @@ class ArraySpec:
     return cls(shape=shape, dtype=dtype)
 
 
-def _is_grain(array: Array) -> bool:
-  gain = sys.modules.get('grain.tensorflow')
-  if gain is None:
+def is_fake_array(array: Array) -> bool:
+  """Returns `True` if the given array is a fake array."""
+  return (
+      (lazy.has_jax and isinstance(array, lazy.jax.ShapeDtypeStruct))
+      or (lazy.has_tf and isinstance(array, lazy.tf.TensorSpec))
+      or isinstance(array, ArraySpec)
+      or _is_orbax(array)
+      or _is_grain(array)
+      or _is_flax_summarry(array)
+      or isinstance(array, array_types.ArrayAliasMeta)
+  )
+
+
+def _is_flax_summarry(value: Array) -> bool:
+  if 'flax.linen' not in sys.modules:
     return False
-  return isinstance(array, gain.ArraySpec)
+  from flax import linen as nn  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+  return isinstance(value, nn.summary._ArrayRepresentation)  # pylint: disable=protected-access
+
+
+def _is_grain(array: Array) -> bool:
+  if 'grain.tensorflow' not in sys.modules:
+    return False
+  from grain import tensorflow as grain  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+  return isinstance(array, grain.ArraySpec)
 
 
 def _is_orbax(array: Array) -> bool:
-  ocp = sys.modules.get('orbax.checkpoint')
-  if ocp is None:
+  if 'orbax.checkpoint' not in sys.modules:
     return False
+  from orbax import checkpoint as ocp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
   return isinstance(
       array,
       (
