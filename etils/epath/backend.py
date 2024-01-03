@@ -24,8 +24,7 @@ import os
 import shutil
 import stat as stat_lib
 import typing
-from typing import Iterator, NoReturn, Optional, Union, Callable, Iterable
-
+from typing import Iterator, NoReturn, Optional, Union, Callable, Self
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
 
@@ -110,10 +109,9 @@ class Backend(abc.ABC):
       self,
       top: PathLike,
       top_down: bool = True,
-      on_error: Optional[Callable] = None,
+      on_error: Callable[[OSError], object] | None  = None,
       follow_symlinks: bool = False,
-      max_depth: Optional[int]=None,
-  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+  ) -> Iterator[tuple[Self, list[str], list[str]]]:
     """
     follow_symlinks: not used by fsspec backend
     max_depth: only used by fsspec backend
@@ -240,7 +238,7 @@ class _OsPathBackend(Backend):
       on_error: Optional[Callable] = None,
       follow_symlinks: bool = False,
       **_,
-  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+  ) -> Iterator[tuple[Self, list[str], list[str]]]:
     yield from os.walk(
         top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
     )
@@ -415,7 +413,7 @@ class _TfBackend(Backend):
       on_error: Optional[Callable] = None,
       follow_symlinks: bool = False,
       **_,
-  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+  ) -> Iterator[tuple[Self, list[str], list[str]]]:
     yield from self.gfile.walk(
         top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
     )
@@ -587,7 +585,7 @@ class _FileSystemSpecBackend(Backend):
       on_error: Optional[Callable | str] = None,
       max_depth=None,
       **kwargs,
-  ) -> Iterator[str, Iterable[str], Iterable[str]]:
+  ) -> Iterator[tuple[Self, list[str], list[str]]]:
     if on_error is None:
       on_error = 'omit'  # default behavior of fsspec
     yield from self.fs(top).walk(
