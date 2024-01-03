@@ -24,7 +24,8 @@ import os
 import shutil
 import stat as stat_lib
 import typing
-from typing import Iterator, NoReturn, Optional, Union, Callable, Self
+from typing import Iterator, NoReturn, Optional, Union, Callable
+from typing_extensions import Self
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
 

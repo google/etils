@@ -273,22 +273,16 @@ class _GPath(abstract_path.Path):
   def walk(
       self: _P,
       top_down: bool = True,
-      on_error: Optional[Callable] = None,
+      on_error: Callable[[OSError], object] | None  = None,
       follow_symlinks: bool = False,
-      max_depth: Optional[int] = None,
-      **kwargs,
-  ) -> Iterator[_P, Iterable[_P], Iterable[_P]]:
+  ) -> Iterator[tuple[_P, list[str], list[str]]]:
     for root, dirs, files in self._backend.walk(
         top=self._path_str,
         top_down=top_down,
         on_error=on_error,
         follow_symlinks=follow_symlinks,
-        max_depth=max_depth,
-        **kwargs,
     ):
-      yield self._new(root), tuple(self._new(dir) for dir in dirs), tuple(
-          self._new(file) for file in files
-      )
+      yield self._new(root), dirs, files
 
 
 def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
