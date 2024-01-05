@@ -20,6 +20,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Changed: `ecolab.auto_display`: Better representation when line is
         displayed
+    *   Fix `adhoc` that delete sub-module when `invalidate=False`
 *   `exm`:
     *   Added: `exm.set_citc_source()` to specify which workspace to use when
         using XManager on Colab

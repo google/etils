@@ -67,17 +67,25 @@ def clear_cached_modules(
   if not modules_to_clear:
     return
 
+  modules = set(py_utils.normalize_str_to_list(modules))
+
   for module_name in modules_to_clear:
     if verbose:
       print(f'Clearing {module_name}')
-    # Clear the parent ref to the module
-    _clear_parent_module_attr(module_name)
 
     # We do not invalidate ecolab
     # Note that `reload=['etils']` will still clear `ecolab` from `sys.modules`
     # even if it is not reloaded. In practice, this is fine as `ecolab`
     # should only be imported once in the colab.
-    if invalidate and not module_name.startswith('etils'):
+    invalidate_curr = invalidate and not module_name.startswith('etils')
+
+    # Only the top-most attribute should be cleared. when `invalidate=False`
+    # Otherwise, childs are not re-imported
+    # Clear the parent ref to the module
+    if invalidate_curr or module_name in modules:
+      _clear_parent_module_attr(module_name)
+
+    if invalidate_curr:
       # Mutate the existing modules to raise an error if accessed
       _invalidate_module(sys.modules[module_name])
 
