@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 import enum
 import functools
 import sys
@@ -182,3 +182,16 @@ def normalize_str_to_list(x: Optional[StrOrStrList]) -> list[str]:
     raise TypeError(f'Expected list. Got: {x!r}')
   else:  # list/tuple
     return list(x)
+
+
+def wraps_cls(wrapped: type[Any]) -> Callable[[_Cls], _Cls]:
+  """Equivalent of `functools.wraps` but for classes."""
+
+  def decorator(cls):
+    cls.__name__ = wrapped.__name__
+    cls.__qualname__ = wrapped.__qualname__
+    cls.__doc__ = wrapped.__doc__
+    cls.__module__ = wrapped.__module__
+    return cls
+
+  return decorator
