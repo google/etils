@@ -416,9 +416,8 @@ class _TfBackend(Backend):
       self,
       top: PathLike,
       top_down: bool = True,
-      on_error: Optional[Callable] = None,
+      on_error: Callable[[OSError], object] | None = None,
       follow_symlinks: bool = False,
-      **_,
   ) -> Iterator[tuple[Self, list[str], list[str]]]:
     yield from self.gfile.walk(
         top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
