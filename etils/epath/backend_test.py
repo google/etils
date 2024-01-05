@@ -153,35 +153,42 @@ def _test_glob(
 def _test_walk(backend: epath.backend.Backend, tmp_path):
   nested = (tmp_path / 'abc/nested/')
   nested.mkdir(parents=True)
-  (tmp_path / 'abc/other_nested/').mkdir(parents=True)
-  (tmp_path / 'abc/nested/001').touch()
-  (tmp_path / 'abc/nested/002').touch()
-  (tmp_path / 'abc/nested/003').touch()
-  link_dir =  (tmp_path / 'abc/link_dir').symlink_to(nested)
+  other_nested = (tmp_path / 'abc/other_nested/')
+  other_nested.mkdir(parents=True)
+  (nested / '001').touch()
+  (nested / '002').touch()
+  (nested / '003').touch()
+  linked_dir = (tmp_path / 'abc/link_dir')
+  linked_dir.symlink_to(nested)
 
-  last_seen = None
+  bottom_up_walk = list(backend.walk(tmp_path, top_down=False, follow_symlinks=False))
 
-  for path, dirs, files in backend.walk(tmp_path, top_down=False, follow_symlinks=False):
-    if path == str(tmp_path):
-      assert set(dirs) == {'abc'}
-      assert len(files) == 0
-    elif path == str(tmp_path / 'abc') and not isinstance(backend, epath.backend._FileSystemSpecBackend):
-        assert set(dirs) == {'nested', 'other_nested', 'link_dir'}
-        assert len(files) == 0
-    elif path == str(tmp_path / 'abc' / 'nested'):
-      assert len(dirs) == 0
-      assert set(files) == {'001', '002', '003'}
-    elif path == str(link_dir):
-      raise RuntimeError(f"Should not walk in {link_dir}")
 
-    last_seen = path
+  assert bottom_up_walk == [
+    (str(other_nested), [], []),
+    (str(nested), [], ['003', '002', '001']),
+    (str(tmp_path / 'abc'), [ 'other_nested', 'nested'], ['link_dir']),
+    (str(tmp_path), ['abc'], [])
+  ]
 
-  assert last_seen == str(tmp_path)
+  top_down_walk = list(backend.walk(tmp_path, top_down=True, follow_symlinks=False))
 
-  for path, dirs, files in backend.walk(tmp_path, follow_symlinks=True):
-    if path == str(link_dir):
-      assert len(dirs) == 0
-      assert set(files) == {'001', '002', '003'}
+  assert top_down_walk == [
+    (str(tmp_path), ['abc'], []),
+    (str(tmp_path / 'abc'), [ 'other_nested', 'nested'], ['link_dir']),
+    (str(other_nested), [], []),
+    (str(nested), [], ['003', '002', '001']),
+  ]
+
+  if isinstance(backend, epath.backend._OsPathBackend):
+    follow_symlinks_walk = list(backend.walk(tmp_path, follow_symlinks=True))
+    assert follow_symlinks_walk == [
+      (str(tmp_path), ['abc'], []),
+      (str(tmp_path / 'abc'), ['link_dir', 'other_nested', 'nested'], []),
+      (str(linked_dir), [], ['003', '002', '001']),
+      (str(other_nested), [], []),
+      (str(nested), [], ['003', '002', '001']),
+    ]
 
 
 def _test_listdir(
