@@ -16,6 +16,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `reload=` for `epy.binary_adhoc()`, fixed behavior for
         consistency with `ecolab.adhoc`
     *   Added: `epy.pretty_repr_top_level`
+    *   Added: `epy.wraps_cls` equivalent of `functools.wraps` but for classes.
 *   `ecolab`:
     *   Changed: `ecolab.auto_display`: Better representation when line is
         displayed
