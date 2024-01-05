@@ -587,14 +587,14 @@ class _FileSystemSpecBackend(Backend):
       self,
       top: PathLike,
       top_down: bool = True,
-      on_error: Optional[Callable | str] = None,
-      max_depth=None,
-      **kwargs,
+      on_error: Callable[[OSError], object] | None = None,
+      follow_symlinks: bool = False,
   ) -> Iterator[tuple[Self, list[str], list[str]]]:
+
     if on_error is None:
-      on_error = 'omit'  # default behavior of fsspec
+      on_error = 'omit'  # default behavior for pathlib.Path.walk
     yield from self.fs(top).walk(
-        path=top, topdown=top_down, on_error=on_error, max_depth=None, **kwargs
+        path=top, topdown=top_down, on_error=on_error, max_depth=None
     )
 
 
