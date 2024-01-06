@@ -138,6 +138,15 @@ class _GPath(abstract_path.Path):
   def __repr__(self) -> str:
     return f'{type(self).__name__}({self._path_str!r})'
 
+  def __truediv__(self: _T, op:str) -> _T:                                                                                                                
+    uri_scheme = self._uri_scheme  
+    if uri_scheme:  # pylint: disable=using-constant-test
+      ret = self._PATH.join(f'{uri_scheme}://', *(list(self.parts[2:]) + [op]))
+    else: 
+      parts = (list(self.parts) + [op]) if self.parts else ['.',op]
+      ret = self._PATH.join(*parts)  
+      return type(self)(ret)  
+    
   def as_uri(self) -> str:
     if self._uri_scheme:  # s3://,...
       return self._path_str
