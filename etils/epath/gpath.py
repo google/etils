@@ -144,8 +144,8 @@ class _GPath(abstract_path.Path):
       ret = self._PATH.join(f'{uri_scheme}://', *(list(self.parts[2:]) + [op]))
     else: 
       parts = (list(self.parts) + [op]) if self.parts else ['.',op]
-      ret = self._PATH.join(*parts)  
-      return type(self)(ret)  
+      ret = self._PATH.join(*parts)
+    return type(self)(ret)  
     
   def as_uri(self) -> str:
     if self._uri_scheme:  # s3://,...
