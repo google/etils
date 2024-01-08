@@ -25,7 +25,6 @@ import shutil
 import stat as stat_lib
 import typing
 from typing import Iterator, NoReturn, Optional, Union, Callable
-from typing_extensions import Self
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
 
@@ -112,11 +111,7 @@ class Backend(abc.ABC):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None  = None,
       follow_symlinks: bool = False,
-  ) -> Iterator[tuple[Self, list[str], list[str]]]:
-    """
-    follow_symlinks: not used by fsspec backend
-    max_depth: only used by fsspec backend
-    """
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
     raise NotImplementedError
 
 
@@ -238,7 +233,7 @@ class _OsPathBackend(Backend):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
       follow_symlinks: bool = False,
-  ) -> Iterator[tuple[Self, list[str], list[str]]]:
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
     for path, dirnames, filenames in os.walk(
         top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
     ):
@@ -418,9 +413,9 @@ class _TfBackend(Backend):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
       follow_symlinks: bool = False,
-  ) -> Iterator[tuple[Self, list[str], list[str]]]:
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
     yield from self.gfile.walk(
-        top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
+        top, topdown=top_down, onerror=on_error
     )
 
 
@@ -589,7 +584,7 @@ class _FileSystemSpecBackend(Backend):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
       follow_symlinks: bool = False,
-  ) -> Iterator[tuple[Self, list[str], list[str]]]:
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
 
     if on_error is None:
       on_error = 'omit'  # default behavior for pathlib.Path.walk

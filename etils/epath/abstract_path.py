@@ -19,7 +19,7 @@ from __future__ import annotations
 import os
 import pathlib
 import typing
-from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar, Iterable, Callable
+from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar, Callable
 
 from etils.epath import register
 from etils.epath import stat_utils
@@ -116,11 +116,9 @@ class Path(pathlib.PurePosixPath):
   def walk(
       self: _T,
       top_down: bool = True,
-      on_error: Optional[Callable | str] = None,
+      on_error: Callable[[OSError], object] | None = None,
       follow_symlinks: bool = False,
-      max_depth: Optional[int] = None,
-      **kwargs,
-  ) -> Iterator[_T, Iterable[_T], Iterable[_T]]:
+  ) -> Iterator[tuple[_T, list[str], list[str]]]:
     raise NotImplementedError
 
   def expanduser(self: _T) -> _T:
