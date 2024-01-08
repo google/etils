@@ -404,23 +404,17 @@ def test_walk(gcs_mocked_path: pathlib.Path):
   result = list((root_path / '/nonexisting/test').walk())
   assert len(result) == 0
 
-  subdir = (root_path / "subdir")
+  subdir = (root_path / 'subdir')
   subdir.mkdir()
-  subfiles_1 = (subdir / "file001")
-  subfiles_1.touch()
-  subfiles_2 = (subdir / "file002")
-  subfiles_2.touch()
+  (root_path / '001').touch()
+  (root_path / '002').touch()
+  (root_path / '003').touch()
 
-  (path_1, dirs_1, files_1), (path_2, dirs_2, files_2) = list((root_path).walk( topdown=True))
-
-  assert path_1 == root_path
-  assert dirs_1[0] == "subdir"
-  assert files_1 == []
-
-  assert path_2 == subdir
-  assert dirs_2 ==[]
-  assert files_2 == ["file002", "file001"]
-
+  result = list(root_path.walk(top_down=True, follow_symlinks=False))
+  assert result == [
+    (root_path, ['subdir'], ['003', '002', '001']),
+    (subdir, [], [])
+  ]
 
 def test_default():
   path = epath.Path()
