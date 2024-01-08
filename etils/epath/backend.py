@@ -239,9 +239,15 @@ class _OsPathBackend(Backend):
       on_error: Callable[[OSError], object] | None = None,
       follow_symlinks: bool = False,
   ) -> Iterator[tuple[Self, list[str], list[str]]]:
-    yield from os.walk(
+    for path, dirnames, filenames in os.walk(
         top, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
-    )
+    ):
+      #  Unlike os.walk(), Path.walk() lists symlinks to directories in filenames if follow_symlinks is false
+      if follow_symlinks is False:
+        symlinks = {dirname for dirname in dirnames if os.path.islink(os.path.join(path, dirname))}
+        dirnames[:] = list(dirname for dirname in dirnames if dirname not in symlinks) # we need to keep the reference to the original dirnames object
+        filenames.extend(symlinks)
+      yield path, dirnames, filenames
 
 
 class _TfBackend(Backend):
