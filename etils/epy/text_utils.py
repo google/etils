@@ -245,10 +245,14 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
   if isinstance(obj, str):
     return repr(obj)
   elif type(obj) in (list, tuple):  # Skip sub-class as could have custom repr
-    return Lines.make_block(
+    lines = Lines.make_block(
         content=obj,
         braces='[' if isinstance(obj, list) else '(',
     )
+    # Singleton tuple have a trailing `,`
+    if isinstance(obj, tuple) and len(obj) == 1:
+      lines = lines.removesuffix(')') + ',)'
+    return lines
   elif type(obj) is dict:  # pylint: disable=unidiomatic-typecheck
     return Lines.make_block(
         content={repr(k): v for k, v in obj.items()},

@@ -120,6 +120,13 @@ def test_lines_std():
   """)
 
 
+def test_pretty_repr_tuple():
+  assert epy.pretty_repr((1,)) == '(1,)'
+  assert epy.pretty_repr((1, 2)) == '(1, 2)'
+  assert epy.pretty_repr([1]) == '[1]'
+  assert epy.pretty_repr([1, 2]) == '[1, 2]'
+
+
 def test_lines_nested_indent():
   lines = epy.Lines(indent=2)
   lines += '['

@@ -17,6 +17,8 @@ Changelog follow https://keepachangelog.com/ format.
         consistency with `ecolab.adhoc`
     *   Added: `epy.pretty_repr_top_level`
     *   Added: `epy.wraps_cls` equivalent of `functools.wraps` but for classes.
+    *   Fixed: `epy.pretty_repr` missing trailing `,` for tuple with single
+        element.
 *   `ecolab`:
     *   Changed: `ecolab.auto_display`: Better representation when line is
         displayed
