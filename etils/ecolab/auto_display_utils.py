@@ -22,7 +22,7 @@ import functools
 import re
 import traceback
 import typing
-from typing import Any, TypeVar
+from typing import Any, Callable, TypeVar
 
 from etils import epy
 from etils.ecolab import array_as_img
@@ -32,6 +32,7 @@ import IPython
 import packaging
 
 _T = TypeVar('_T')
+_DisplayFn = Callable[[Any], None]
 
 # Old API (before IPython 7.0)
 _IS_LEGACY_API = packaging.version.parse(
@@ -382,52 +383,53 @@ def _display_and_return(
     line_code: str | None = None,
 ) -> _T:
   """Print `x` and return `x`."""
+  # TODO(epot): Could clean-up the `spec` by adding a `spec=` kwarg and add
+  # a condition here: `x = etree.spec_like(x) if spec else x`, then remove
+  # `_pretty_display_specs_and_return` and `_display_specs_and_return`.
+  # TODO(epot): `l` should be accepted everywhere (not just trailing)
   if line_code:
     print(line_code + '=', end='')
     # When the next element is a `IPython.display`, the next element is
     # displayed on a new line. This is because `display()` create a new
-    # <div> section.
-    # To fix the most common use-cases, we hardcode the primitive to be
-    # displayed on the same line.
-    # TODO(epot): Should pretty-print by default instead ?
-    if alias == '' and isinstance(  # pylint: disable=g-explicit-bool-comparison
-        x, (str, bytes, int, float, bool, type(None))
-    ):
-      print(repr(x))
-      return
-  return _ALIAS_TO_DISPLAY_FN[alias](x)
+    # <div> section. So use standard `print` when line is displayed.
+    display_fn = lambda x: print(repr(x))
+  else:
+    display_fn = IPython.display.display
+  return _ALIAS_TO_DISPLAY_FN[alias](x, display_fn=display_fn)
 
 
-def _display_and_return_simple(x: _T) -> _T:
+def _display_and_return_simple(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Print `x` and return `x`."""
-  IPython.display.display(x)
+  display_fn(x)
   return x
 
 
-def _display_specs_and_return(x: _T) -> _T:
+def _display_specs_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Print `x` and return `x`."""
-  IPython.display.display(etree.spec_like(x))
+  display_fn(etree.spec_like(x))
   return x
 
 
-def _inspect_and_return(x: _T) -> _T:
+def _inspect_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Print `x` and return `x`."""
+  del display_fn
   inspects.inspect(x)
   return x
 
 
-def _display_array_and_return(x: _T) -> _T:
+def _display_array_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Print `x` and return `x`."""
   html = array_as_img.array_repr_html(x)
   if html is None:
-    IPython.display.display(x)
+    display_fn(x)
   else:
     IPython.display.display(IPython.display.HTML(html))
   return x
 
 
-def _pretty_display_return(x: _T) -> _T:
+def _pretty_display_return(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Print `x` and return `x`."""
+  del display_fn
   # 2 main use-case:
   # * Print strings (including `\n`)
   # * Pretty-print dataclasses
@@ -438,14 +440,16 @@ def _pretty_display_return(x: _T) -> _T:
   return x
 
 
-def _pretty_display_specs_and_return(x: _T) -> _T:
+def _pretty_display_specs_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Print `x` and return `x`."""
+  del display_fn
   print(epy.pretty_repr(etree.spec_like(x)))
   return x
 
 
-def _return_quietly(x: _T) -> _T:
+def _return_quietly(x: _T, *, display_fn: _DisplayFn) -> _T:
   """Return `x` without display."""
+  del display_fn
   return x
 
 
