@@ -26,7 +26,7 @@ from unittest import mock
 from etils.epath import backend
 from etils.epath import gpath
 from etils.epath import stat_utils
-from etils.epath.typing import PathLike
+from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
 
 _MockFn = Callable[..., Any]
 
@@ -67,6 +67,15 @@ class _MockBackend(_backend_cls):
 
   def glob(self, path: PathLike) -> list[str]:
     return self._get_fn('glob')(path)
+
+  def walk(
+      self,
+      top: PathLike,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
+    yield from self._get_fn('walk')(top, top_down=top_down, on_error=on_error)
 
   def makedirs(
       self,
@@ -123,6 +132,7 @@ def mock_epath(
     replace: Optional[_MockFn] = None,
     rmtree: Optional[_MockFn] = None,
     stat: Optional[_MockFn] = None,
+    walk: Optional[_MockFn] = None,
 ) -> Iterator[None]:
   """Mock epath.
 
@@ -145,6 +155,7 @@ def mock_epath(
     replace: New function (after mocking)
     rmtree: New function (after mocking)
     stat: New function (after mocking)
+    walk: New function (after mocking)
 
   Yields:
     None
@@ -155,6 +166,7 @@ def mock_epath(
       rename=rename,
       exists=exists,
       glob=glob,
+      walk=walk,
       isdir=isdir,
       listdir=listdir,
       makedirs=makedirs,
@@ -163,7 +175,6 @@ def mock_epath(
       replace=replace,
       rmtree=rmtree,
       stat=stat,
-      # 'walk',
   )
   mock_backend = _MockBackend(mock_fns=mock_fns)
 

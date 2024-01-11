@@ -69,6 +69,7 @@ def gcs_mocked_path(tmp_path: pathlib.Path, request):
       mkdir=_call(backend.mkdir),
       remove=_call(backend.remove),
       rmtree=_call(backend.rmtree),
+      walk=_call(backend.walk),
       # Mock _is_tf_installed in order not to default to tf_backend:
   ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
     yield tmp_path
@@ -399,6 +400,24 @@ def test_rglob():
     list(epath.Path('/tmp/nonexisting/test').glob('folder/**/img.jpg'))
 
 
+def test_walk(gcs_mocked_path: pathlib.Path):
+  root_path = epath.Path(gcs_mocked_path)
+  result = list((root_path / '/nonexisting/test').walk())
+  assert len(result) == 0  # pylint: disable=g-explicit-length-test
+
+  subdir = root_path / 'subdir'
+  subdir.mkdir()
+  (root_path / '001').touch()
+  (root_path / '002').touch()
+  (root_path / '003').touch()
+
+  result = list(root_path.walk(top_down=True))
+  assert [(p, set(dirs), set(files)) for p, dirs, files in result] == [
+      (root_path, {'subdir'}, {'003', '002', '001'}),
+      (subdir, set(), set()),
+  ]
+
+
 def test_default():
   path = epath.Path()
   assert isinstance(path, epath.Path)
@@ -415,8 +434,8 @@ def test_use_backend():
   gs_path = epath.Path('gs://tfds-data/datasets')
   loc_path = epath.Path('/local/tfds-data/datasets')
 
-  gs_backend = epath.backend.tf_backend
-  loc_backend = epath.backend.os_backend
+  gs_backend = epath.backend.tf_backend  # pylint: disable=unused-variable
+  loc_backend = epath.backend.os_backend  # pylint: disable=unused-variable
   with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
     assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend
   with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):

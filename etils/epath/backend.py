@@ -21,10 +21,11 @@ import contextlib
 import functools
 import glob as glob_lib
 import os
+import pathlib
 import shutil
 import stat as stat_lib
 import typing
-from typing import Iterator, NoReturn, Optional, Union
+from typing import Callable, Iterator, NoReturn, Optional, Union
 
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
@@ -59,6 +60,16 @@ class Backend(abc.ABC):
 
   @abc.abstractmethod
   def glob(self, path: PathLike) -> list[str]:
+    raise NotImplementedError
+
+  @abc.abstractmethod
+  def walk(
+      self,
+      top: PathLike,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
     raise NotImplementedError
 
   @abc.abstractmethod
@@ -132,6 +143,20 @@ class _OsPathBackend(Backend):
 
   def glob(self, path: PathLike) -> list[str]:
     return glob_lib.glob(path)
+
+  def walk(
+      self,
+      top: PathLike,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
+    if hasattr(pathlib.Path, 'walk'):  # Python 3.12
+      yield from pathlib.Path(top).walk(topdown=top_down, onerror=on_error)
+    else:  # Backward compatibility
+      # Note that `os.walk` is inconsistent for `symlinks` (always marked as
+      # filenames), but should be fine.
+      yield from os.walk(top, topdown=top_down, onerror=on_error)
 
   def makedirs(
       self,
@@ -259,6 +284,15 @@ class _TfBackend(Backend):
 
   def glob(self, path: PathLike) -> list[str]:
     return self.gfile.glob(path)
+
+  def walk(
+      self,
+      top: PathLike,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
+    yield from self.gfile.walk(top, topdown=top_down, onerror=on_error)
 
   def makedirs(
       self,
@@ -425,6 +459,23 @@ class _FileSystemSpecBackend(Backend):
     protocol = _get_protocol(path)
     return [protocol + p for p in self.fs(path).glob(path)]
 
+  def walk(
+      self,
+      top: PathLike,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
+
+    if on_error is None:
+      on_error = 'omit'  # default behavior for pathlib.Path.walk
+    yield from self.fs(top).walk(  # pytype: disable=bad-return-type
+        top,
+        topdown=top_down,
+        on_error=on_error,
+        max_depth=None,
+    )
+
   def makedirs(
       self,
       path: PathLike,
@@ -538,7 +589,7 @@ class _FileSystemSpecBackend(Backend):
         mtime=mtime,
         owner=info.get('owner'),
         group=info.get('group'),
-        mode=info.get('mode')
+        mode=info.get('mode'),
     )
 
 

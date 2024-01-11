@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import os
 import pathlib
 import typing
@@ -43,6 +44,8 @@ class Path(pathlib.PurePosixPath):
   documentation.
 
   """
+  # TODO(epot): With 3.12, might be able to inherit from `pathlib.PosixPath`
+  # directly so some of those methods are automatically implemented.
 
   def __new__(cls: Type[_T], *args: PathLike) -> _T:
     """Create a new path.
@@ -111,6 +114,15 @@ class Path(pathlib.PurePosixPath):
   def rglob(self: _T, pattern: str) -> Iterator[_T]:
     """Yields all matching files recursively (of any kind)."""
     return self.glob(f'**/{pattern}')
+
+  @abstractmethod
+  def walk(
+      self: _T,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[_T, list[str], list[str]]]:
+    raise NotImplementedError
 
   def expanduser(self: _T) -> _T:
     """Returns a new path with expanded `~` and `~user` constructs."""

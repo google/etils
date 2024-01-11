@@ -150,6 +150,48 @@ def _test_glob(
   ]
 
 
+def _test_walk(backend: epath.backend.Backend, tmp_path):
+  nested = tmp_path / 'abc/nested/'
+  nested.mkdir(parents=True)
+  other_nested = tmp_path / 'abc/other_nested/'
+  other_nested.mkdir(parents=True)
+  (nested / '001').touch()
+  (nested / '002').touch()
+  (nested / '003').touch()
+  linked_dir = tmp_path / 'abc/link_dir'
+  # If we want to support `symlink`, should replace `.touch()` by
+  # linked_dir.symlink_to(nested)
+  linked_dir.touch()
+
+  assert not list(backend.walk(tmp_path / 'non-existing'))
+
+  # Order is non-deterministic depending on the backend, so use set
+  all_items = {
+      (str(other_nested), frozenset(), frozenset()),
+      (str(nested), frozenset(), frozenset({'003', '002', '001'})),
+      (
+          str(tmp_path / 'abc'),
+          frozenset({'nested', 'other_nested'}),
+          frozenset({'link_dir'}),
+      ),
+      (str(tmp_path), frozenset({'abc'}), frozenset()),
+  }
+
+  bottom_up_walk = list(backend.walk(tmp_path, top_down=False))
+  assert bottom_up_walk[-1] == (str(tmp_path), ['abc'], [])
+  assert {
+      (str(p), frozenset(dirs), frozenset(files))
+      for p, dirs, files in bottom_up_walk
+  } == all_items
+
+  top_down_walk = list(backend.walk(tmp_path, top_down=True))
+  assert top_down_walk[0] == (str(tmp_path), ['abc'], [])
+  assert {
+      (str(p), frozenset(dirs), frozenset(files))
+      for p, dirs, files in top_down_walk
+  } == all_items
+
+
 def _test_listdir(
     backend: epath.backend.Backend,
     tmp_path: pathlib.Path,
@@ -513,6 +555,7 @@ def _test_stat(
         _test_copy,
         _test_copy_with_overwrite,
         _test_stat,
+        _test_walk,
     ],
 )
 def test_backend(

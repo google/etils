@@ -24,7 +24,7 @@ import pathlib
 import posixpath
 import types
 import typing
-from typing import Any, ClassVar, Iterator, Optional, Type, TypeVar, Union
+from typing import Any, Callable, ClassVar, Iterator, Optional, Type, TypeVar, Union
 
 from etils import epy
 from etils.epath import abstract_path
@@ -178,6 +178,19 @@ class _GPath(abstract_path.Path):
 
     for f in self._backend.glob(pattern):
       yield self._new(f)
+
+  def walk(
+      self: _P,
+      *,
+      top_down: bool = True,
+      on_error: Callable[[OSError], object] | None = None,
+  ) -> Iterator[tuple[_P, list[str], list[str]]]:
+    for root, dirs, files in self._backend.walk(
+        self._path_str,
+        top_down=top_down,
+        on_error=on_error,
+    ):
+      yield self._new(root), dirs, files
 
   def mkdir(
       self,
