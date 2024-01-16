@@ -20,7 +20,6 @@
 # - etils/ecolab/lazy_utils.py
 # - kauldron/konfig/fake_import_utils.py
 # - visu3d/utils/py_utils.py
-# - tensorflow_datasets/core/utils/lazy_imports_utils.py
 
 from __future__ import annotations
 
