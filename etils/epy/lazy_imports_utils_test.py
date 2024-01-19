@@ -79,7 +79,7 @@ def test_error_callback():
     _ = doesnotexist.stack
   except ImportError:
     pass
-  error_callback.assert_called_once_with('doesnotexist')
+  error_callback.assert_called_once()
   success_callback.assert_not_called()
 
 

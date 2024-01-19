@@ -33,7 +33,7 @@ import types
 from typing import Any, Callable, Iterator
 
 
-_ErrorCallback = Callable[[str], None]
+_ErrorCallback = Callable[[Exception], None]
 _SuccessCallback = Callable[[str], None]
 
 
@@ -68,9 +68,9 @@ class LazyModule:
         if self.success_callback is not None:
           self.success_callback(self.module_name)
         return module
-      except ImportError:
+      except ImportError as e:
         if self.error_callback is not None:
-          self.error_callback(self.module_name)
+          self.error_callback(e)
         raise
 
   def __getattr__(self, name: str) -> Any:
@@ -124,8 +124,8 @@ def lazy_imports(
   the original `ecolab.adhoc` context is re-created to import the lazy module.
 
   Args:
-    error_callback: a callback to trigger when an import fails. The callback is
-      passed the name of the imported module as an arg.
+    error_callback: a callback to trigger when an import fails. The exception is
+      passed as an arg, so user can use `epy.reraise(e, 'Additional message')`.
     success_callback: a callback to trigger when an import succeeds. The
       callback is passed the name of the imported module as an arg.
 
