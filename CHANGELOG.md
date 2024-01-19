@@ -18,6 +18,8 @@ Changelog follow https://keepachangelog.com/ format.
         consistency with `ecolab.adhoc`
     *   Added: `epy.pretty_repr_top_level`
     *   Added: `epy.wraps_cls` equivalent of `functools.wraps` but for classes.
+    *   Breaking: `epy.lazy_imports(error_callback=)` has now signature
+        `(Exception) -> None` (instead of `(str) -> None`)
     *   Fixed: `epy.pretty_repr` missing trailing `,` for tuple with single
         element.
 *   `ecolab`:
