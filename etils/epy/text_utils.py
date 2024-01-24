@@ -1,4 +1,4 @@
-# Copyright 2023 The etils Authors.
+# Copyright 2024 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -206,6 +206,11 @@ class Lines:
     lines += f'{brace_end}'
 
     return lines.join(collapse=collapse)
+
+
+def pprint(obj: Any) -> None:
+  """Pretty print `obj`."""
+  print(pretty_repr(obj))
 
 
 @reprlib.recursive_repr()

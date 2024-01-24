@@ -16,6 +16,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Added: `epy.reverse_fstring`: Reverse fstring parsing
     *   Added: `reload=` for `epy.binary_adhoc()`, fixed behavior for
         consistency with `ecolab.adhoc`
+    *   Added: `epy.pprint`: Pretty print an object (including dataclass).
     *   Added: `epy.pretty_repr_top_level`
     *   Added: `epy.wraps_cls` equivalent of `functools.wraps` but for classes.
     *   Breaking: `epy.lazy_imports(error_callback=)` has now signature

@@ -1,4 +1,4 @@
-# Copyright 2023 The etils Authors.
+# Copyright 2024 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ from etils.epy.reraise_utils import reraise
 from etils.epy.text_utils import dedent
 from etils.epy.text_utils import diff_str
 from etils.epy.text_utils import Lines
+from etils.epy.text_utils import pprint
 from etils.epy.text_utils import pretty_repr
 from etils.epy.text_utils import pretty_repr_top_level
 

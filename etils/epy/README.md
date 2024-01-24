@@ -31,6 +31,7 @@ This result in cleaner and more compact error messages.
 
 ### Text utils
 
+* `epy.pprint`: Pretty print a value, supports `dataclasses`.
 * `epy.pretty_repr`: Returns a pretty `repr()` of the given object, supports
   `dataclasses`.
 * `epy.reverse_fstring`: Parse string to match a f-string pattern
