@@ -57,6 +57,7 @@ class _Reloader:
         reload=[module_name],
         verbose=True,
         reload_mode=ecolab.ReloadMode.UPDATE_INPLACE,
+        recursive=True,
     ):
       return __import__(module_name)
 
