@@ -71,34 +71,55 @@ class _ModuleRefs:
 
     for name, old_obj in module.__dict__.items():
       # Only update objects part of the module (filter other imported symbols)
-      if not _belong_to_module(old_obj, module):
+      if not _belong_to_module(old_obj, module) or not _has_update_rule(
+          old_obj
+      ):
         continue
 
       self.objs[name].append(weakref.ref(old_obj))
 
-  def update_refs_with_new_module(self, new_module: types.ModuleType) -> None:
+  def update_refs_with_new_module(
+      self, new_module: types.ModuleType, *, verbose: bool = False
+  ) -> _ModuleRefs:
     """Update all old reference to previous objects."""
-    # Update all modules
-    for old_module in self.modules:
-      old_module = old_module()  # Resolve weakref
-      if old_module is None:  # No ref to update
-        continue
+    # Resolve all weakrefs
+    modules = [m for mod in self.modules if (m := mod())]
+
+    for old_module in modules:
       _update_old_module(old_module, new_module)
 
     # Update all objects
-    for name, old_obj_refs in self.objs.items():
-      if name not in new_module.__dict__:
-        # TODO(epot): Could try to invalidate the object
+    live_old_objects = collections.defaultdict(list)
+
+    for name, new_obj in new_module.__dict__.items():
+      old_obj_refs = self.objs.get(name)
+
+      if old_obj_refs is None:
         continue
 
-      new_obj = new_module.__dict__[name]
+      live_old_objects[name] = [r for ref in old_obj_refs if (r := ref())]
 
-      for old_obj_ref in old_obj_refs:
-        old_obj = old_obj_ref()
-        if old_obj is None:
-          continue
+      for old_obj in live_old_objects[name]:
         # TODO(epot): Support cycles
         _update_generic(old_obj, new_obj)
+
+    if verbose:
+      obj_count = lambda x: sum((len(l) for l in x.values()))
+      print(
+          f"Updated refs of module {new_module.__name__}. Updated"
+          f" {len(self.modules)} versions (retained {len(modules)}). Updated"
+          f" {obj_count(self.objs)} objects"
+          f" ({obj_count(live_old_objects)} retained)."
+      )
+
+    live_old_refs = collections.defaultdict(
+        list,
+        {
+            name: [weakref.ref(obj) for obj in objs]
+            for name, objs in live_old_objects.items()
+        },
+    )
+    return _ModuleRefs([weakref.ref(m) for m in modules], objs=live_old_refs)
 
 
 class _InPlaceReloader:
@@ -144,6 +165,7 @@ class _InPlaceReloader:
         _update_old_modules(
             reload=reload,
             previous_modules=self._previous_modules,
+            verbose=verbose,
         )
 
   def _save_objs(self, *, reload: list[str]) -> None:
@@ -162,13 +184,21 @@ def _update_old_modules(
     *,
     reload: list[str],
     previous_modules: dict[str, _ModuleRefs],
+    verbose: bool = False,
 ) -> None:
   """Update all old modules."""
+  # Don't spend time updating types that are already dead anyway.
+  gc.collect()
+
   for module_name in module_utils.get_module_names(reload):
     new_module = sys.modules[module_name]
     old_module_refs = previous_modules.get(module_name)
     if old_module_refs is not None:
-      old_module_refs.update_refs_with_new_module(new_module)
+      previous_modules[module_name] = (
+          old_module_refs.update_refs_with_new_module(
+              new_module, verbose=verbose
+          )
+      )
 
 
 def _update_old_module(
@@ -207,7 +237,6 @@ def _wrap_fn(old_fn, new_fn):
 
 def _update_class(old, new):
   """Update the class."""
-
   for key in list(old.__dict__.keys()):
     old_obj = getattr(old, key)
 
@@ -262,7 +291,11 @@ def _update_generic(old, new):
   for type_, update in _UPDATE_RULES:
     if isinstance(old, type_) and isinstance(new, type_):
       update(old, new)
-      return True
+      return
+
+
+def _has_update_rule(obj):
+  return any(isinstance(obj, update_type) for update_type, _ in _UPDATE_RULES)
 
 
 _UPDATE_RULES = [
@@ -278,7 +311,6 @@ _UPDATE_RULES = [
 
 def _update_instances(old, new):
   """Backport of `update_instances`."""
-
   refs = gc.get_referrers(old)
 
   for ref in refs:
