@@ -49,47 +49,45 @@ class _Reloader:
       default_factory=inplace_reload._InPlaceReloader
   )
 
-  def reimport_module(self, content: str) -> types.ModuleType:
-    file = self.tmp_path / 'inplace_test_file.py'
+  def reimport_module(self, module_name: str, content: str) -> types.ModuleType:
+    file = self.tmp_path / f'{module_name}.py'
     file.write_text(textwrap.dedent(content))
 
     with self.reloader.update_old_modules(
-        reload=['inplace_test_file'],
+        reload=[module_name],
         verbose=True,
         reload_mode=ecolab.ReloadMode.UPDATE_INPLACE,
     ):
-      import inplace_test_file  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-
-    return inplace_test_file
+      return __import__(module_name)
 
 
 def test_reload_instance(reloader: _Reloader):  # pylint: disable=redefined-outer-name
-  old_module = reloader.reimport_module("""
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        X = 'old'
 
-  class A:
-    X = 'old'
-
-    def fn(self):
-      return 1
-
-  """)
+        def fn(self):
+          return 1
+      """,
+  )
 
   a = old_module.A()
 
   assert a.fn() == 1
   assert a.X == 'old'
 
-  # After reload, the new method is used
+  new_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        X = 'new'
 
-  new_module = reloader.reimport_module("""
-
-  class A:
-    X = 'new'
-
-    def fn(self):
-      return 2
-
-  """)
+        def fn(self):
+          return 2
+      """,
+  )
 
   assert old_module.A is new_module.A
 
@@ -100,31 +98,195 @@ def test_reload_instance(reloader: _Reloader):  # pylint: disable=redefined-oute
   assert isinstance(a, new_module.A)
 
 
+def test_reload_alias(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        X = 'old'
+
+        def fn(self):
+          return 1
+
+      Alias = A
+      """,
+  )
+
+  a = old_module.Alias()
+
+  new_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        X = 'new'
+
+        def fn(self):
+          return 2
+      """,
+  )
+
+  assert a.fn() == 2
+  assert a.__class__ is new_module.A
+
+
+def test_reload_dependant(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class B:
+        def fn(self):
+          return 1
+
+      class A:
+        X = B()
+
+        def fn(self):
+          return self.X.fn()
+      """,
+  )
+
+  a = old_module.A()
+  assert a.fn() == 1
+
+  new_module = reloader.reimport_module(
+      'test_module',
+      """
+      class B:
+        def fn(self):
+          return 2
+
+      class A:
+        X = B()
+
+        def fn(self):
+          return self.X.fn()
+      """,
+  )
+
+  assert a.fn() == 2
+  assert old_module.A is new_module.A
+
+
+def test_reload_delete_class(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class B:
+        def fn(self):
+          return 1
+
+      class A:
+        X = B()
+
+        def fn(self):
+          return self.X.fn()
+      """,
+  )
+
+  a = old_module.A()
+  assert a.fn() == 1
+
+  new_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        def fn(self):
+          return 2
+      """,
+  )
+  assert not hasattr(new_module, 'B')
+  assert old_module.A is new_module.A
+  assert a.fn() == 2
+
+
+def test_reload_delete_field(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        X = 1
+
+        def fn(self):
+          return self.X
+      """,
+  )
+
+  a = old_module.A()
+  assert a.fn() == 1
+
+  reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        def fn(self):
+          return 2
+      """,
+  )
+  assert not hasattr(a, 'X')
+  assert a.fn() == 2
+
+
+def test_reload_inter_module(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_mod_a = reloader.reimport_module(
+      'test_module_a',
+      """
+      class A:
+        def fn(self):
+          return 1
+      """,
+  )
+
+  mod_b = reloader.reimport_module(
+      'test_module_b',
+      """
+      import test_module_a
+
+      inst = test_module_a.A()
+      """,
+  )
+
+  assert mod_b.inst.fn() == 1
+
+  new_mod_a = reloader.reimport_module(
+      'test_module_a',
+      """
+      class A:
+        def fn(self):
+          return 2
+      """,
+  )
+
+  assert mod_b.inst.fn() == 2
+  assert mod_b.inst.__class__ is new_mod_a.A
+  assert isinstance(mod_b.inst, old_mod_a.A)
+  assert isinstance(mod_b.inst, new_mod_a.A)
+
+
 # TODO(epot): Fix
 @pytest.mark.skip('%autoreload implementation do not support cycles')
 def test_cycles(reloader: _Reloader):  # pylint: disable=redefined-outer-name
   # Test reload when there's cycles
-  old_module = reloader.reimport_module("""
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        pass
 
-  class A:
-    pass
-
-
-  A.A = A
-  """)
+      A.A = A
+      """,
+  )
 
   old_A = old_module.A  # pylint: disable=invalid-name
 
-  # After reload, the new method is used
+  new_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        pass
 
-  new_module = reloader.reimport_module("""
-
-  class A:
-    pass
-
-
-  A.A = A
-  """)
+      A.A = A
+      """,
+  )
 
   assert old_A is not new_module.A
   assert old_A.A is new_module.A
