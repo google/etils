@@ -26,6 +26,7 @@ import inspect
 import sys
 import time
 import types
+import typing
 from typing import Any, Iterator
 import weakref
 
@@ -93,6 +94,29 @@ class _ObjectUpdater:
       except (AttributeError, TypeError):
         pass  # skip non-writable attributes
 
+  def _update_enum(self, old: type, new: type):  # pylint: disable=g-bare-generic
+    """Update enum types."""
+    self._update_class(old, new)
+    # Horrible hack: Enums are normally compared as singletons. However, after
+    # reloading, the old and new singletons no longer match. There is no good
+    # way to globally replace all the old singletons with the new singletons.
+    # Instead, enums are defined to compare equal if their class & name match.
+
+    # Pytype doesn't understand that this method is a class method.
+    # cast it to silene warnings.
+    cur_eq = typing.cast(Any, new.__eq__)
+
+    def enum_eq(x, y):
+      eq = cur_eq(x, y)
+      # Normal enums compare by singleton and dont implement eq. For these,
+      # override it to our special eq. If eq is implemented (eg. for
+      # ReprEnum's) just leave it alone.
+      if cur_eq(x, y) == NotImplemented:
+        return x is y or x.__class__ == y.__class__ and x.name == y.name
+      return eq
+
+    new.__eq__ = enum_eq
+
   def _update_function(self, old: types.FunctionType, new: types.FunctionType):
     """Upgrade the code object of a function."""
     for name in [
@@ -110,9 +134,9 @@ class _ObjectUpdater:
 
   def _update_property(self, old: property, new: property):
     """Replace get/set/del functions of a property."""
-    self.update(old.fdel, new.fdel)
-    self.update(old.fget, new.fget)
-    self.update(old.fset, new.fset)
+    self._update_function(old.fdel, new.fdel)
+    self._update_function(old.fget, new.fget)
+    self._update_function(old.fset, new.fset)
 
   def update(self, old, new):
     """Updates a function/class/method/property to a new definition."""
@@ -121,6 +145,8 @@ class _ObjectUpdater:
       return
 
     match old, new:
+      case enum.EnumType(), enum.EnumType():
+        return self._update_enum(old, new)
       case type(), type():
         return self._update_class(old, new)
       case types.FunctionType(), types.FunctionType():

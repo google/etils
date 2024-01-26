@@ -294,6 +294,55 @@ def test_cycles(reloader: _Reloader):  # pylint: disable=redefined-outer-name
   assert old_module.A is new_module.A
 
 
-# TODO(epot): Restore
-# def test_reload_enum(reloader: _Reloader):  # pylint: disable=redefined-outer-name
-#   del reloader
+def test_reload_enum(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_mod = reloader.reimport_module(
+      'test_module',
+      """
+      import enum
+
+      class A(enum.Enum):
+        FOO = enum.auto()
+        BAR = enum.auto()
+
+      class B(enum.StrEnum):
+        FOO = enum.auto()
+        BAR = enum.auto()
+      """,
+  )
+
+  a = old_mod.A.FOO
+  b = old_mod.B.BAR
+
+  # Reload enums with a new field (not in order!).
+  mod = reloader.reimport_module(
+      'test_module',
+      """
+      import enum
+
+      class A(enum.Enum):
+        BUZZ = enum.auto()
+
+        FOO = enum.auto()
+        BAR = enum.auto()
+
+      class B(enum.StrEnum):
+        BUZZ = enum.auto()
+
+        FOO = enum.auto()
+        BAR = enum.auto()
+      """,
+  )
+
+  # Still equal after reload.
+  assert a == mod.A.FOO
+  assert mod.A.FOO == a
+  # And doesn't radomly compare to other enum values.
+  assert a != mod.A.BAR
+  # repr enum types still behave.
+  assert b != mod.B.FOO
+  assert b == mod.B.BAR
+  assert 'foo' == mod.B.FOO
+  # Enum fieds get added.
+  assert hasattr(mod.A, 'BUZZ')
+  # The singletons are updated (even if saved values aren't).
+  assert old_mod.A.FOO is mod.A.FOO
