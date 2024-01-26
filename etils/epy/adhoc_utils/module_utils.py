@@ -24,22 +24,27 @@ from typing import NoReturn
 from etils.epy import py_utils
 
 
-def get_module_names(restrict: py_utils.StrOrStrList) -> list[str]:
+def get_module_names(
+    restrict: py_utils.StrOrStrList, *, recursive: bool = True
+) -> list[str]:
   """Returns all `sys.modules` matching the restrict name."""
 
   modules = py_utils.normalize_str_to_list(restrict)
   assert all('/' not in module for module in modules)
 
   # List all the currently loaded modules matching `modules`
-
-  modules = tuple(modules)
-  modules = [m for m in sys.modules if m.startswith(modules)]
-  return modules
+  if recursive:
+    modules = tuple(modules)
+    return [m for m in sys.modules if m.startswith(modules)]
+  else:
+    modules = set(modules)
+    return [m for m in sys.modules if m in modules]
 
 
 def clear_cached_modules(
     modules: py_utils.StrOrStrList,
     *,
+    recursive: bool = True,
     verbose: bool = False,
     invalidate: bool = True,
 ) -> None:
@@ -58,12 +63,13 @@ def clear_cached_modules(
   ```
 
   Args:
-    modules: List of modules to clear (all submodules cleared too)
+    modules: List of modules to clear
+    recursive: Whether submodules are cleared too
     verbose: Whether to display the list of modules cleared.
     invalidate: If `True` (default), the instances of the module will raise an
       error when used (to avoid using 2 versions of a module at the same time)
   """
-  modules_to_clear = get_module_names(modules)
+  modules_to_clear = get_module_names(modules, recursive=recursive)
   if not modules_to_clear:
     return
 

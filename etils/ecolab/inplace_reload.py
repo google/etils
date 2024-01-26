@@ -140,11 +140,12 @@ class _InPlaceReloader:
       reload: list[str],
       verbose: bool,
       reload_mode: ReloadMode,
+      recursive: bool,
   ) -> Iterator[None]:
     """Eventually update old modules."""
     # Track imported modules before they are removed from cache (to update them
     # after reloading)
-    self._save_objs(reload=reload)
+    self._save_objs(reload=reload, recursive=recursive)
 
     # We clear the module cache to trigger a full reload import.
     # This is better than `colab_import.reload_package` as it support
@@ -168,10 +169,12 @@ class _InPlaceReloader:
             verbose=verbose,
         )
 
-  def _save_objs(self, *, reload: list[str]) -> None:
+  def _save_objs(self, *, reload: list[str], recursive) -> None:
     """Save all modules/objects."""
     # Save all modules
-    for module_name in module_utils.get_module_names(reload):
+    for module_name in module_utils.get_module_names(
+        reload, recursive=recursive
+    ):
       module = sys.modules.get(module_name)
       if module is None:
         continue
