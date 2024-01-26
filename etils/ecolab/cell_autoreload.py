@@ -20,6 +20,7 @@ import contextlib
 import dataclasses
 import functools
 import importlib
+import inspect
 import re
 import sys
 import types
@@ -40,12 +41,61 @@ class _ModuleInfo:
   instance: types.ModuleType
 
 
+def _create_module_graph(nodes: set[str]) -> dict[str, set[str]]:
+  graph = {}
+
+  for source in nodes:
+    deps = set()
+    for val in sys.modules[source].__dict__.values():
+      if not inspect.ismodule(val) or val.__name__ not in nodes:
+        deps.add(val.__name__)
+    graph[source] = deps
+
+  return graph
+
+
+class _ModuleSearch:
+  """Graph of module dependencies that can be queried."""
+
+  def __init__(self, targets: set[str], graph: dict[str, set[str]]):
+    self._graph = graph
+    self._cache: dict[str, bool] = {}
+    self._targets = targets
+
+  def reaches_targets(self, source: str) -> bool:
+    """Check if a module references other modules directly or indirectly."""
+    visited = set()
+    queue = []
+
+    visited.add(source)
+    queue.append(source)
+
+    while queue:
+      m = queue.pop(0)
+
+      if (cached := self._cache.get(m)) is not None:
+        self._cache[source] = cached
+        return cached
+
+      if m in self._targets:
+        self._cache[source] = True
+        return True
+
+      for neighbour in self._graph.get(m, set()):
+        if neighbour not in visited:
+          visited.add(neighbour)
+          queue.append(neighbour)
+
+    self._cache[source] = False
+    return False
+
+
 class ModuleReloader:
   """Module reloader."""
 
   def __init__(self, **adhoc_kwargs):
     self.adhoc_kwargs = adhoc_kwargs
-    self._last_update = 0
+    self._last_updates: dict[str, int | None] = {}
     self._globals_to_update: dict[str, _ModuleInfo] = {}
 
   @functools.cached_property
@@ -64,8 +114,9 @@ class ModuleReloader:
     if not self.reload:
       raise ValueError('`cell_autoreload=True` require to set `reload=`')
 
-    # Only keep a single value. If any file is updated, trigger a full reload.
-    self._last_update = _get_last_modules_update(self.reload)
+    # Keep a value for each module. If a file is updated, trigger a reload.
+    for module in module_utils.get_module_names(self.reload):
+      self._last_updates[module] = _get_last_module_update(module)
 
     # Currently, only a single auto-reload can be set at the time.
     # Probably a good idea as it's unclear how to differentiate between
@@ -120,30 +171,60 @@ class ModuleReloader:
     del args  # Future version of IPython will have a `info` arg
 
     # If any of the modules has been updated, trigger a reload
-    max_mtime = _get_last_modules_update(self.reload)
-    if max_mtime <= self._last_update:  # No module to reload
+
+    # Find which modules are dirty.
+    dirty_modules: set[str] = set()
+    for module in module_utils.get_module_names(self.reload):
+      prev_mtime = self._last_updates.get(module)
+      new_mtime = _get_last_module_update(module)
+      if prev_mtime is None or (
+          new_mtime is not None and new_mtime > prev_mtime
+      ):
+        dirty_modules.add(module)
+      self._last_updates[module] = new_mtime
+
+    if not dirty_modules:
       return
 
-    self._last_update = max_mtime
+    # Get set of all modules we could potentially reload.
+    reload_set = set(module_utils.get_module_names(self.reload))
+    graph = _create_module_graph(reload_set)
+    search = _ModuleSearch(dirty_modules, graph)
+
+    # Narrow it down to modules that are dirty or reference a dirty module.
+    modules_to_update = [
+        mod for mod in reload_set if search.reaches_targets(mod)
+    ]
 
     with contextlib.ExitStack() as stack:
       if self.verbose:
         # Hide the logs in a collapsible section (less boilerplate)
-        stack.enter_context(colab_utils.collapse('module reloaded'))
+        mod_plural = 'module' if len(modules_to_update) == 1 else 'modules'
+        stack.enter_context(
+            colab_utils.collapse(
+                f'{len(modules_to_update)} {mod_plural} reloaded'
+            )
+        )
         stack.enter_context(contextlib.redirect_stderr(sys.stdout))
 
-      imported_modules = module_utils.get_module_names(self.reload)
-      with adhoc_imports.adhoc(**self.adhoc_kwargs):
-        # Reload all currently loaded modules
-        for module in imported_modules:
+      # Only reload exactly the modules we know are dirty. reload_recursive
+      # is an undocumented flag in adhoc for now.
+      adhoc_kwargs = self.adhoc_kwargs | {
+          'reload': modules_to_update,
+          'reload_recursive': False,
+      }
+      with adhoc_imports.adhoc(**adhoc_kwargs):
+        for module in modules_to_update:
           importlib.import_module(module)
 
       # Update globals in user namespace with reloaded modules
-      ip = IPython.get_ipython()  #
+      ip = IPython.get_ipython()
       kernel_globals = ip.kernel.shell.user_ns
 
       for name, info in self._globals_to_update.items():
-        if id(kernel_globals.get(name)) == id(info.instance):
+        if info.name in modules_to_update and id(
+            kernel_globals.get(name)
+        ) == id(info.instance):
           reloaded_module = sys.modules[info.name]
           self.print(f'Overwrting {name} to new module {info.name}')
           kernel_globals[name] = reloaded_module
@@ -153,17 +234,6 @@ class ModuleReloader:
         else:
           # If the global was updated previously
           self.print(f'Ignoring {name} (was overwritten)')
-
-
-def _get_last_modules_update(modules: tuple[str, ...]) -> int:
-  """Get the last update for all modules."""
-  max_mtime = 0
-  for module in module_utils.get_module_names(modules):
-    mtime = _get_last_module_update(module)
-    if mtime is None:
-      continue
-    max_mtime = max(max_mtime, mtime)
-  return max_mtime
 
 
 def _get_last_module_update(module_name: str) -> int | None:
