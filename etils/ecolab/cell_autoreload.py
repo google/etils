@@ -47,7 +47,7 @@ def _create_module_graph(nodes: set[str]) -> dict[str, set[str]]:
   for source in nodes:
     deps = set()
     for val in sys.modules[source].__dict__.values():
-      if not inspect.ismodule(val) or val.__name__ not in nodes:
+      if inspect.ismodule(val) and val.__name__ in nodes:
         deps.add(val.__name__)
     graph[source] = deps
 
