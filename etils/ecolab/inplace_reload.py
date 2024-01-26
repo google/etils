@@ -24,6 +24,7 @@ import functools
 import gc
 import inspect
 import sys
+import time
 import types
 from typing import Any, Iterator
 import weakref
@@ -54,6 +55,92 @@ def get_reloader() -> _InPlaceReloader:
   return _InPlaceReloader()
 
 
+def _has_update_rule(obj):
+  return isinstance(obj, (type, types.MethodType, types.FunctionType, property))
+
+
+class _ObjectUpdater:
+  """Update various objects & keeps track of type remapping.
+
+  Call update_instances after updating all class types to remap all
+  instances to their new class.
+  """
+
+  def __init__(self):
+    self._type_updates: dict[type, type] = {}  # pylint: disable=g-bare-generic
+
+  def _update_class(self, old: type, new: type):  # pylint: disable=g-bare-generic
+    """Update the class."""
+    self._type_updates[old] = new
+
+    for key in list(old.__dict__.keys()):
+      old_obj = getattr(old, key)
+
+      try:
+        new_obj = getattr(new, key)
+      except AttributeError:
+        # obsolete attribute: remove it
+        try:
+          delattr(old, key)
+        except (AttributeError, TypeError):
+          pass
+        continue
+
+      self.update(old_obj, new_obj)
+
+      try:
+        setattr(old, key, getattr(new, key))
+      except (AttributeError, TypeError):
+        pass  # skip non-writable attributes
+
+  def _update_function(self, old: types.FunctionType, new: types.FunctionType):
+    """Upgrade the code object of a function."""
+    for name in [
+        "__code__",
+        "__defaults__",
+        "__doc__",
+        "__closure__",
+        "__globals__",
+        "__dict__",
+    ]:
+      try:
+        setattr(old, name, getattr(new, name))
+      except (AttributeError, TypeError):
+        pass
+
+  def _update_property(self, old: property, new: property):
+    """Replace get/set/del functions of a property."""
+    self.update(old.fdel, new.fdel)
+    self.update(old.fget, new.fget)
+    self.update(old.fset, new.fset)
+
+  def update(self, old, new):
+    """Updates a function/class/method/property to a new definition."""
+    # Stop replacement if the 2 objects are the same
+    if old is new:
+      return
+
+    match old, new:
+      case type(), type():
+        return self._update_class(old, new)
+      case types.FunctionType(), types.FunctionType():
+        return self._update_function(old, new)
+      case types.MethodType(), types.MethodType():
+        return self._update_function(old.__func__, new.__func__)  # pytype: disable=wrong-arg-types
+      case property(), property():
+        return self._update_property(old, new)
+
+  def update_instances(self):
+    """Backport of `update_instances`."""
+    if len(self._type_updates) == 0:  # pylint: disable=g-explicit-length-test
+      return
+
+    refs = gc.get_referrers(*self._type_updates.keys())
+    for ref in refs:
+      if (new := self._type_updates.get(type(ref))) is not None:
+        object.__setattr__(ref, "__class__", new)
+
+
 @dataclasses.dataclass(frozen=True)
 class _ModuleRefs:
   """Reference on the previous module/object instances."""
@@ -79,7 +166,11 @@ class _ModuleRefs:
       self.objs[name].append(weakref.ref(old_obj))
 
   def update_refs_with_new_module(
-      self, new_module: types.ModuleType, *, verbose: bool = False
+      self,
+      new_module: types.ModuleType,
+      updater: _ObjectUpdater,
+      *,
+      verbose: bool = False,
   ) -> _ModuleRefs:
     """Update all old reference to previous objects."""
     # Resolve all weakrefs
@@ -101,7 +192,7 @@ class _ModuleRefs:
 
       for old_obj in live_old_objects[name]:
         # TODO(epot): Support cycles
-        _update_generic(old_obj, new_obj)
+        updater.update(old_obj, new_obj)
 
     if verbose:
       obj_count = lambda x: sum((len(l) for l in x.values()))
@@ -111,7 +202,6 @@ class _ModuleRefs:
           f" {obj_count(self.objs)} objects"
           f" ({obj_count(live_old_objects)} retained)."
       )
-
     live_old_refs = collections.defaultdict(
         list,
         {
@@ -193,15 +283,28 @@ def _update_old_modules(
   # Don't spend time updating types that are already dead anyway.
   gc.collect()
 
+  start_time = time.time()
+
+  updater = _ObjectUpdater()
+
   for module_name in module_utils.get_module_names(reload):
     new_module = sys.modules[module_name]
     old_module_refs = previous_modules.get(module_name)
     if old_module_refs is not None:
       previous_modules[module_name] = (
           old_module_refs.update_refs_with_new_module(
-              new_module, verbose=verbose
+              new_module, updater, verbose=verbose
           )
       )
+
+  # Finally update all existing instances to their new class.
+  updater.update_instances()
+
+  if verbose:
+    print(
+        "Inplace reloading old modules took"
+        f" {time.time() - start_time:.2} seconds."
+    )
 
 
 def _update_old_module(
@@ -236,86 +339,3 @@ def _wrap_fn(old_fn, new_fn):
     return new_fn(old_fn, *args, **kwargs)
 
   return decorated
-
-
-def _update_class(old, new):
-  """Update the class."""
-  for key in list(old.__dict__.keys()):
-    old_obj = getattr(old, key)
-
-    try:
-      new_obj = getattr(new, key)
-    except AttributeError:
-      # obsolete attribute: remove it
-      try:
-        delattr(old, key)
-      except (AttributeError, TypeError):
-        pass
-      continue
-
-    _update_generic(old_obj, new_obj)
-
-    try:
-      setattr(old, key, getattr(new, key))
-    except (AttributeError, TypeError):
-      pass  # skip non-writable attributes
-
-  _update_instances(old, new)
-
-
-def _update_function(old, new):
-  """Upgrade the code object of a function."""
-  for name in [
-      "__code__",
-      "__defaults__",
-      "__doc__",
-      "__closure__",
-      "__globals__",
-      "__dict__",
-  ]:
-    try:
-      setattr(old, name, getattr(new, name))
-    except (AttributeError, TypeError):
-      pass
-
-
-def _update_property(old, new):
-  """Replace get/set/del functions of a property."""
-  _update_generic(old.fdel, new.fdel)
-  _update_generic(old.fget, new.fget)
-  _update_generic(old.fset, new.fset)
-
-
-def _update_generic(old, new):
-  # Stop replacement if the 2 objects are the same
-  if old is new:
-    return
-
-  for type_, update in _UPDATE_RULES:
-    if isinstance(old, type_) and isinstance(new, type_):
-      update(old, new)
-      return
-
-
-def _has_update_rule(obj):
-  return any(isinstance(obj, update_type) for update_type, _ in _UPDATE_RULES)
-
-
-_UPDATE_RULES = [
-    (type, _update_class),
-    (types.FunctionType, _update_function),
-    (
-        types.MethodType,
-        lambda a, b: _update_function(a.__func__, b.__func__),
-    ),
-    (property, _update_property),
-]
-
-
-def _update_instances(old, new):
-  """Backport of `update_instances`."""
-  refs = gc.get_referrers(old)
-
-  for ref in refs:
-    if type(ref) is old:  # pylint: disable=unidiomatic-typecheck
-      object.__setattr__(ref, "__class__", new)
