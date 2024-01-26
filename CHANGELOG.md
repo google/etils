@@ -27,10 +27,12 @@ Changelog follow https://keepachangelog.com/ format.
     *   Changed: `ecolab.auto_display`: Better representation when line is
         displayed
     *   Fix `adhoc` that delete sub-module when `invalidate=False`
-    *   `adhoc` reload_mode=UPDATE_INPLACE now supports enums, so old versions
-        compare equal to new versions. Enums compared as `a is FOO` might still
-        fail.
-    *   `adhoc` reload_mode=UPDATE_INPLACE is now much faster.
+    *   `adhoc` with `reload_mode=UPDATE_INPLACE` now supports enums, so old
+        versions compare equal to new versions. Enums compared as `a is FOO`
+        might still fail.
+    *   `adhoc` with `reload_mode=UPDATE_INPLACE` is now much faster.
+    *   When using `cell_autoreload=True` the default `reload_mode` is
+        now `UPDATE_INPLACE`.
 *   `exm`:
     *   Added: `exm.set_citc_source()` to specify which workspace to use when
         using XManager on Colab
