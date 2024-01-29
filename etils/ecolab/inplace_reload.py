@@ -273,6 +273,7 @@ class _InPlaceReloader:
         modules=reload,
         verbose=verbose,
         invalidate=True if reload_mode == ReloadMode.INVALIDATE else False,
+        recursive=recursive,
     )
     try:
       yield
@@ -283,6 +284,7 @@ class _InPlaceReloader:
             reload=reload,
             previous_modules=self._previous_modules,
             verbose=verbose,
+            recursive=recursive,
         )
 
   def _save_objs(self, *, reload: list[str], recursive) -> None:
@@ -303,7 +305,8 @@ def _update_old_modules(
     *,
     reload: list[str],
     previous_modules: dict[str, _ModuleRefs],
-    verbose: bool = False,
+    verbose: bool,
+    recursive: bool,
 ) -> None:
   """Update all old modules."""
   # Don't spend time updating types that are already dead anyway.
@@ -313,7 +316,7 @@ def _update_old_modules(
 
   updater = _ObjectUpdater()
 
-  for module_name in module_utils.get_module_names(reload):
+  for module_name in module_utils.get_module_names(reload, recursive=recursive):
     new_module = sys.modules[module_name]
     old_module_refs = previous_modules.get(module_name)
     if old_module_refs is not None:
