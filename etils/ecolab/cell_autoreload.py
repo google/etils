@@ -62,23 +62,23 @@ class _ModuleSearch:
     self._cache: dict[str, bool] = {}
     self._targets = targets
 
-  def reaches_targets(self, source: str) -> bool:
+  def _reaches_targets(self, source: str) -> bool:
     """Check if a module references other modules directly or indirectly."""
-    visited = set()
-    queue = []
-
-    visited.add(source)
-    queue.append(source)
+    queue = [source]
+    visited = set(queue)
 
     while queue:
       m = queue.pop(0)
 
-      if (cached := self._cache.get(m)) is not None:
-        self._cache[source] = cached
-        return cached
+      if (reaches := self._cache.get(m)) is not None:
+        if reaches:
+          # If m is known to reach target -> source reaches targets
+          return True
+        else:
+          # Otherwise, no need to search the neighbours of this node either.
+          continue
 
       if m in self._targets:
-        self._cache[source] = True
         return True
 
       for neighbour in self._graph.get(m, set()):
@@ -86,8 +86,13 @@ class _ModuleSearch:
           visited.add(neighbour)
           queue.append(neighbour)
 
-    self._cache[source] = False
     return False
+
+  def reaches_targets(self, source: str) -> bool:
+    """Check if a module references other modules directly or indirectly."""
+    ret = self._reaches_targets(source)
+    self._cache[source] = ret
+    return ret
 
 
 class ModuleReloader:
