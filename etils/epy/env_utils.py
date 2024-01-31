@@ -21,7 +21,7 @@ import sys
 def is_notebook() -> bool:
   """Returns True if running in a notebook (Colab, Jupyter) environment."""
   # Use sys.module as we do not want to trigger an import (slow)
-  # Check whether we're not running in a IPython terminal
+  # Check whether we're running in a IPython notebook (and not terminal)
   if IPython := sys.modules.get('IPython'):  # pylint: disable=invalid-name
     ipython = IPython.get_ipython()
     if ipython and 'IPKernelApp' in ipython.config:
