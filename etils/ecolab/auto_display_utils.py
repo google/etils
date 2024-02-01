@@ -388,7 +388,7 @@ def _display_and_return(
   # `_pretty_display_specs_and_return` and `_display_specs_and_return`.
   # TODO(epot): `l` should be accepted everywhere (not just trailing)
   if line_code:
-    print(line_code + '=', end='')
+    print(line_code + ' = ', end='')
     # When the next element is a `IPython.display`, the next element is
     # displayed on a new line. This is because `display()` create a new
     # <div> section. So use standard `print` when line is displayed.
