@@ -33,6 +33,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   `adhoc` with `reload_mode=UPDATE_INPLACE` is now much faster.
     *   When using `cell_autoreload=True` the default `reload_mode` is
         now `UPDATE_INPLACE`.
+    *   Better error message for adhoc reload
 *   `exm`:
     *   Added: `exm.set_citc_source()` to specify which workspace to use when
         using XManager on Colab
