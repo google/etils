@@ -47,6 +47,15 @@ class LazyModule:
   success_callback: _SuccessCallback | None
   _submodules: dict[str, LazyModule] = dataclasses.field(default_factory=dict)
 
+  def __post_init__(self):
+    if self.adhoc_kwargs is not None:
+      self.adhoc_kwargs = dict(self.adhoc_kwargs)
+      # Whe the lazy import is triggered, do not reload modules, nor trigger a
+      # full build.
+      self.adhoc_kwargs.pop("reload", None)
+      self.adhoc_kwargs.pop("cell_autoreload", None)
+      self.adhoc_kwargs.pop("build_targets", None)
+
   @functools.cached_property
   def _module(self) -> types.ModuleType:
     """Resolve the module."""
