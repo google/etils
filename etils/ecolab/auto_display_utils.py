@@ -71,9 +71,9 @@ def auto_display(activate: bool = True) -> None:
       strings containing new lines (rather than displaying `\n`).
   *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
   *   `my_obj;l`: (`line`) Also display the line (can be combined with previous
-      statements). Has to be at the end.
+      statements). Has to be at the end (`;sl` is valid but not `;ls`).
 
-  `p` and `s` can be combined.
+  `p`, `s`, `l` can be combined.
 
   Args:
     activate: Allow to disable `auto_display`

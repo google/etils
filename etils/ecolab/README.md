@@ -73,6 +73,8 @@ Add a trailing `;` to any statement (assignment, expression, return statement)
 to display the current line. This call `IPython.display.display()` for pretty
 display.
 
+This is activated automatically when importing `ecolab` or `lazy_imports`.
+
 Format:
 
 *   `my_obj;`: Alias for `IPython.display.display(x)`
@@ -81,9 +83,13 @@ Format:
 *   `my_obj;a`: (`array`) Alias for `media.show_images(x)` /
     `media.show_videos(x)` (`ecolab.auto_plot_array` behavior)
 *   `my_obj;p`: (`pretty_display`) Alias for `print(epy.pretty_repr(x))`.
-    Can be combined with `s`. Used for pretty print `dataclasses` or print
-    strings containing new lines (rather than displaying `\n`).
+    Used for pretty print `dataclasses` or print strings containing new
+    lines (rather than displaying `\n`).
+*   `my_obj;l`: (`line`) Also display the line (can be combined with previous
+    statements). Has to be **at the end** (`;sl` is valid but not `;ls`).
 *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
+
+`p`, `s`, `l` can be combined.
 
 ```python
 x = my_fn();  # Display `my_fn()` output
