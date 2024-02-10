@@ -71,15 +71,6 @@ class Path(pathlib.PurePosixPath):
 
   # ====== Pure paths ======
 
-  # py3.9 backport of PurePath.is_relative_to.
-  def is_relative_to(self, *other: PathLike) -> bool:
-    """Return True if the path is relative to another path or False."""
-    try:
-      self.relative_to(*other)
-      return True
-    except ValueError:
-      return False
-
   def format(self: _T, *args: Any, **kwargs: Any) -> _T:
     """Apply `str.format()` to the path."""
     return type(self)(os.fspath(self).format(*args, **kwargs))  # pytype: disable=not-instantiable
