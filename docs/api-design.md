@@ -324,6 +324,23 @@ or to re-organize symbols in a more structured way.
 Of course, there's a balance between breaking users and keeping things simple,
 but over the long term, the short user disruption is often worth it.
 
+### All user issues point to problems
+
+When a user report an issue (e.g. can't understand an error, can't figure out
+how to do some action), it's easy to dismiss it as being the users fault (e.g.
+not reading the docstring or documentation,...). However, this often hide some
+underlying issue in the API. It could be:
+
+*   Error message are not clear enough
+*   API is not self-documenting enough or defies user's expectations (caveats
+    should be made explicit by the API without having to read the docstring)
+*   Tutorials/documentations are incomplete, or not well organized enough
+    (feature buried in a hard-to-discover doc page)
+
+Rather than dismissing user request, library author should ask themselves what
+could been changed which would have allowed the user to figure out by themselves
+how to fix their issue.
+
 ### There is no absolute rule
 
 All rules in this doc should be context dependent and have many exceptions.
@@ -557,3 +574,25 @@ y = fn(x)
 ```
 
 The function makes it more clear that there's no hidden inputs/outputs.
+
+### Top-level functions defined first
+
+In a file, the top-level functions (public API, entry points,...) should come
+first, and the internal, utils functions should be defined at the end of the
+file:
+
+This helps:
+
+*   Readability: Someone trying to understand the file do not need to scroll
+    through a lot of noise to understand the main logic (small utils helpers
+    functions are often not required to understand the code).
+*   Navigation: It's much simpler to jump from top-level function to
+    sub-functions (e.g. by ctrl+click on the symbol) than the other way around.
+
+### Use auto-formatting on save
+
+Formatting tools like [Black](https://github.com/psf/black) or
+[Pyink](https://github.com/google/pyink) ensure code consistency across the
+codebase and improve readability. To ensure auto-formatting is correctly
+applied, the IDE (like VS Code) should be configured to apply formatting on
+save.
