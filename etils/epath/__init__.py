@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+# pylint: disable=g-importing-member
+
 from etils.epath import testing
 from etils.epath.abstract_path import Path
 from etils.epath.flags import DEFINE_path
