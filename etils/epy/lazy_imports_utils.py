@@ -59,7 +59,20 @@ class LazyModule:
   @functools.cached_property
   def _module(self) -> types.ModuleType:
     """Resolve the module."""
-    # Recreate the adhoc import context used during the original import
+    with self._maybe_adhoc():
+      try:
+        module = importlib.import_module(self.module_name)
+        if self.success_callback is not None:
+          self.success_callback(self.module_name)
+        return module
+      except ImportError as e:
+        if self.error_callback is not None:
+          self.error_callback(e)
+        raise
+
+  @contextlib.contextmanager
+  def _maybe_adhoc(self) -> Iterator[None]:
+    """Recreate the adhoc import context used during the original import."""
     if self.adhoc_kwargs is None:
       adhoc = contextlib.nullcontext()
     else:
@@ -71,16 +84,9 @@ class LazyModule:
         adhoc = contextlib.nullcontext()
       else:
         adhoc = ecolab.adhoc(**self.adhoc_kwargs)
+
     with adhoc:
-      try:
-        module = importlib.import_module(self.module_name)
-        if self.success_callback is not None:
-          self.success_callback(self.module_name)
-        return module
-      except ImportError as e:
-        if self.error_callback is not None:
-          self.error_callback(e)
-        raise
+      yield
 
   def __getattr__(self, name: str) -> Any:
     if name in self._submodules:
