@@ -120,6 +120,7 @@ with _builder.replace_imports(is_std=True):
   import traceback
   import typing  # Note we do not import `Any`, `TypeVar`,...
   import types
+  import urllib
   import uuid
   from unittest import mock
   import warnings
