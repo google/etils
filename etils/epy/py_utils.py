@@ -92,7 +92,7 @@ def is_namedtuple(x) -> bool:
   Returns:
     `True` if the object is a `namedtuple`
   """
-  return isinstance(x, tuple) and hasattr(x, '_fields')
+  return isinstance(x, tuple) and hasattr(type(x), '_fields')
 
 
 def issubclass_(

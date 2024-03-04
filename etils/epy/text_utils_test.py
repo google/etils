@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import collections
 import dataclasses
 import textwrap
 
@@ -201,3 +202,17 @@ def test_diff():
 ?                          ++
 
   )"""
+
+
+def test_pprint_namedtuple():
+  A = collections.namedtuple('A', ['x', 'y'])
+  a = A(
+      x='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      y='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+  )
+  text = textwrap.dedent("""\
+      A(
+          x='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          y='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      )""")
+  assert epy.pretty_repr(a) == text
