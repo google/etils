@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import ast
 import dataclasses
+import enum
 import functools
 import re
 import traceback
@@ -26,6 +27,7 @@ from typing import Any, Callable, TypeVar
 
 from etils import epy
 from etils.ecolab import array_as_img
+from etils.ecolab import highlight_util
 from etils.ecolab.inspects import core as inspects
 from etils.etree import jax as etree  # pylint: disable=g-importing-member
 import IPython
@@ -38,6 +40,23 @@ _DisplayFn = Callable[[Any], None]
 _IS_LEGACY_API = packaging.version.parse(
     IPython.__version__
 ) < packaging.version.parse('7')
+
+
+class _Options(enum.StrEnum):
+  """Available options."""
+
+  SPEC = 's'
+  INSPECT = 'i'
+  ARRAY = 'a'
+  PPRINT = 'p'
+  SYNTAX_HIGHLIGHT = 'h'
+  LINE = 'l'
+  QUIET = 'q'
+
+  @classmethod
+  @property
+  def all_letters(cls) -> set[str]:
+    return {option.value for option in cls}
 
 
 def auto_display(activate: bool = True) -> None:
@@ -69,11 +88,19 @@ def auto_display(activate: bool = True) -> None:
   *   `my_obj;p`: (`pretty_display`) Alias for `print(epy.pretty_repr(x))`.
       Can be combined with `s`. Used for pretty print `dataclasses` or print
       strings containing new lines (rather than displaying `\n`).
+  *   `my_obj;h`: (`syntax_highlight`) Add Python code syntax highlighting (
+      using `ecolab.highlight_html`)
   *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
   *   `my_obj;l`: (`line`) Also display the line (can be combined with previous
       statements). Has to be at the end (`;sl` is valid but not `;ls`).
 
-  `p`, `s`, `l` can be combined.
+  `p`, `s`, `h`, `l` can be combined.
+
+  A functional API exists:
+
+  ```python
+  ecolab.disp(obj, mode='sp')  # Equivalent to `obj;sp`
+  ```
 
   Args:
     activate: Allow to disable `auto_display`
@@ -226,8 +253,9 @@ class _AddDisplayStatement(ast.NodeTransformer):
       if node.value is None:  # `AnnAssign().value` can be `None` (`a: int`)
         pass
       else:
+        options = ''.join([o.value for o in line_info.options])
         fn_kwargs = [
-            ast.keyword('alias', ast.Constant(line_info.alias)),
+            ast.keyword('options', ast.Constant(options)),
         ]
         if line_info.print_line:
           fn_kwargs.append(ast.keyword('line_code', _unparse_line(node)))
@@ -250,7 +278,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
         pass
       case _:
         return False
-    if name.removesuffix('l') not in _ALIAS_TO_DISPLAY_FN:
+    if any(l not in _Options.all_letters for l in name):
       return False
     # The alias is not in the same line as a trailing `;`
     if node.end_lineno - 1 not in self.lines_recorder.trailing_stmt_line_nums:
@@ -301,9 +329,12 @@ class _WrapAssertNode(ast.Assert):
 @dataclasses.dataclass(frozen=True)
 class _LineInfo:
   has_trailing: bool
-  alias: str
+  options: set[_Options]
   line_num: int
-  print_line: bool
+
+  @property
+  def print_line(self) -> bool:
+    return _Options.LINE in self.options
 
 
 def _has_trailing_semicolon(
@@ -315,9 +346,8 @@ def _has_trailing_semicolon(
     # `AnnAssign().value` can be `None` (`a: int`), do not print anything
     return _LineInfo(
         has_trailing=False,
-        alias='',
+        options=set(),
         line_num=-1,
-        print_line=False,
     )
 
   # Extract the lines of the statement
@@ -331,19 +361,17 @@ def _has_trailing_semicolon(
 
   # Check if the last character is a `;` token
   has_trailing = False
-  alias = ''
-  print_line = False
+  options = set()
   if match := _detect_trailing_regex().match(last_part_of_line):
     has_trailing = True
-    if match.group('suffix'):
-      alias = match.group('suffix')
-    print_line = match.group('equal')
+    if match.group('options'):
+      options = match.group('options')
+      options = {_Options(o) for o in options}
 
   return _LineInfo(
       has_trailing=has_trailing,
-      alias=alias,
+      options=options,
       line_num=line_num,
-      print_line=bool(print_line),
   )
 
 
@@ -358,11 +386,10 @@ def _detect_trailing_regex() -> re.Pattern[str]:
   # * `; a; b`
   # * `; a=1`
 
-  available_suffixes = '|'.join(list(_ALIAS_TO_DISPLAY_FN)[1:])
+  available_letters = ''.join(sorted(_Options.all_letters))  # pytype: disable=wrong-arg-types
   return re.compile(
       ' *; *'  # Trailing `;` (surrounded by spaces)
-      f'(?P<suffix>{available_suffixes})?'  # Optionally a `suffix` letter
-      '(?P<equal>l)?'  # Optionally a `=`
+      f'(?P<options>[{available_letters}]*)?'  # Optionally a `option` letter
       ' *(?:#.*)?$'  # Line can end by a `# comment`
   )
 
@@ -376,60 +403,80 @@ def _unparse_line(node: ast.AST) -> ast.Constant:
   return ast.Constant(ast.unparse(node))
 
 
+def disp(obj: Any, *, mode: str = '') -> None:
+  """Display the object.
+
+  This is the functional API for the `;` auto display magic.
+
+  Args:
+    obj: The object to display
+    mode: Any mode supported by `ecolab.auto_display()`
+  """
+  if _Options.LINE in mode:
+    raise NotImplementedError('Line mode not supported in `disp()`')
+  # Do not return anything so the object is not displayed twice at the last
+  # instuction of a cell
+  _display_and_return(obj, options=mode)
+
+
 def _display_and_return(
     x: _T,
     *,
-    alias: str,
+    options: str,
     line_code: str | None = None,
 ) -> _T:
   """Print `x` and return `x`."""
-  # TODO(epot): Could clean-up the `spec` by adding a `spec=` kwarg and add
-  # a condition here: `x = etree.spec_like(x) if spec else x`, then remove
-  # `_pretty_display_specs_and_return` and `_display_specs_and_return`.
-  # TODO(epot): `l` should be accepted everywhere (not just trailing)
-  if line_code:
+  x_origin = x
+  options = {_Options(o) for o in options}
+
+  if _Options.QUIET in options:  # Do not display anything
+    return x_origin
+
+  if _Options.SPEC in options:  # Convert to spec
+    x = etree.spec_like(x)
+
+  repr_fn = repr
+  display_fn = IPython.display.display
+  if line_code and _Options.SYNTAX_HIGHLIGHT not in options:
     print(line_code + ' = ', end='')
     # When the next element is a `IPython.display`, the next element is
     # displayed on a new line. This is because `display()` create a new
     # <div> section. So use standard `print` when line is displayed.
     display_fn = lambda x: print(repr(x))
-  else:
-    display_fn = IPython.display.display
-  return _ALIAS_TO_DISPLAY_FN[alias](x, display_fn=display_fn)
 
+  if _Options.PPRINT in options:
+    repr_fn = epy.pretty_repr
+    display_fn = _pretty_display
 
-def _display_and_return_simple(x: _T, *, display_fn: _DisplayFn) -> _T:
-  """Print `x` and return `x`."""
+  if _Options.INSPECT in options:
+    inspects.inspect(x)
+    return x_origin
+
+  if _Options.ARRAY in options:
+    html = array_as_img.array_repr_html(x)
+    if html is None:
+      print(f'Invalid array to display: {type(x)}')
+    else:
+      _html_display(html)
+    return x_origin
+
+  if _Options.SYNTAX_HIGHLIGHT in options:
+    x_repr = repr_fn(x)
+    if line_code:
+      x_repr = f'{line_code} = {x_repr}'
+    _html_display(highlight_util.highlight_html(x_repr))
+    return x_origin
+
   display_fn(x)
-  return x
+  return x_origin
 
 
-def _display_specs_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
+def _html_display(html):
+  IPython.display.display(IPython.display.HTML(html))
+
+
+def _pretty_display(x):
   """Print `x` and return `x`."""
-  display_fn(etree.spec_like(x))
-  return x
-
-
-def _inspect_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
-  """Print `x` and return `x`."""
-  del display_fn
-  inspects.inspect(x)
-  return x
-
-
-def _display_array_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
-  """Print `x` and return `x`."""
-  html = array_as_img.array_repr_html(x)
-  if html is None:
-    display_fn(x)
-  else:
-    IPython.display.display(IPython.display.HTML(html))
-  return x
-
-
-def _pretty_display_return(x: _T, *, display_fn: _DisplayFn) -> _T:
-  """Print `x` and return `x`."""
-  del display_fn
   # 2 main use-case:
   # * Print strings (including `\n`)
   # * Pretty-print dataclasses
@@ -437,29 +484,3 @@ def _pretty_display_return(x: _T, *, display_fn: _DisplayFn) -> _T:
     print(x)
   else:
     print(epy.pretty_repr(x))
-  return x
-
-
-def _pretty_display_specs_and_return(x: _T, *, display_fn: _DisplayFn) -> _T:
-  """Print `x` and return `x`."""
-  del display_fn
-  print(epy.pretty_repr(etree.spec_like(x)))
-  return x
-
-
-def _return_quietly(x: _T, *, display_fn: _DisplayFn) -> _T:
-  """Return `x` without display."""
-  del display_fn
-  return x
-
-
-_ALIAS_TO_DISPLAY_FN = {
-    '': _display_and_return_simple,
-    's': _display_specs_and_return,
-    'i': _inspect_and_return,
-    'a': _display_array_and_return,
-    'p': _pretty_display_return,
-    'ps': _pretty_display_specs_and_return,
-    'sp': _pretty_display_specs_and_return,
-    'q': _return_quietly,
-}

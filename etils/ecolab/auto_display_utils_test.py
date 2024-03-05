@@ -64,7 +64,7 @@ def test_parsing():
       1,
   3,)  # asdasd
   a=1;b=2
-  a=1;iii
+  a=1;iiiy
   a=1 # ;a
   d  =  3     # AAA
   (
@@ -89,7 +89,7 @@ def test_parsing():
 
 
 @pytest.mark.parametrize(
-    'code, alias',
+    'code, options',
     [
         ('x;', ''),
         ('x;#i', ''),
@@ -106,21 +106,21 @@ def test_parsing():
         ('x;  i  # Comment', 'i'),
     ],
 )
-def test_alias(code: str, alias: str):
+def test_alias(code: str, options: str):
   node = ast.parse(code)
   info = auto_display_utils._has_trailing_semicolon(
       code.splitlines(), node.body[0]
   )
   assert info.has_trailing
-  assert info.alias == alias
+  assert info.options == {auto_display_utils._Options(o) for o in options}
 
 
 @pytest.mark.parametrize(
     'code',
     [
-        'x;aa',
-        'x;ap',
-        'x;spp',
+        # 'x;aa',
+        # 'x;ap',
+        # 'x;spp',
         'x;a=1',
     ],
 )

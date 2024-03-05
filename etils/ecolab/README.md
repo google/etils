@@ -85,11 +85,13 @@ Format:
 *   `my_obj;p`: (`pretty_display`) Alias for `print(epy.pretty_repr(x))`.
     Used for pretty print `dataclasses` or print strings containing new
     lines (rather than displaying `\n`).
+*   `my_obj;h`: (`syntax_highlight`) Add Python code syntax highlighting (
+    using `ecolab.highlight_html`)
 *   `my_obj;l`: (`line`) Also display the line (can be combined with previous
     statements). Has to be **at the end** (`;sl` is valid but not `;ls`).
 *   `my_obj;q`: (`quiet`) Don't display the line (e.g. last line)
 
-`p`, `s`, `l` can be combined.
+`p`, `s`, `h`, `l` can be combined.
 
 ```python
 x = my_fn();  # Display `my_fn()` output
@@ -101,6 +103,12 @@ my_fn();i  # Inspect `my_fn()` output
 Note that contrary to `IPython` default behavior, `;` added to the last
 statement of the cell will display the line. To silence the last output, use
 `;q`.
+
+An explicit API also exists:
+
+```python
+ecolab.disp(obj, mode='sph')  # Equivalent to `obj;sph`
+```
 
 `;` behavior can be disabled with `ecolab.auto_display(False)`
 

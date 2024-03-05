@@ -18,6 +18,7 @@
 
 from etils.ecolab.array_as_img import auto_plot_array
 from etils.ecolab.auto_display_utils import auto_display
+from etils.ecolab.auto_display_utils import disp
 from etils.ecolab.colab_utils import collapse
 from etils.ecolab.colab_utils import interruptible
 from etils.ecolab.colab_utils import json

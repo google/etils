@@ -8,8 +8,12 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   Drop Python 3.10 support.
 *   `epy`:
     *   `epy.pretty_repr`: Add support for namedtuple
+*   `ecolab`:
+    *   Add `ecolab.disp(obj)`
+    *   Add `;h` for syntax highlighting with auto-display
 
 ## [1.7.0] - 2024-02-15
 

@@ -22,7 +22,7 @@ jobs:
     # Install deps
     - uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - run: pip --version
     - run: pip install -e .[all,dev]
     - run: pip freeze
