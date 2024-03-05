@@ -25,6 +25,8 @@ import sys
 import textwrap
 from typing import Any, Iterable, Iterator, Union
 
+from etils.epy import py_utils
+
 _BRACE_TO_BRACES = {
     '(': ('(', ')'),
     '[': ('[', ']'),
@@ -249,6 +251,15 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
 
   if isinstance(obj, str):
     return repr(obj)
+  elif py_utils.is_namedtuple(obj):
+    # TODO(epot): Could check if obj has custom `__repr__`
+    return Lines.make_block(
+        header=obj.__class__.__name__,
+        content={
+            field_name: getattr(obj, field_name)
+            for field_name in type(obj)._fields
+        },
+    )
   elif type(obj) in (list, tuple):  # Skip sub-class as could have custom repr
     lines = Lines.make_block(
         content=obj,

@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   `epy.pretty_repr`: Add support for namedtuple
+
 ## [1.7.0] - 2024-02-15
 
 *   `epath`:
