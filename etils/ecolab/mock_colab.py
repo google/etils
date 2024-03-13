@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import sys
 import types
 from unittest import mock
@@ -39,3 +40,9 @@ class _ColabtoolsFrontEndMock(types.ModuleType):
 
   def GetUsersWhoHaveConnectedToThisSession(self) -> list[str]:  # pylint: disable=invalid-name
     return ['some_ldap']
+
+
+@pytest.fixture(scope='module', autouse=True)
+def mock_collapse():
+  with mock.patch('etils.ecolab.colab_utils.collapse', contextlib.nullcontext):
+    yield
