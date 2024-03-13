@@ -137,6 +137,10 @@ class ModuleReloader:
   @contextlib.contextmanager
   def track_globals(self) -> Iterator[None]:
     """Record the imported modules."""
+    # TODO(epot): Could likely be simplified or deleted entirely. When
+    # auto_reload only uses `reload_mode='inplace'`
+    # Or at minima, should be moved in `_pre_run_cell_maybe_reload`
+
     ip = IPython.get_ipython()
     yield
     # Do not try to catch error.
