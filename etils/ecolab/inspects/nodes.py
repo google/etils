@@ -31,9 +31,6 @@ from etils.ecolab.inspects import html_helper as H
 
 # Import both C++ and Python API
 from google.protobuf.internal import containers
-from google.protobuf.internal import api_implementation
-
-cpp_containers = api_implementation._c_module
 
 _T = TypeVar('_T')
 
@@ -275,8 +272,6 @@ class MappingNode(ObjectNode[collections.abc.Mapping]):  # pytype: disable=bad-c
       # Proto map fields (both C++ and Python API)
       containers.MessageMap,
       containers.ScalarMap,
-      cpp_containers.MessageMapContainer,
-      cpp_containers.ScalarMapContainer,
   )
 
   @property
@@ -307,8 +302,6 @@ class SequenceNode(ObjectNode[Union[list, tuple]]):
       # Proto repeated fields (both C++ and Python API)
       containers.RepeatedScalarFieldContainer,
       containers.RepeatedCompositeFieldContainer,
-      cpp_containers.RepeatedScalarContainer,
-      cpp_containers.RepeatedCompositeContainer,
   )
 
   @property

@@ -14,6 +14,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Add `ecolab.disp(obj)`
     *   Add `;h` for syntax highlighting with auto-display
+    *   Fix proto error on import
 
 ## [1.7.0] - 2024-02-15
 
