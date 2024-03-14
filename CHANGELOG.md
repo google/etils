@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.8.0] - 2024-03-13
+
 *   Drop Python 3.10 support.
 *   `epy`:
     *   `epy.pretty_repr`: Add support for namedtuple
@@ -392,7 +394,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.8.0...HEAD
+[1.7.0]: https://github.com/google/etils/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/google/etils/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/google/etils/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/google/etils/compare/v1.5.1...v1.5.2
