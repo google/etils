@@ -59,21 +59,16 @@ class LazyModule:
   @functools.cached_property
   def _module(self) -> types.ModuleType:
     """Resolve the module."""
-    if self.module_name in sys.modules:
-      # Module already imported. Skip the adhoc scope
-      module = sys.modules[self.module_name]
-    else:
-      # Try to import the module, eventually replaying the adhoc scope
-      with self._maybe_adhoc():
-        try:
-          module = importlib.import_module(self.module_name)
-        except ImportError as e:
-          if self.error_callback is not None:
-            self.error_callback(e)
-          raise
-    if self.success_callback is not None:
-      self.success_callback(self.module_name)
-    return module
+    with self._maybe_adhoc():
+      try:
+        module = importlib.import_module(self.module_name)
+        if self.success_callback is not None:
+          self.success_callback(self.module_name)
+        return module
+      except ImportError as e:
+        if self.error_callback is not None:
+          self.error_callback(e)
+        raise
 
   @contextlib.contextmanager
   def _maybe_adhoc(self) -> Iterator[None]:
@@ -88,10 +83,7 @@ class LazyModule:
       if ecolab.adhoc_imports.get_curr_adhoc_kwargs() is not None:
         adhoc = contextlib.nullcontext()
       else:
-        adhoc = ecolab.adhoc(
-            **self.adhoc_kwargs,
-            collapse_prefix=f"Lazy-import {self.module_name!r}: ",
-        )
+        adhoc = ecolab.adhoc(**self.adhoc_kwargs)
 
     with adhoc:
       yield

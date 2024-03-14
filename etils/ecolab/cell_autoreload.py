@@ -25,9 +25,11 @@ import re
 import sys
 import types
 from typing import Iterator
+from unittest import mock
 
 from etils import epath
 from etils.ecolab import adhoc_imports
+from etils.ecolab import colab_utils
 from etils.ecolab import ip_utils
 from etils.epy.adhoc_utils import module_utils
 import IPython
@@ -203,18 +205,27 @@ class ModuleReloader:
         mod for mod in reload_set if search.reaches_targets(mod)
     ]
 
-    # Only reload exactly the modules we know are dirty. reload_recursive
-    # is an undocumented flag in adhoc for now.
-    adhoc_kwargs = self.adhoc_kwargs | {
-        'reload': modules_to_update,
-        'reload_recursive': False,
-        'collapse_prefix': f'Autoreload ({len(modules_to_update)} modules): ',
-    }
-    with adhoc_imports.adhoc(**adhoc_kwargs):
-      for module in modules_to_update:
-        importlib.import_module(module)
+    with contextlib.ExitStack() as stack:
+      if self.verbose:
+        # Hide the logs in a collapsible section (less boilerplate)
+        mod_plural = 'module' if len(modules_to_update) == 1 else 'modules'
+        stack.enter_context(
+            colab_utils.collapse(
+                f'{len(modules_to_update)} {mod_plural} reloaded'
+            )
+        )
+        stack.enter_context(contextlib.redirect_stderr(sys.stdout))
 
-      # TODO(epot): Remove in child cl
+      # Only reload exactly the modules we know are dirty. reload_recursive
+      # is an undocumented flag in adhoc for now.
+      adhoc_kwargs = self.adhoc_kwargs | {
+          'reload': modules_to_update,
+          'reload_recursive': False,
+      }
+      with adhoc_imports.adhoc(**adhoc_kwargs):
+        for module in modules_to_update:
+          importlib.import_module(module)
+
       # Update globals in user namespace with reloaded modules
       ip = IPython.get_ipython()
       kernel_globals = ip.kernel.shell.user_ns
