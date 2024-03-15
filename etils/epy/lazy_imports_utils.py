@@ -30,7 +30,7 @@ import functools
 import importlib
 import sys
 import types
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, ContextManager, Iterator
 
 
 _ErrorCallback = Callable[[Exception], None]
@@ -59,21 +59,21 @@ class LazyModule:
   @functools.cached_property
   def _module(self) -> types.ModuleType:
     """Resolve the module."""
+    # Try to import the module, eventually replaying the adhoc scope
     with self._maybe_adhoc():
       try:
         module = importlib.import_module(self.module_name)
-        if self.success_callback is not None:
-          self.success_callback(self.module_name)
-        return module
       except ImportError as e:
         if self.error_callback is not None:
           self.error_callback(e)
         raise
+    if self.success_callback is not None:
+      self.success_callback(self.module_name)
+    return module
 
-  @contextlib.contextmanager
-  def _maybe_adhoc(self) -> Iterator[None]:
+  def _maybe_adhoc(self) -> ContextManager[None]:
     """Recreate the adhoc import context used during the original import."""
-    if self.adhoc_kwargs is None:
+    if self.adhoc_kwargs is None or self.module_name in sys.modules:
       adhoc = contextlib.nullcontext()
     else:
       from etils import ecolab  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
@@ -83,10 +83,12 @@ class LazyModule:
       if ecolab.adhoc_imports.get_curr_adhoc_kwargs() is not None:
         adhoc = contextlib.nullcontext()
       else:
-        adhoc = ecolab.adhoc(**self.adhoc_kwargs)
+        adhoc = ecolab.adhoc(
+            **self.adhoc_kwargs,
+            collapse_prefix=f"Lazy-import {self.module_name!r}: ",
+        )
 
-    with adhoc:
-      yield
+    return adhoc
 
   def __getattr__(self, name: str) -> Any:
     if name in self._submodules:
