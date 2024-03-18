@@ -19,6 +19,7 @@ from __future__ import annotations
 import abc
 import collections
 import collections.abc
+import functools
 import itertools
 import types
 from typing import Any, Callable, Optional, TypeVar
@@ -44,13 +45,19 @@ class Backend(abc.ABC):
   vice-versa).
   """
 
-  @epy.cached_property
+  @functools.cached_property
   def module(self) -> types.ModuleType:
     """Module used by the backend."""
     try:
       module = self.import_module()
     except ImportError as e:
-      epy.reraise(e, suffix=f'etree backend require {self.MODULE_NAME!r}.')
+      epy.reraise(
+          e,
+          suffix=(
+              'Using specific etree backend require to install extra'
+              ' dependencies.'
+          ),
+      )
     return module
 
   @abc.abstractmethod

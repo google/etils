@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Removed: `epy.cached_property`
+
 ## [1.8.0] - 2024-03-13
 
 *   Drop Python 3.10 support.

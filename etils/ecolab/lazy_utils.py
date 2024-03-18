@@ -49,7 +49,7 @@ class LazyModuleState:
 
   1) Reduce the risk of collision
   2) Avoid infinite recursion error when typo on a attribute
-  3) `@property`, `epy.cached_property` fail when the class is changed
+  3) `@property`, `functools.cached_property` fail when the class is changed
 
   Attributes:
     module_name: E.g. `jax.numpy`

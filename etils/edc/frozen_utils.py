@@ -17,10 +17,9 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 import sys
 from typing import Any, Generic, NoReturn, TypeVar, Union
-
-from etils import epy
 
 _Cls = TypeVar('_Cls')
 _T = TypeVar('_T')
@@ -49,6 +48,7 @@ def add_unfrozen(cls: _Cls) -> _Cls:
 
 def frozen(self: _T) -> _T:
   """Freeze the dataclass."""
+  del self
   raise ValueError('`.frozen()` can only be called after `.unfrozen()`.')
 
 
@@ -165,11 +165,11 @@ class _MutableProxyImpl(Generic[_T]):
       default_factory=dict
   )
 
-  @epy.cached_property
+  @functools.cached_property
   def public_api(self) -> _MutableProxy:
     return _MutableProxy(self)
 
-  @epy.cached_property
+  @functools.cached_property
   def _fields(self) -> dict[str, dataclasses.Field[Any]]:
     # Could also filter only init=True fields
     return {f.name: f for f in dataclasses.fields(self.obj)}
