@@ -187,6 +187,8 @@ def _lazy_import(
       adhoc_kwargs.pop("reload", None)
       adhoc_kwargs.pop("restrict_reload", None)
       adhoc_kwargs.pop("build_targets", None)
+      adhoc_kwargs.pop("reload_workspace", None)
+      adhoc_kwargs.pop("cell_autoreload", None)
   else:
     adhoc_kwargs = None
 
