@@ -16,27 +16,16 @@
 
 from __future__ import annotations
 
-import contextlib
-import dataclasses
 import functools
 import importlib
 import inspect
-import re
 import sys
-import types
-from typing import Iterator
 
 from etils import epath
 from etils.ecolab import adhoc_imports
 from etils.ecolab import ip_utils
+from etils.ecolab.adhoc_lib import reload_workspace_lib
 from etils.epy.adhoc_utils import module_utils
-import IPython
-
-
-@dataclasses.dataclass(frozen=True)
-class _ModuleInfo:
-  name: str
-  instance: types.ModuleType
 
 
 def _create_module_graph(nodes: set[str]) -> dict[str, set[str]]:
@@ -99,15 +88,10 @@ class ModuleReloader:
   def __init__(self, **adhoc_kwargs):
     self.adhoc_kwargs = adhoc_kwargs
     self._last_updates: dict[str, int | None] = {}
-    self._globals_to_update: dict[str, _ModuleInfo] = {}
 
   @functools.cached_property
   def reload(self) -> tuple[str, ...]:
     return tuple(self.adhoc_kwargs['reload'])
-
-  def print(self, *txt) -> bool:
-    if self.verbose:
-      print(*txt)
 
   @property
   def verbose(self) -> bool:
@@ -132,50 +116,14 @@ class ModuleReloader:
         'is_cell_auto_reload',
     )
 
-  @contextlib.contextmanager
-  def track_globals(self) -> Iterator[None]:
-    """Record the imported modules."""
-    # TODO(epot): Could likely be simplified or deleted entirely. When
-    # auto_reload only uses `reload_mode='inplace'`
-    # Or at minima, should be moved in `_pre_run_cell_maybe_reload`
-
-    ip = IPython.get_ipython()
-    yield
-    # Do not try to catch error.
-    new_globals = dict(ip.kernel.shell.user_ns)
-
-    # Filter only the modules
-    # This means that `from module import function` or `from module import *`
-    # won't be reloaded
-    for name, value in new_globals.items():
-      # We look at all globals, not just the ones defined inside the
-      # contextmanager. Indeed, it's not trivial to detect when a module is
-      # re-imported, like:
-      #
-      # import module
-      # with ecolab.adhoc():
-      #   import module  # < globals() not modified, difficult to detect
-      #
-      # The solution would be to mock `__import__` to capture all statements
-      # but over-engineered for now.
-      if not isinstance(value, types.ModuleType):
-        continue  # The object is not a module
-      if not value.__dict__.get('__name__', '').startswith(self.reload):
-        continue  # The module won't be reloaded
-      if re.fullmatch(r'_+(\d+)?', name):
-        continue  # Internal IPython variables (`_`, `__`, `_12`)
-      self.print(f'Registering {name} for autoreload ({value.__name__})')
-      # Should update the global
-      self._globals_to_update[name] = _ModuleInfo(
-          name=value.__name__, instance=value
-      )
-
   def _pre_run_cell_maybe_reload(
       self,
       *args,
   ) -> None:
     """Check if workspace is modified, then eventually reload modules."""
     del args  # Future version of IPython will have a `info` arg
+
+    # TODO(epot): This function could be unified with `reload_workspace`
 
     # If any of the modules has been updated, trigger a reload
 
@@ -199,39 +147,26 @@ class ModuleReloader:
     search = _ModuleSearch(dirty_modules, graph)
 
     # Narrow it down to modules that are dirty or reference a dirty module.
-    modules_to_update = [
+    modules_to_reload = [
         mod for mod in reload_set if search.reaches_targets(mod)
     ]
 
     # Only reload exactly the modules we know are dirty. reload_recursive
     # is an undocumented flag in adhoc for now.
     adhoc_kwargs = self.adhoc_kwargs | {
-        'reload': modules_to_update,
+        'reload': modules_to_reload,
         'reload_recursive': False,
-        'collapse_prefix': f'Autoreload ({len(modules_to_update)} modules): ',
+        'collapse_prefix': f'Autoreload ({len(modules_to_reload)} modules): ',
     }
     with adhoc_imports.adhoc(**adhoc_kwargs):
-      for module in modules_to_update:
+      for module in modules_to_reload:
         importlib.import_module(module)
 
-      # TODO(epot): Remove in child cl
       # Update globals in user namespace with reloaded modules
-      ip = IPython.get_ipython()
-      kernel_globals = ip.kernel.shell.user_ns
-
-      for name, info in self._globals_to_update.items():
-        if info.name in modules_to_update and id(
-            kernel_globals.get(name)
-        ) == id(info.instance):
-          reloaded_module = sys.modules[info.name]
-          self.print(f'Overwrting {name} to new module {info.name}')
-          kernel_globals[name] = reloaded_module
-          self._globals_to_update[name] = dataclasses.replace(
-              info, instance=reloaded_module
-          )
-        else:
-          # If the global was updated previously
-          self.print(f'Ignoring {name} (was overwritten)')
+      reload_workspace_lib.update_global_namespace(
+          reload=modules_to_reload,
+          verbose=self.verbose,
+      )
 
 
 def _get_last_module_update(module_name: str) -> int | None:

@@ -18,6 +18,9 @@ from etils.ecolab.adhoc_lib import module_deps_utils
 
 
 def test_get_module_deps():
+  import pytest
+  pytest.skip('internal only')
+
   all_module_deps = module_deps_utils.get_all_module_deps()
 
   module_deps = all_module_deps['etils.ecolab.adhoc_lib.module_deps_utils']
@@ -33,5 +36,5 @@ def test_get_module_deps():
   assert set(module_deps.imported_in) == {
       'etils.ecolab.adhoc_lib',
       'etils.ecolab.adhoc_lib.module_deps_utils_test',
-      # 'etils.ecolab.adhoc_lib.reload_workspace_lib',
+      'etils.ecolab.adhoc_lib.reload_workspace_lib',
   }
