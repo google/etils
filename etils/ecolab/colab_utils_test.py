@@ -31,3 +31,26 @@ def test_capture_stdout():
 def test_json():
   ecolab.json({'a': [1, None, 3.4]})
   ecolab.json([1, None, 3.4, {'d': [1, True]}])
+
+
+def test_get_permalink():
+  assert (
+      ecolab.get_permalink(
+          url='https://colab.research.google.com/some_file.ipynb',
+          template_params={
+              'A': 1,
+              'B': 'b',
+          },
+      )
+      == 'https://colab.research.google.com/some_file.ipynb#templateParams=%7B%22A%22%3A%201%2C%20%22B%22%3A%20%22b%22%7D'
+  )
+  assert (
+      ecolab.get_permalink(
+          url='https://colab.research.google.com/some_file.ipynb',
+          template_params=(
+              ('A', 1, 1),
+              ('B', 'b', ''),
+          ),
+      )
+      == 'https://colab.research.google.com/some_file.ipynb#templateParams=%7B%22B%22%3A%20%22b%22%7D'
+  )
