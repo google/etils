@@ -16,12 +16,27 @@
 
 from __future__ import annotations
 
+import functools
 import sys
 import types
 import typing
 from typing import NoReturn
 
 from etils.epy import py_utils
+
+
+@functools.cache
+def path_to_module_name(path: str) -> str:
+  """Normalizes paths to module names."""
+  if '/' not in path:  # Already a module name
+    return path
+  path = path.lstrip('/')
+  return (
+      path
+      .removesuffix('.py')
+      .removesuffix('/__init__')
+      .replace('/', '.')
+  )
 
 
 def get_module_names(

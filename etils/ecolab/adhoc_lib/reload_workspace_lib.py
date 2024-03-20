@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
 import contextlib
-import functools
 import importlib
 import inspect
 import re
@@ -29,6 +28,7 @@ import typing
 from etils.ecolab import inplace_reload
 from etils.ecolab.adhoc_lib import module_deps_utils
 from etils.epy import py_utils
+from etils.epy.adhoc_utils import module_utils
 import IPython
 
 
@@ -149,22 +149,11 @@ def _filter_only_imported_modules(opened_files: Iterable[str]) -> list[str]:
     # TODO(epot): supports proto
     if not path.endswith('.py'):
       continue
-    if _path_to_module_name(path) not in sys.modules:
+    if module_utils.path_to_module_name(path) not in sys.modules:
       continue
     all_opened_modules.append(path)
 
   return all_opened_modules
-
-
-@functools.cache
-def _path_to_module_name(path: str) -> str:
-  """Normalizes paths to module names."""
-  return (
-      path.lstrip('/')
-      .removesuffix('.py')
-      .removesuffix('/__init__')
-      .replace('/', '.')
-  )
 
 
 # Note that reloading etils will reset the cache, triggering a full reload of
@@ -184,7 +173,7 @@ def _filter_recently_edited(
   for module_path in module_paths:
     # TODO(epot): could also check that `sys.modules[].__file__` matches
     # `citc_info.g3_path`, otherwise, should force reload.
-    module_name = _path_to_module_name(module_path)
+    module_name = module_utils.path_to_module_name(module_path)
     curr_time = (citc_info.g3_path.parent / module_path).stat().mtime
     prev_time = _MODULES_EDIT_TIME.get(module_name)
 
