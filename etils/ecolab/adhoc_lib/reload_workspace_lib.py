@@ -16,7 +16,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+import contextlib
 import functools
 import importlib
 import inspect
@@ -78,7 +79,16 @@ def reload_workspace(
   # Could detect all modules that are adhoc-imported (through the
   # `module.__file__` and reload them)
   if not isinstance(citc_info, g3_utils.Workspace):
-    return
+    if prev_modules := _find_modules_imported_in_different_source(source):
+      prev_module_name = next(iter(prev_modules))
+      prev_source = sys.modules[prev_module_name]._etils_workspace_reload_source  # pylint: disable=protected-access
+      raise ValueError(
+          f'Source was changed from {prev_source!r} to {source!r}.'
+          ' `reload_workspace=True` cannot auto-infer which modules to reload.'
+          ' Please restart your kernel.'
+      )
+    else:
+      return
 
   # Step 1: List all modules to reload
   modules_to_reload = _get_modules_to_reload(
@@ -101,7 +111,7 @@ def reload_workspace(
   ):
     for module_name in modules_to_reload:
       module = importlib.import_module(module_name)
-      module._etils_is_workspace_reloaded = True  # pylint: disable=protected-access
+      module._etils_workspace_reload_source = source  # pylint: disable=protected-access
 
   # Step 3: Replace the reloaded modules in the Colab kernel.
   update_global_namespace(reload=modules_to_reload, verbose=verbose)
@@ -226,6 +236,47 @@ def _find_all_affected_modules(
     modules_to_process.update(imported_in)
     affected_modules.update(imported_in)
   return affected_modules
+
+
+def _find_modules_imported_in_different_source(
+    source: g3_utils.Source,
+) -> set[str]:
+  """Extract all modules imported in a different source."""
+  sentinel = object()
+  other_previous_modules = set()
+  for module_name, module in sys.modules.items():
+    old_source = inspect.getattr_static(
+        module, '_etils_workspace_reload_source', sentinel
+    )
+    if old_source is sentinel:
+      continue
+    if old_source != source:
+      other_previous_modules.add(module_name)
+  return other_previous_modules
+
+
+@contextlib.contextmanager
+def mark_adhoc_imported_modules(
+    source: None | g3_utils.Source,
+) -> Iterator[None]:
+  """Mark modules that were adhoc imported from this context.
+
+  This allow `reload_workspace=True` to raise an error if the source change.
+
+  Args:
+    source: The source of the adhoc import
+
+  Yields:
+    None
+  """
+  old_modules = set(sys.modules)
+  try:
+    yield
+  finally:
+    adhoc_imported_modules = set(sys.modules) - old_modules
+    for module_name in adhoc_imported_modules:
+      # TODO(epot): Could check that the `source` and `.__file__` match
+      sys.modules[module_name]._etils_workspace_reload_source = source  # pylint: disable=protected-access
 
 
 def update_global_namespace(

@@ -10,6 +10,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epy`:
     *   Removed: `epy.cached_property`
+*   `ecolab`:
+    *   Added `reload_workspace=True` to adhoc to auto-reload from workspace
 
 ## [1.8.0] - 2024-03-13
 
