@@ -67,6 +67,11 @@ class LazyModule:
         if self.error_callback is not None:
           self.error_callback(e)
         raise
+      except AttributeError as e:
+        # If `self._module` raises an `AttributeError`, this will trigger
+        # `self.__getattr__('_module')`, triggering an infinite recursion.
+        # To avoid this, we re-raise the `AttributeError` as an `ImportError`.
+        raise ImportError(f"Error importing {self.module_name}: {e!r}") from e
     if self.success_callback is not None:
       self.success_callback(self.module_name)
     return module

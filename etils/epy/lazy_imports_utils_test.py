@@ -95,3 +95,15 @@ def test_success_callback():
   _ = ops.stack
   error_callback.assert_not_called()
   success_callback.assert_called_once_with('dataclass_array.ops')
+
+
+def test_import_fail():
+  assert 'dataclass_array' not in sys.modules
+  with mock.patch(
+      'importlib.import_module', side_effect=AttributeError('no attribute')
+  ):
+    with epy.lazy_imports():
+      import dataclass_array as dca  # pylint: disable=g-import-not-at-top
+
+    with pytest.raises(ImportError, match='no attribute'):
+      _ = dca.stack
