@@ -145,6 +145,12 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
   elif isinstance(path, zipfile.Path):
     path = ResourcePath(path.root, path.at)
     return typing.cast(abstract_path.Path, path)
+  elif isinstance(path, importlib_resources.abc.Traversable):
+    # Is seems like `importlib_resources.files` can return additional types,
+    # like `MultiplexedPath`.
+    # Fallback to avoid failure, however those objects might not implement
+    # `__fspath__`, so might fail later.
+    return typing.cast(abstract_path.Path, path)
   else:
     raise TypeError(f'Unknown resource path: {type(path)}: {path}')
   # pylint: enable=undefined-variable

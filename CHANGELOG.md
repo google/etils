@@ -13,6 +13,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Added `reload_workspace=True` to adhoc to auto-reload from workspace
     *   Add `ecolab.get_permalink()`
+*   `epath`:
+    *   Fix error when `importlib.resources.files` return `MultiplexedPath`
 
 ## [1.8.0] - 2024-03-13
 
