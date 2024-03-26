@@ -204,7 +204,7 @@ with _builder.replace_imports(is_std=False):
   import plotly
   from plotly import express as px
   from plotly import graph_objects as go
-  import pydantic
+  from pydantic import v1 as pydantic
   import requests
   import sunds
   import visu3d as v3d
