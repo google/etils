@@ -10,6 +10,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epy`:
     *   Removed: `epy.cached_property`
+    *   `epy.lazy_imports`: Error callback can return a `str` to auto-re-raise
+        with additional info.
 *   `ecolab`:
     *   Added `reload_workspace=True` to adhoc to auto-reload from workspace
     *   Add `ecolab.get_permalink()`
