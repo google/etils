@@ -32,6 +32,8 @@ import sys
 import types
 from typing import Any, Callable, ContextManager, Iterator
 
+from etils.epy import reraise_utils
+
 
 _ErrorCallback = Callable[[Exception], None]
 _SuccessCallback = Callable[[str], None]
@@ -43,7 +45,7 @@ class LazyModule:
 
   module_name: str
   adhoc_kwargs: dict[str, Any] | None
-  error_callback: _ErrorCallback | None
+  error_callback: str | _ErrorCallback | None
   success_callback: _SuccessCallback | None
   _submodules: dict[str, LazyModule] = dataclasses.field(default_factory=dict)
 
@@ -65,7 +67,10 @@ class LazyModule:
         module = importlib.import_module(self.module_name)
       except ImportError as e:
         if self.error_callback is not None:
-          self.error_callback(e)
+          if isinstance(self.error_callback, str):
+            reraise_utils.reraise(e, suffix=f"\n{self.error_callback}")
+          else:
+            self.error_callback(e)
         raise
       except AttributeError as e:
         # If `self._module` raises an `AttributeError`, this will trigger
@@ -119,7 +124,7 @@ def _register_submodule(module: LazyModule, name: str) -> LazyModule:
 @contextlib.contextmanager
 def lazy_imports(
     *,
-    error_callback: _ErrorCallback | None = None,
+    error_callback: str | _ErrorCallback | None = None,
     success_callback: _SuccessCallback | None = None,
 ) -> Iterator[None]:
   """Context Manager which lazy loads packages.
@@ -146,8 +151,10 @@ def lazy_imports(
   the original `ecolab.adhoc` context is re-created to import the lazy module.
 
   Args:
-    error_callback: a callback to trigger when an import fails. The exception is
-      passed as an arg, so user can use `epy.reraise(e, 'Additional message')`.
+    error_callback: A additional message to append to the `ImportError` if the
+      import fails. Can also be a `Callable[[Exception], None]`. The exception
+      is passed as an arg, so user can use `epy.reraise(e, 'Additional
+      message')`.
     success_callback: a callback to trigger when an import succeeds. The
       callback is passed the name of the imported module as an arg.
 
@@ -175,7 +182,7 @@ def _lazy_import(
     fromlist: tuple[str, ...] = (),
     level: int = 0,
     *,
-    error_callback: _ErrorCallback | None,
+    error_callback: str | _ErrorCallback | None,
     success_callback: _SuccessCallback | None,
 ):
   """Mock of `builtins.__import__`."""
