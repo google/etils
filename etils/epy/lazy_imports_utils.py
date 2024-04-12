@@ -32,8 +32,10 @@ import sys
 import types
 from typing import Any, Callable, ContextManager, Iterator
 
+from etils.epy import reraise_utils
 
-_ErrorCallback = Callable[[Exception], None]
+
+_ErrorCallback = Callable[[Exception], None | str]
 _SuccessCallback = Callable[[str], None]
 
 
@@ -65,7 +67,9 @@ class LazyModule:
         module = importlib.import_module(self.module_name)
       except ImportError as e:
         if self.error_callback is not None:
-          self.error_callback(e)
+          msg = self.error_callback(e)
+          if isinstance(msg, str):
+            reraise_utils.reraise(e, suffix=f"\n{msg}")
         raise
       except AttributeError as e:
         # If `self._module` raises an `AttributeError`, this will trigger
@@ -148,6 +152,8 @@ def lazy_imports(
   Args:
     error_callback: a callback to trigger when an import fails. The exception is
       passed as an arg, so user can use `epy.reraise(e, 'Additional message')`.
+      If a string is returned, the exception is re-raised with the string
+      appended to the original error message.
     success_callback: a callback to trigger when an import succeeds. The
       callback is passed the name of the imported module as an arg.
 
