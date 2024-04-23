@@ -25,6 +25,7 @@ from etils.epy.env_utils import is_notebook
 from etils.epy.itertools import groupby
 from etils.epy.itertools import splitby
 from etils.epy.itertools import zip_dict
+from etils.epy.lazy_api_imports_utils import lazy_api_imports
 from etils.epy.lazy_imports_utils import lazy_imports
 from etils.epy.py_utils import frozen
 from etils.epy.py_utils import is_namedtuple
