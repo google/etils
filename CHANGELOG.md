@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `epy`:
+    *   Add `epy.lazy_api_imports` to lazy-import `__init__.py` symbols.
     *   Removed: `epy.cached_property`
     *   `epy.lazy_imports`: Error callback accept a `str` to auto-re-raise
         with additional info.
