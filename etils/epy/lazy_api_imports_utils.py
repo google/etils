@@ -78,13 +78,18 @@ def lazy_api_imports(
   # Note this will only works if the `__getattr__` is defined before the
   # `lazy_api_imports`, which is quite unlikely.
   assert '__getattr__' not in globals_
+  assert '__dir__' not in globals_
   globals_['__getattr__'] = functools.partial(
       _getattr,
       module_name=globals_['__name__'],
       imported_symbols=imported_symbols,
       error_msg=error_msg,
   )
-  # TODO(epot): Could add `__dir__` too
+  globals_['__dir__'] = functools.partial(
+      _dir,
+      globals_=globals_,
+      imported_symbols=imported_symbols,
+  )
 
 
 def _getattr(
@@ -123,6 +128,15 @@ def _getattr(
 
   imported_symbols[name] = symbol
   return symbol
+
+
+def _dir(
+    *,
+    globals_: dict[str, Any],
+    imported_symbols: dict[str, lazy_imports_utils.LazyModule | Any],
+) -> list[str]:
+  """Module `__dir__` that lazy-imports symbols."""
+  return list(globals_) + list(imported_symbols)
 
 
 def _import_symbol(module_name: str) -> Any:
