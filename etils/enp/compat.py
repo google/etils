@@ -144,6 +144,26 @@ def det(x: FloatArray['*d m m']) -> FloatArray['*d']:
   return _tf_or_xnp(x).linalg.det(x)
 
 
+def clip(
+    x: Array['*d'],
+    *,
+    min: Optional[float | int] = None,
+    max: Optional[float | int] = None,
+) -> Array['*d']:
+  """Like `jnp.clip` but auto-support jnp, tnp, np."""
+  xnp = lazy.get_xnp(x)
+  if lazy.is_np(x):
+    return xnp.clip(x, a_min=min, a_max=max)
+  elif lazy.is_tf(x):
+    return lazy.tf.clip_by_value(
+        x,
+        clip_value_min=min if min else float('-inf'),
+        clip_value_max=max if max else float('inf'),
+    )
+  else:  # torch and jnp
+    return xnp.clip(x, min=min, max=max)
+
+
 def _tf_or_xnp(x: Array['*d']):
   xnp = lazy.get_xnp(x)
   if lazy.has_tf and xnp is lazy.tnp:
