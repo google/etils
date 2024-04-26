@@ -18,6 +18,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `ecolab.get_permalink()`
 *   `epath`:
     *   Fix error when `importlib.resources.files` return `MultiplexedPath`
+*   `enp`:
+    *   Added `enp.compat.clip`.
 
 ## [1.8.0] - 2024-03-13
 
