@@ -44,6 +44,15 @@ _URI_MAP_ROOT = {
     'az://': '/az/',
 }
 
+
+def _epath_use_tf() -> bool:
+  return os.environ.get('EPATH_USE_TF', '').lower() not in [
+      'false',
+      'no',
+      'f',
+      '0',
+  ]
+
 _PREFIX_TO_BACKEND = {
     'gs': backend_lib.fsspec_backend,
     's3': backend_lib.fsspec_backend,
@@ -63,7 +72,7 @@ _OPEN_MODES = ('r', 'w', 'a')
 @functools.cache
 def _is_tf_installed() -> bool:
   """Checks whether TensorFlow is installed."""
-  if os.environ.get('EPATH_USE_TF', '').lower() in ['false', 'no', 'f', '0']:
+  if not _epath_use_tf():
     return False
   return importlib.util.find_spec('tensorflow') is not None
 
