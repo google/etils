@@ -90,6 +90,8 @@ def astype(x: Array['*d'], dtype) -> Array['*d']:
   """`x.astype(dtype)`."""
   if lazy.is_torch(x):
     return x.type(dtype)
+  elif lazy.is_tf(x):
+    return lazy.tf.cast(x, dtype)
   else:
     return x.astype(dtype)
 
