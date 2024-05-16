@@ -117,7 +117,7 @@ def dataclass(
     recursivelly.
   * Dataclass returned by `.unfrozen()` and nested attributes are not the
     original dataclass but proxy objects which track the mutations. As such,
-    those object are not compatible with `isinstance()`, `jax.tree_map`,...
+    those object are not compatible with `isinstance()`, `jax.tree.map`,...
   * Only the top-level dataclass need to be `allow_unfrozen=True`
   * Avoid using `unfrozen` if 2 attributes of the dataclass point to the
     same nested dataclass. Updates on one attribute might not be reflected on
