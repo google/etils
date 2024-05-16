@@ -16,6 +16,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   Added `reload_workspace=True` to adhoc to auto-reload from workspace
     *   Add `ecolab.get_permalink()`
+    *   Fix `ecolab.inspect` not finding static files when the kernel contain
+        partial etils deps.
 *   `epath`:
     *   Fix error when `importlib.resources.files` return `MultiplexedPath`
 
