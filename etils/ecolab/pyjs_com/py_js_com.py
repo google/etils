@@ -167,5 +167,5 @@ def register_js_fn(fn: _FnT) -> _FnT:
 @functools.lru_cache()
 def js_import() -> str:
   """`<script></script>` to import to add in the HTML."""
-  path = epath.resource_path('etils') / 'ecolab/pyjs_com/py_js_com.js'
+  path = epath.resource_path('etils.ecolab') / 'pyjs_com/py_js_com.js'
   return f'<script>{path.read_text()}</script>'
