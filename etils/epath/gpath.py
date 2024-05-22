@@ -22,6 +22,7 @@ import ntpath
 import os
 import pathlib
 import posixpath
+import sys
 import types
 import typing
 from typing import Any, Callable, ClassVar, Iterator, Optional, Type, TypeVar, Union
@@ -76,6 +77,15 @@ def _is_tf_installed() -> bool:
     return False
   return importlib.util.find_spec('tensorflow') is not None
 
+def process_parts(*parts: PathLike) -> tuple[PathLike, ...]:
+  full_path = '/'.join(os.fspath(p) for p in parts)
+  if full_path.startswith(_URI_PREFIXES):
+    prefix, _ = full_path.split('://', maxsplit=1)
+    prefix = f'{prefix}://'
+    new_prefix = _URI_MAP_ROOT[prefix]
+    return (full_path.replace(prefix, new_prefix, 1),)
+  else:
+    return parts
 
 class _GPath(abstract_path.Path):
   """Pathlib like api with gs://, s3://, az:// support."""
@@ -86,15 +96,12 @@ class _GPath(abstract_path.Path):
   # Do not use `os.path`, so `PosixGPath('gs://abc')` works on windows.
   _PATH: ClassVar[types.ModuleType]
 
-  def __new__(cls: Type[_P], *parts: PathLike) -> _P:
-    full_path = '/'.join(os.fspath(p) for p in parts)
-    if full_path.startswith(_URI_PREFIXES):
-      prefix, _ = full_path.split('://', maxsplit=1)
-      prefix = f'{prefix}://'
-      new_prefix = _URI_MAP_ROOT[prefix]
-      return super().__new__(cls, full_path.replace(prefix, new_prefix, 1))
-    else:
-      return super().__new__(cls, *parts)
+  if sys.version_info < (3, 12):
+    def __new__(cls: Type[_P], *parts: PathLike) -> _P:
+      return super().__new__(cls, *process_parts(*parts))
+  else:
+    def __init__(self, *parts: PathLike) -> None:
+      return super().__init__(*process_parts(*parts))
 
   def _new(self: _P, *parts: PathLike) -> _P:
     """Create a new `Path` child of same type."""
