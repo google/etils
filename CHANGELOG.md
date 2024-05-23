@@ -13,6 +13,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Removed: `epy.cached_property`
     *   `epy.lazy_imports`: Error callback accept a `str` to auto-re-raise
         with additional info.
+    *   Fix mixing `epy.lazy_imports()` with `epy.binary_adhoc()`.
 *   `ecolab`:
     *   Added `reload_workspace=True` to adhoc to auto-reload from workspace
     *   Add `ecolab.get_permalink()`

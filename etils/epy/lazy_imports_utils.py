@@ -33,6 +33,7 @@ import types
 from typing import Any, Callable, ContextManager, Iterator
 
 from etils.epy import reraise_utils
+from etils.epy.adhoc_utils import curr_args
 
 
 _ErrorCallback = Callable[[Exception], None]
@@ -55,8 +56,10 @@ class LazyModule:
       # Whe the lazy import is triggered, do not reload modules, nor trigger a
       # full build.
       self.adhoc_kwargs.pop("reload", None)
-      self.adhoc_kwargs.pop("cell_autoreload", None)
       self.adhoc_kwargs.pop("build_targets", None)
+      self.adhoc_kwargs.pop("reload_workspace", None)
+      self.adhoc_kwargs.pop("cell_autoreload", None)
+      self.adhoc_kwargs.pop("restrict_reload", None)
 
   @functools.cached_property
   def _module(self) -> types.ModuleType:
@@ -86,14 +89,12 @@ class LazyModule:
     if self.adhoc_kwargs is None or self.module_name in sys.modules:
       adhoc = contextlib.nullcontext()
     else:
-      from etils import ecolab  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-
       # If the lazy-import is resolved from within an adhoc, keep the adhoc.
       # Is it the right thing to do ?
-      if ecolab.adhoc_imports.get_curr_adhoc_kwargs() is not None:
+      if curr_args.get_curr_adhoc_kwargs() is not None:
         adhoc = contextlib.nullcontext()
       else:
-        adhoc = ecolab.adhoc(
+        adhoc = curr_args.replay_adhoc_ctx(
             **self.adhoc_kwargs,
             collapse_prefix=f"Lazy-import {self.module_name!r}: ",
         )
@@ -191,23 +192,10 @@ def _lazy_import(
   if level:
     raise ValueError(f"Relative import statements not supported ({name}).")
 
-  if adhoc_imports := sys.modules.get("etils.ecolab.adhoc_imports", None):
-    adhoc_kwargs = adhoc_imports.get_curr_adhoc_kwargs()
-
-    # Lazy-imports don't trigger reload
-    if adhoc_kwargs is not None:
-      adhoc_kwargs.pop("reload", None)
-      adhoc_kwargs.pop("restrict_reload", None)
-      adhoc_kwargs.pop("build_targets", None)
-      adhoc_kwargs.pop("reload_workspace", None)
-      adhoc_kwargs.pop("cell_autoreload", None)
-  else:
-    adhoc_kwargs = None
-
   root_name, *parts = name.split(".")
   root = LazyModule(
       module_name=root_name,
-      adhoc_kwargs=adhoc_kwargs,
+      adhoc_kwargs=curr_args.get_curr_adhoc_kwargs(),
       error_callback=error_callback,
       success_callback=success_callback,
   )

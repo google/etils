@@ -21,6 +21,7 @@ import sys
 from typing import Any
 
 from etils.epy import py_utils
+from etils.epy.adhoc_utils import curr_args
 from etils.epy.adhoc_utils import module_utils
 from etils.epy.adhoc_utils import utils as adhoc_utils
 
