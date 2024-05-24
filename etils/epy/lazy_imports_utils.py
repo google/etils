@@ -148,6 +148,18 @@ def lazy_imports(
     import tensorflow as tf
   ```
 
+  When using type annotations, make sure to also use
+  `from __future__ import annotations`, otherwise the lazy-import will be
+  triggered at import time when used in typing annotations:
+
+  ```pthon
+  with epy.lazy_imports():
+    import tensorflow as tf
+
+  # !!! Resolve the lazy-import when `__future__.annotations` isn't present
+  def get_dataset() -> tf.data.Dataset:
+  ```
+
   This support `ecolab.adhoc` imports: When the lazy-import is resolved,
   the original `ecolab.adhoc` context is re-created to import the lazy module.
 
