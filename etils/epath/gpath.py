@@ -181,7 +181,7 @@ class _GPath(abstract_path.Path):
     if '**' in pattern:
       raise NotImplementedError(
           'Recursive `**` pattern not supported as this could trigger '
-          'thoushands of RPC requests on GCS. Use `*` instead. '
+          'thousands of RPC requests on GCS. Use `*` instead. '
           f'Got: {pattern!r}'
       )
 
