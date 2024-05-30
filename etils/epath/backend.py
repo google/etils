@@ -150,11 +150,9 @@ class _OsPathBackend(Backend):
       *,
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
-  ) -> Iterator[tuple[str, list[str], list[str]]]:
+  ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
     if hasattr(pathlib.Path, 'walk'):  # Python 3.12
-      paths_iter = pathlib.Path(top).walk(top_down=top_down, on_error=on_error)
-      for root, dirs, files in paths_iter:
-        yield os.fspath(root), dirs, files
+      yield from pathlib.Path(top).walk(top_down=top_down, on_error=on_error)
     else:  # Backward compatibility
       # Note that `os.walk` is inconsistent for `symlinks` (always marked as
       # filenames), but should be fine.
