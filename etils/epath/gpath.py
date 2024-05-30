@@ -22,6 +22,7 @@ import ntpath
 import os
 import pathlib
 import posixpath
+import sys
 import types
 import typing
 from typing import Any, Callable, ClassVar, Iterator, Optional, Type, TypeVar, Union
@@ -69,14 +70,6 @@ _GCS_BACKENDS = frozenset({
 _OPEN_MODES = ('r', 'w', 'a')
 
 
-@functools.cache
-def _is_tf_installed() -> bool:
-  """Checks whether TensorFlow is installed."""
-  if not _epath_use_tf():
-    return False
-  return importlib.util.find_spec('tensorflow') is not None
-
-
 class _GPath(abstract_path.Path):
   """Pathlib like api with gs://, s3://, az:// support."""
 
@@ -86,15 +79,15 @@ class _GPath(abstract_path.Path):
   # Do not use `os.path`, so `PosixGPath('gs://abc')` works on windows.
   _PATH: ClassVar[types.ModuleType]
 
-  def __new__(cls: Type[_P], *parts: PathLike) -> _P:
-    full_path = '/'.join(os.fspath(p) for p in parts)
-    if full_path.startswith(_URI_PREFIXES):
-      prefix, _ = full_path.split('://', maxsplit=1)
-      prefix = f'{prefix}://'
-      new_prefix = _URI_MAP_ROOT[prefix]
-      return super().__new__(cls, full_path.replace(prefix, new_prefix, 1))
-    else:
-      return super().__new__(cls, *parts)
+  if sys.version_info < (3, 12):
+
+    def __new__(cls: Type[_P], *parts: PathLike) -> _P:
+      return super().__new__(cls, *_process_parts(*parts))
+
+  else:
+
+    def __init__(self, *parts: PathLike) -> None:
+      super().__init__(*_process_parts(*parts))
 
   def _new(self: _P, *parts: PathLike) -> _P:
     """Create a new `Path` child of same type."""
@@ -293,6 +286,40 @@ class _GPath(abstract_path.Path):
     return self._backend.stat(self._path_str)
 
 
+@register.register_path_cls(_URI_PREFIXES)
+class PosixGPath(_GPath):
+  """Pathlib like api with gs://, s3:// support."""
+
+  _PATH = posixpath
+
+
+@register.register_path_cls
+class WindowsGPath(pathlib.PureWindowsPath, _GPath):
+  """Pathlib like api with gs://, s3:// support."""
+
+  _PATH = ntpath
+
+
+@functools.cache
+def _is_tf_installed() -> bool:
+  """Checks whether TensorFlow is installed."""
+  if not _epath_use_tf():
+    return False
+  return importlib.util.find_spec('tensorflow') is not None
+
+
+def _process_parts(*parts: PathLike) -> tuple[PathLike, ...]:
+  """Supports the `xx://` prefix."""
+  full_path = '/'.join(os.fspath(p) for p in parts)
+  if full_path.startswith(_URI_PREFIXES):
+    prefix, _ = full_path.split('://', maxsplit=1)
+    prefix = f'{prefix}://'
+    new_prefix = _URI_MAP_ROOT[prefix]
+    return (full_path.replace(prefix, new_prefix, 1),)
+  else:
+    return parts
+
+
 def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
   """When composing with another backend, GCS win.
 
@@ -313,17 +340,3 @@ def _get_backend(p0: _GPath, p1: _GPath) -> backend_lib.Backend:
   else:
     return p0._backend
   # pylint: enable=protected-access
-
-
-@register.register_path_cls(_URI_PREFIXES)
-class PosixGPath(_GPath):
-  """Pathlib like api with gs://, s3:// support."""
-
-  _PATH = posixpath
-
-
-@register.register_path_cls
-class WindowsGPath(pathlib.PureWindowsPath, _GPath):
-  """Pathlib like api with gs://, s3:// support."""
-
-  _PATH = ntpath
