@@ -5,11 +5,15 @@ on: [push, workflow_dispatch]
 
 jobs:
   pytest-job:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.python-version }}
       cancel-in-progress: true
 
     steps:
@@ -22,7 +26,7 @@ jobs:
     # Install deps
     - uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: ${{ matrix.python-version }}
     - run: pip --version
     - run: pip install -e .[all,dev]
     - run: pip freeze
