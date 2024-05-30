@@ -21,6 +21,7 @@ Changelog follow https://keepachangelog.com/ format.
         partial etils deps.
 *   `epath`:
     *   Fix error when `importlib.resources.files` return `MultiplexedPath`
+    *   Fix `.walk` 3.12 error (`topdown` -> `top_down` rename)
 
 ## [1.8.0] - 2024-03-13
 

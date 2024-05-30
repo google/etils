@@ -152,7 +152,7 @@ class _OsPathBackend(Backend):
       on_error: Callable[[OSError], object] | None = None,
   ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
     if hasattr(pathlib.Path, 'walk'):  # Python 3.12
-      yield from pathlib.Path(top).walk(topdown=top_down, onerror=on_error)
+      yield from pathlib.Path(top).walk(top_down=top_down, onerror=on_error)
     else:  # Backward compatibility
       # Note that `os.walk` is inconsistent for `symlinks` (always marked as
       # filenames), but should be fine.
