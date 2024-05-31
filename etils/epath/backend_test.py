@@ -165,29 +165,36 @@ def _test_walk(backend: epath.backend.Backend, tmp_path):
 
   assert not list(backend.walk(tmp_path / 'non-existing'))
 
+  # In Python<3.12, os.walk returns the root as a str.
+  # In newer versions, Path.walk returns it as a Path.
+  is_python_312_with_os_backend = (
+      hasattr(pathlib.Path, 'walk') and backend == epath.backend.os_backend
+  )
+  get_root = (lambda path: path) if is_python_312_with_os_backend else str
+
   # Order is non-deterministic depending on the backend, so use set
   all_items = {
-      (str(other_nested), frozenset(), frozenset()),
-      (str(nested), frozenset(), frozenset({'003', '002', '001'})),
+      (get_root(other_nested), frozenset(), frozenset()),
+      (get_root(nested), frozenset(), frozenset({'003', '002', '001'})),
       (
-          str(tmp_path / 'abc'),
+          get_root(tmp_path / 'abc'),
           frozenset({'nested', 'other_nested'}),
           frozenset({'link_dir'}),
       ),
-      (str(tmp_path), frozenset({'abc'}), frozenset()),
+      (get_root(tmp_path), frozenset({'abc'}), frozenset()),
   }
 
   bottom_up_walk = list(backend.walk(tmp_path, top_down=False))
-  assert bottom_up_walk[-1] == (str(tmp_path), ['abc'], [])
+  assert bottom_up_walk[-1] == (get_root(tmp_path), ['abc'], [])
   assert {
-      (str(p), frozenset(dirs), frozenset(files))
+      (get_root(p), frozenset(dirs), frozenset(files))
       for p, dirs, files in bottom_up_walk
   } == all_items
 
   top_down_walk = list(backend.walk(tmp_path, top_down=True))
-  assert top_down_walk[0] == (str(tmp_path), ['abc'], [])
+  assert top_down_walk[0] == (get_root(tmp_path), ['abc'], [])
   assert {
-      (str(p), frozenset(dirs), frozenset(files))
+      (get_root(p), frozenset(dirs), frozenset(files))
       for p, dirs, files in top_down_walk
   } == all_items
 
