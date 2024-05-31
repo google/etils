@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.9.0] - 2024-05-31
+
 *   `epy`:
     *   Add `epy.lazy_api_imports` to lazy-import `__init__.py` symbols.
     *   Removed: `epy.cached_property`
@@ -23,6 +25,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Fix error when `importlib.resources.files` return `MultiplexedPath`
     *   Fix `gs://` URI for 3.12
     *   Fix `.walk` 3.12 error (`topdown` -> `top_down` rename)
+*   Full compatibility with Python 3.12 (unit tests run on both 3.11 and 3.12).
 
 ## [1.8.0] - 2024-03-13
 
@@ -410,8 +413,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.8.0...HEAD
-[1.7.0]: https://github.com/google/etils/compare/v1.7.0...v1.8.0
+[Unreleased]: https://github.com/google/etils/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/google/etils/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/google/etils/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/google/etils/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/google/etils/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/google/etils/compare/v1.5.1...v1.5.2
