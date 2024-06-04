@@ -8,6 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.9.1] - 2024-06-04
+
+*   `epath`:
+    *   Fix an infinite recursion on `is_relative_to` for Python>=3.12.
+
 ## [1.9.0] - 2024-05-31
 
 *   `epy`:
@@ -413,7 +418,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.9.1...HEAD
+[1.9.1]: https://github.com/google/etils/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/google/etils/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/google/etils/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/google/etils/compare/v1.6.0...v1.7.0
