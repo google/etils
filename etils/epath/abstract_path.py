@@ -54,6 +54,9 @@ class Path(pathlib.PurePosixPath):
     path = abcpath.Path()
     ```
 
+    We use __new__ instead of __init__ to allow subclassing, even though the
+    usage of __init__ is possible from python>=3.12.
+
     Args:
       *args: Paths to create
 
