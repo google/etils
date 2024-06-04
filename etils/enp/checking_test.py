@@ -15,7 +15,7 @@
 """Tests for checking."""
 
 from etils import enp
-from etils.array_types import IntArray, FloatArray, f32  # pylint: disable=g-multiple-import
+from etils.array_types import FloatArray, IntArray, f32  # pylint: disable=g-multiple-import
 import numpy as np
 import pytest
 
@@ -112,3 +112,4 @@ def test_missing_xnp_default():
     return x
 
   fn_missing_default(1.0)  # pytype: disable=missing-parameter  # pylint: disable=missing-kwoa
+  fn_missing_default(1.0, xnp=np)

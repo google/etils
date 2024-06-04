@@ -107,6 +107,18 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
   add(jnp.array(1.), [1., 2., 3.]) == jnp.array([2., 3., 4.])
   ```
 
+  Example with an explicit `xnp` argument, which automatically passed to the
+  wrapped function:
+
+  ```python
+  @enp.check_and_normalize_arrays(strict=False)
+  def clip(x: Array, *, xnp: enp.NpModule = ...) -> y: Array:
+    return xnp.clip(x, 0.0, 1.0)
+  ```
+
+  If present in the function signature, the `xnp` argument must be a
+  keyword-only argument.
+
   Args:
     fn: The function to decorate. Arguments will be automatically infered.
     strict: If `False`, `fn` will also accept list, int,... in which case those
