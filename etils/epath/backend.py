@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import abc
 import contextlib
+from datetime import timezone
 import functools
 import glob as glob_lib
 import os
@@ -582,7 +583,15 @@ class _FileSystemSpecBackend(Backend):
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:
     info = self.fs(path).info(path)
-    mtime = int(info.get('mtime', 0.0))
+
+    if mtime_obj := info.get('mtime') is None:
+      mtime = 0
+    else:
+      # obtain the POSIX timestamp
+      mtime_timestamp = mtime_obj.replace(tzinfo=timezone.utc).timestamp()
+      # convert to sec since the epoch
+      mtime = int(mtime_timestamp)
+
     return stat_utils.StatResult(
         is_directory=info.get('type') == 'directory',
         length=info.get('size'),
