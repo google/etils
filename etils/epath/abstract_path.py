@@ -225,3 +225,22 @@ class Path(pathlib.PurePosixPath):
   def copy(self: _T, dst: PathLike, overwrite: bool = False) -> _T:
     """Copy the current file to the given destination."""
   # pytype: enable=bad-return-type
+
+  # ====== Other ======
+
+  @classmethod
+  def __get_pydantic_core_schema__(cls, source_type, handler):
+    """Handles pydantic serialization identically to a pathlib.PurePosixPath.
+
+    See https://docs.pydantic.dev/latest/concepts/types
+
+    Args:
+      source_type: Any
+      handler: pydantic.GetCoreSchemaHandler
+
+    Returns:
+      pydantic_core.CoreSchema
+
+    """
+    del source_type  # Unused in this implementation.
+    return handler(pathlib.PurePosixPath)
