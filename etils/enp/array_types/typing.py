@@ -19,6 +19,7 @@ from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 from etils.enp.array_types import dtypes
 import numpy as np
 
+
 _T = TypeVar('_T')
 
 # Match both `np.dtype('int32')` and np.int32
@@ -98,6 +99,16 @@ class ArrayAliasMeta(type):
     """`isinstance(array, f32['h w c'])`."""
     raise NotImplementedError
 
+try:
+  import dill  # pylint: disable=g-import-not-at-top # pytype: disable=import-error
+
+  @dill.register(ArrayAliasMeta)
+  def _save_array_alias_meta(pickler, obj: ArrayAliasMeta) -> None:
+    args = (obj.shape, obj.dtype)
+    pickler.save_reduce(ArrayAliasMeta, args, obj=obj)
+
+except ImportError:
+  pass
 
 def _normalize_shape_item(item: _ShapeItem) -> ShapeSpec:
   """Returns the `str` representation associated with the shape element."""
