@@ -8,6 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.9.2] - 2024-06-12
+
+*   `epath`:
+    *   Support pydantic serialization of epath.Path
+
 ## [1.9.1] - 2024-06-04
 
 *   `epath`:

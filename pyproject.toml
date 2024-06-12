@@ -134,6 +134,7 @@ dev = [
     "torch",
     "optree",  # For `etree.optree`
     "dataclass_array",  # To test lazy_imports
+    "pydantic",  # To test pydantic serialization of epath.Path
 ]
 docs = [
     "sphinx-apitree[ext]",

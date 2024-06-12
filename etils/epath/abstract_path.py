@@ -242,5 +242,10 @@ class Path(pathlib.PurePosixPath):
       pydantic_core.CoreSchema
 
     """
+    from pydantic_core import core_schema  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
     del source_type  # Unused in this implementation.
-    return handler(pathlib.PurePosixPath)
+
+    return core_schema.no_info_after_validator_function(
+        cls, handler(pathlib.PurePosixPath)
+    )

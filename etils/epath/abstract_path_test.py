@@ -12,11 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Etils API."""
+"""Tests pydantic serialization of etils.epath.Path."""
 
-# A new PyPI release will be pushed everytime `__version__` is increased
-# When changing this, also update the CHANGELOG.md
-__version__ = '1.9.2'
+from etils import epath
+import pydantic
 
-# Do NOT add anything to this file. This is left empty on purpose.
-# Users should import subprojects directly.
+
+def test_pydantic_serialize():
+
+  class _Model(pydantic.BaseModel):
+    path_field: epath.Path
+
+  model = _Model(path_field=epath.Path("/example/path"))
+  serialized = model.model_dump_json()
+  deserialized = _Model.model_validate_json(serialized)
+  assert isinstance(deserialized.path_field, epath.Path)
+  assert model == deserialized
