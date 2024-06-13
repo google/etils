@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import abc
 import contextlib
+import datetime
 import functools
 import glob as glob_lib
 import os
@@ -582,7 +583,20 @@ class _FileSystemSpecBackend(Backend):
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:
     info = self.fs(path).info(path)
-    mtime = int(info.get('mtime', 0.0))
+
+    mtime_obj = info.get('mtime')
+    if mtime_obj is None:
+      mtime = 0
+    elif isinstance(mtime_obj, datetime.datetime):
+      # obtain the POSIX timestamp
+      mtime_timestamp = mtime_obj.timestamp()
+      # convert to sec since the epoch
+      mtime = int(mtime_timestamp)
+    elif isinstance(mtime_obj, (int, float)):
+      mtime = int(mtime_obj)
+    else:
+      raise RuntimeError(f'Unsupported mtime type: {type(mtime_obj)}')
+
     return stat_utils.StatResult(
         is_directory=info.get('type') == 'directory',
         length=info.get('size'),
