@@ -22,6 +22,7 @@ from etils.epy import _internal
 from etils.epy.adhoc_utils.binary_import import binary_adhoc
 from etils.epy.contextlib import ContextManager
 from etils.epy.env_utils import is_notebook
+from etils.epy.env_utils import is_test
 from etils.epy.itertools import groupby
 from etils.epy.itertools import splitby
 from etils.epy.itertools import zip_dict

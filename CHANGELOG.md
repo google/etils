@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Add `epy.is_test` to check whether we're running in a test environment.
+
 ## [1.9.2] - 2024-06-12
 
 *   `epath`:

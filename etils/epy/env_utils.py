@@ -27,3 +27,8 @@ def is_notebook() -> bool:
     if ipython and 'IPKernelApp' in ipython.config:
       return True
   return False
+
+
+def is_test() -> bool:
+  """Returns True if running in a test environment."""
+  return 'TEST_TMPDIR' in os.environ
