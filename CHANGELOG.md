@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epy`:
     *   Add `epy.is_test` to check whether we're running in a test environment.
+    *   Add `epy.typing.Json`.
 
 ## [1.9.2] - 2024-06-12
 
