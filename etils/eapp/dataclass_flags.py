@@ -38,6 +38,7 @@ def make_flags_parser(
     *,
     prog: Optional[str] = None,
     description: Optional[str] = None,
+    **extra_kwargs,
 ) -> Callable[[list[str]], _DataclassT]:
   """Dataclass flag parser for absl.
 
@@ -71,6 +72,7 @@ def make_flags_parser(
     prog: Program name. Forwarded to `argparse.ArgumentParser`
     description: Description (auto-extracted from the `__main__` docstring)
       Forwarded to `argparse.ArgumentParser`
+    **extra_kwargs: Extra arguments to be forwarded to `argparse.ArgumentParser`
 
   Returns:
     flags_parser function, for `app.run(main, flags_parser=...)`.
@@ -83,6 +85,7 @@ def make_flags_parser(
     parser = simple_parsing.ArgumentParser(
         prog=prog,
         description=description,
+        **extra_kwargs,
     )
     parser.add_arguments(cls, dest='args')
 
