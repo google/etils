@@ -4,6 +4,10 @@ Good practices for designing APIs, mainly targeted for Python.
 
 ## Miller's law and cognitive overhead
 
+From the
+[excellent talk](https://youtu.be/UANN2Eu6ZnM?si=sZ434QT1J1783mir&t=340) from
+Haymond Hettinger.
+
 The human brain has a limited capacity that is well known by neuroscientists.
 **It cannot store more than 7±2 information (chunks) at the same time** (5 on a
 bad day).
@@ -480,6 +484,28 @@ how to solve it.
 *   When relevant, use hint (Got `y`, did you mean `x`instead ?), using
     `difflib.get_close_matches`
 *   This was also the motivation behind `colored_traceback`
+
+### Everything should be private by default
+
+It helps readability to explicitly mark everything as private by default, unless
+the symbol is used in another (non-test) file:
+
+```python
+_T = TypeVar('_T')
+
+class _MyClass:
+  pass
+
+def _my_function():
+  pass
+```
+
+*   This helps understand the code. It becomes immediately clear which functions,
+    class, types are internal only (so can be skipped if you don't care about
+    internals), and which symbols are the entry points.
+*   It helps maintenance. It becomes safe to remove/edit any `_xxx` symbol safely
+    without having to first check the other files/codebases to figure out
+    everywhere the symbol should be updated.
 
 ### Prefer immutable types
 
