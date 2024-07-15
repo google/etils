@@ -46,7 +46,7 @@ Array = Any
 _MIN_IMG_SHAPE: Tuple[int, int] = (10, 10)
 
 
-def show(*objs, **kwargs) -> None:
+def show(*objs, **kwargs) -> Optional[IPython.display.DisplayHandle]:
   """Alias for `IPython.display.display`."""
   return IPython.display.display(*objs, **kwargs)
 
