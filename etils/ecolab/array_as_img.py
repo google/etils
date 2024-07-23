@@ -48,7 +48,7 @@ _MIN_IMG_SHAPE: Tuple[int, int] = (10, 10)
 
 def show(*objs, **kwargs) -> None:
   """Alias for `IPython.display.display`."""
-  return IPython.display.display(*objs, **kwargs)
+  IPython.display.display(*objs, **kwargs)
 
 
 def auto_plot_array(
