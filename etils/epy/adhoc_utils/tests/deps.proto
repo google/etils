@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package etils_test.ecolab.tests.deps;
+
+message MyOptions {
+  optional string name = 1;
+
+  extensions 100 to max
+  [declaration = {
+    number: 100,
+    full_name: ".etils_test.ecolab.tests.example.extended_field",
+    type: "string"
+  }];
+}

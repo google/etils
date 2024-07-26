@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package my.awesome.proto;
+
+message MyProto {
+  optional stsdsdring name = 1; // messed up type.
+}
