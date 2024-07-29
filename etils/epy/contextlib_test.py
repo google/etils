@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 from typing import Iterable
 
@@ -51,3 +52,18 @@ def test_contextmanager():
     assert a1.state == ['start:1', 'end:1', 'start:1']
 
   assert a1.state == ['start:1', 'end:1', 'start:1', 'end:1']
+
+
+def test_exitstack():
+  a1 = A(1)
+  a2 = A(2)
+
+  assert a1.state == []  # pylint: disable=g-explicit-bool-comparison
+  assert a2.state == []  # pylint: disable=g-explicit-bool-comparison
+  with epy.ExitStack([a1, a2]) as stack:
+    assert isinstance(stack, contextlib.ExitStack)
+    assert a1.state == ['start:1']
+    assert a2.state == ['start:2']
+
+  assert a1.state == ['start:1', 'end:1']
+  assert a2.state == ['start:2', 'end:2']

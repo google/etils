@@ -17,8 +17,10 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Iterable
 import contextlib
-from typing import Generic, Iterable, TypeVar
+import typing
+from typing import Any, Generic, TypeVar
 
 _T = TypeVar('_T')
 
@@ -74,3 +76,28 @@ class ContextManager(abc.ABC, Generic[_T]):
 
   def __exit__(self, exc_type, exc_value, traceback) -> None:
     return self._epy_cm.__exit__(exc_type, exc_value, traceback)  # pytype: disable=attribute-error
+
+
+# Should use `contextlib.nested` instead if outputs are required?
+class ExitStack(ContextManager[contextlib.ExitStack]):
+  """Like `contextlib.ExitStack` but allows to set contextmanagers at init time.
+
+  ```python
+  with epy.ExitStack([A(), B()]) as stack:
+    pass
+  ```
+
+  Outputs are not available.
+
+  See:
+  https://discuss.python.org/t/add-init-self-contexts-iterable-contextmanager-to-contextlib-exitstack/19906
+  """
+
+  def __init__(self, contexts: Iterable[typing.ContextManager[Any]]):
+    self._contexts = list(contexts)
+
+  def __contextmanager__(self) -> Iterable[contextlib.ExitStack]:
+    with contextlib.ExitStack() as stack:
+      for context in self._contexts:
+        stack.enter_context(context)
+      yield stack

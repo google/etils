@@ -123,6 +123,8 @@ This result in cleaner and more compact error messages.
 * `epy.StrEnum`: Like `enum.StrEnum`, but is case insensitive.
 * `epy.lazy_imports`: Context Manager to lazy load modules (for optional
   dependencies or speed-up import time).
+* `epy.ExitStack`: Like `contextlib.ExitStack` but supports setting the
+  contextmanagers at init time.
 
 ### Environment utils
 
