@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+package etils_test.ecolab.tests.example;
+
+// Test dependencies import
+import "third_party/py/etils/epy/adhoc_utils/tests/deps.proto";
+
+enum MyEnum {
+  VALUE_UNKNOWN = 0;
+  VALUE_1 = 1;
+  VALUE_2 = 2;
+}
+
+message MyMessage {
+  optional string name = 1;
+
+  optional etils_test.ecolab.tests.deps.MyOptions sub_message = 2;
+
+  optional NestedMessage nested_message = 3;
+
+  message NestedMessage {
+    optional string name = 1;
+  }
+
+  enum NestedEnum {
+    VALUE_UNKNOWN = 0;
+    VALUE_1 = 1;
+    VALUE_2 = 2;
+  }
+}
+
+extend etils_test.ecolab.tests.deps.MyOptions {
+  optional string extended_field = 100;
+}
+
+service MyService {
+  // Test method.
+  rpc SomeMethod(MyMessage) returns (MyMessage) {
+    option deadline = 10.0;
+  }
+}
