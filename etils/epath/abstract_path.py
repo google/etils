@@ -42,8 +42,8 @@ class Path(pathlib.PurePosixPath):
 
   See [pathlib.Path](https://docs.python.org/3/library/pathlib.html)
   documentation.
-
   """
+
   # TODO(epot): With 3.12, might be able to inherit from `pathlib.PosixPath`
   # directly so some of those methods are automatically implemented.
 
@@ -224,13 +224,14 @@ class Path(pathlib.PurePosixPath):
   @abstractmethod
   def copy(self: _T, dst: PathLike, overwrite: bool = False) -> _T:
     """Copy the current file to the given destination."""
+
   # pytype: enable=bad-return-type
 
   # ====== Other ======
 
   @classmethod
   def __get_pydantic_core_schema__(cls, source_type, handler):
-    """Handles pydantic serialization identically to a pathlib.PurePosixPath.
+    """Handles pydantic serialization similarly to a pathlib.PurePosixPath.
 
     See https://docs.pydantic.dev/latest/concepts/types
 
@@ -240,12 +241,31 @@ class Path(pathlib.PurePosixPath):
 
     Returns:
       pydantic_core.CoreSchema
-
     """
     from pydantic_core import core_schema  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
     del source_type  # Unused in this implementation.
+    del handler  # Unused in this implementation.
 
-    return core_schema.no_info_after_validator_function(
-        cls, handler(pathlib.PurePosixPath)
+    # This schema is based on Pydantic's schema for pathlib.Path types:
+    # https://github.com/pydantic/pydantic/blob/23246fe642e35c2972dd9559af905e9424f22438/pydantic/_internal/_std_types_schema.py#L66
+    # But we can't delegate to this, because we must not invoke the pathlib
+    # constructors, because they break paths containing a schema
+    # like 'gs://foo', whereas epath.Path handles these correctly.
+
+    # Schema to construct from a 'str' instance.
+    from_str_schema = core_schema.no_info_after_validator_function(
+        cls, core_schema.str_schema()
+    )
+    return core_schema.json_or_python_schema(
+        # When constructing from JSON, require a string as input, and pass it
+        # to the class constructor.
+        json_schema=from_str_schema,
+        # When constructing from Python, accept either an instance of the class,
+        # or a string.
+        python_schema=core_schema.union_schema([
+            core_schema.is_instance_schema(cls),
+            from_str_schema,
+        ]),
+        serialization=core_schema.to_string_ser_schema(),
     )

@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epath`:
+    *   Fix epath.Path pydantic deserialization for URI-style paths
 *   `epy`:
     *   Add `epy.is_test` to check whether we're running in a test environment.
     *   Add `epy.typing.Json`.

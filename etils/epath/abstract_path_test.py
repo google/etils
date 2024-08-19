@@ -14,17 +14,45 @@
 
 """Tests pydantic serialization of etils.epath.Path."""
 
+from unittest import mock
+
 from etils import epath
 import pydantic
+import pytest
 
 
-def test_pydantic_serialize():
+_GS_PREFIXES = ["gs"]
+
+
+@pytest.mark.parametrize("gs_prefix", _GS_PREFIXES)
+@pytest.mark.parametrize(
+    "path_str",
+    [
+        "/example/path",
+        "gs://example/path",
+        "gs://example/path",
+        "gs://example/path.ext",
+        ".",
+    ],
+)
+def test_pydantic_serialize(gs_prefix: str, path_str: str):
 
   class _Model(pydantic.BaseModel):
     path_field: epath.Path
 
-  model = _Model(path_field=epath.Path("/example/path"))
-  serialized = model.model_dump_json()
-  deserialized = _Model.model_validate_json(serialized)
-  assert isinstance(deserialized.path_field, epath.Path)
-  assert model == deserialized
+  gs_schema = f"{gs_prefix}://"
+  # Simulate being on XCloud/open-source, v.s. Borg.
+  with mock.patch.dict(
+      "etils.epath.gpath._URI_MAP_ROOT",
+      {"gs://": f"/{gs_prefix}/"},
+  ):
+    path = epath.Path(path_str)
+    # Outside of Borg, paths should be kept as URIs, i.e. gs://foo,
+    # not /gcs/foo.
+    if gs_prefix == "gs" and path_str.startswith(gs_schema):
+      assert str(path).startswith(gs_schema)
+    model = _Model(path_field=path)
+    serialized = model.model_dump_json()
+    deserialized = _Model.model_validate_json(serialized)
+    assert isinstance(deserialized.path_field, epath.Path)
+    assert model == deserialized
