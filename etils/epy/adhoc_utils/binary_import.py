@@ -14,12 +14,16 @@
 
 """Wrapper around binary_import that supports colab."""
 
+from __future__ import annotations
+
 from collections.abc import Iterator
 import contextlib
 import functools
 import sys
-from typing import Any
+from typing import Any, Optional
 
+from etils.epy import contextlib as epy_contextlib
+from etils.epy import lazy_imports_utils
 from etils.epy import py_utils
 from etils.epy.adhoc_utils import curr_args
 from etils.epy.adhoc_utils import module_utils
@@ -56,6 +60,8 @@ def _is_ipython_terminal() -> bool:
 
 @contextlib.contextmanager
 def binary_adhoc(
+    source: Optional[g3_utils.Source] = None,
+    *,
     restrict: None | py_utils.StrOrStrList = None,
     reload: None | py_utils.StrOrStrList = None,
     verbose: bool = False,
