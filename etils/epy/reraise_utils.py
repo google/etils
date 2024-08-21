@@ -65,6 +65,10 @@ def reraise(
     prefix: Prefix to add to the exception message.
     suffix: Suffix to add to the exception message.
   """
+  # TODO(epot): Mutate the `e.__traceback__` when not in IPython.
+  # Hide the function from the traceback. Is supported by Pytest and IPython 7
+  __tracebackhide__ = True  # pylint: disable=unused-variable,invalid-name
+
   # Lazy-evaluate functions
   prefix = prefix() if callable(prefix) else prefix
   suffix = suffix() if callable(suffix) else suffix
@@ -140,6 +144,9 @@ def maybe_reraise(
   Yields:
     None
   """
+  # Hide the function from the traceback. Is supported by Pytest and IPython 7
+  __tracebackhide__ = True  # pylint: disable=unused-variable,invalid-name
+
   try:
     yield
   except Exception as e:  # pylint: disable=broad-except

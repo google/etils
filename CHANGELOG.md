@@ -15,9 +15,11 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `epy.typing.Json`.
     *   Add `epy.ExitStack` which allows setting the contextmanagers during init.
     *   Add proto support for `epy.binary_adhoc`
+    *   Hide reraise from the traceback for cleaner error messages
 *   `exm`:
     *   Add `exm.url_to_python_only_logs()` and `exm.curr_job_name()` to add
         artifact to Python only logs (without all the verbose C++ junk ).
+    *   Fix a bug which makes `exm.current_experiment` crash
 
 ## [1.9.2] - 2024-06-12
 
