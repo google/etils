@@ -21,49 +21,47 @@ from etils import ecolab
 from etils import epy
 import pytest
 
-LazyModule = epy.lazy_imports_utils.LazyModule
-
 
 @pytest.fixture(autouse=True)
 def _clear_cache():
   # Reset the cache for each test
-  ecolab.clear_cached_modules('dataclass_array')
+  ecolab.clear_cached_modules('tensorflow_datasets')
 
 
 def test_nested_import():
-  assert 'dataclass_array' not in sys.modules
+  assert 'tensorflow_datasets' not in sys.modules
   with epy.lazy_imports():
-    import dataclass_array.ops  # pylint: disable=g-import-not-at-top
-  assert 'dataclass_array' not in sys.modules
-  _ = dataclass_array.ops.stack
-  assert 'dataclass_array' in sys.modules
+    import tensorflow_datasets.core  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  _ = tensorflow_datasets.core.features
+  assert 'tensorflow_datasets' in sys.modules
 
 
 def test_nested_import_as():
-  assert 'dataclass_array' not in sys.modules
+  assert 'tensorflow_datasets' not in sys.modules
   with epy.lazy_imports():
-    import dataclass_array.ops as new_ops  # pylint: disable=g-import-not-at-top
-  assert 'dataclass_array' not in sys.modules
-  _ = new_ops.stack
-  assert 'dataclass_array' in sys.modules
+    import tensorflow_datasets.core as new_core  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  _ = new_core.features
+  assert 'tensorflow_datasets' in sys.modules
 
 
 def test_nested_import_from():
-  assert 'dataclass_array' not in sys.modules
+  assert 'tensorflow_datasets' not in sys.modules
   with epy.lazy_imports():
-    from dataclass_array import ops  # pylint: disable=g-import-not-at-top
-  assert 'dataclass_array' not in sys.modules
-  _ = ops.stack
-  assert 'dataclass_array' in sys.modules
+    from tensorflow_datasets import core  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  _ = core.features
+  assert 'tensorflow_datasets' in sys.modules
 
 
 def test_import_with_alias():
-  assert 'dataclass_array' not in sys.modules
+  assert 'tensorflow_datasets' not in sys.modules
   with epy.lazy_imports():
-    import dataclass_array as dca  # pylint: disable=g-import-not-at-top
-  assert 'dataclass_array' not in sys.modules
-  _ = dca.stack
-  assert 'dataclass_array' in sys.modules
+    import tensorflow_datasets as tfds  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  _ = tfds.features
+  assert 'tensorflow_datasets' in sys.modules
 
 
 def test_error_callback():
@@ -76,7 +74,7 @@ def test_error_callback():
   error_callback.assert_not_called()
   success_callback.assert_not_called()
   try:
-    _ = doesnotexist.stack
+    _ = doesnotexist.features
   except ImportError:
     pass
   error_callback.assert_called_once()
@@ -89,21 +87,21 @@ def test_success_callback():
   with epy.lazy_imports(
       error_callback=error_callback, success_callback=success_callback
   ):
-    from dataclass_array import ops  # pylint: disable=g-import-not-at-top
+    from tensorflow_datasets import core  # pylint: disable=g-import-not-at-top
   error_callback.assert_not_called()
   success_callback.assert_not_called()
-  _ = ops.stack
+  _ = core.features
   error_callback.assert_not_called()
-  success_callback.assert_called_once_with('dataclass_array.ops')
+  success_callback.assert_called_once_with('tensorflow_datasets.core')
 
 
 def test_import_fail():
-  assert 'dataclass_array' not in sys.modules
+  assert 'tensorflow_datasets' not in sys.modules
   with mock.patch(
       'importlib.import_module', side_effect=AttributeError('no attribute')
   ):
     with epy.lazy_imports():
-      import dataclass_array as dca  # pylint: disable=g-import-not-at-top
+      import tensorflow_datasets as tfds  # pylint: disable=g-import-not-at-top
 
     with pytest.raises(ImportError, match='no attribute'):
-      _ = dca.stack
+      _ = tfds.features

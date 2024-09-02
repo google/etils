@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   Return Python 3.10 support.
+
 ## [1.9.3] - 2024-08-30
 
 *   `eapp`:

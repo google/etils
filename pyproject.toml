@@ -2,7 +2,7 @@
 name = "etils"
 description = "Collection of common python utils"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [{name = "Conchylicultor", email="etils@google.com"}]
 classifiers = [
@@ -133,7 +133,7 @@ dev = [
     # "grain",  # For `etree.spec_like`  # TODO(epot): Add once released
     "torch",
     "optree",  # For `etree.optree`
-    "dataclass_array",  # To test lazy_imports
+    "tensorflow_datasets",  # To test lazy_imports
     "pydantic",  # To test pydantic serialization of epath.Path
 ]
 docs = [

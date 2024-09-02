@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import ast
 import dataclasses
-import enum
 import functools
 import re
 import traceback
@@ -42,7 +41,7 @@ _IS_LEGACY_API = packaging.version.parse(
 ) < packaging.version.parse('7')
 
 
-class _Options(enum.StrEnum):
+class _Options(epy.StrEnum):
   """Available options."""
 
   SPEC = 's'

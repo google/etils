@@ -300,11 +300,14 @@ def test_reload_enum(reloader: _Reloader):  # pylint: disable=redefined-outer-na
       """
       import enum
 
+      from etils import epy
+
+
       class A(enum.Enum):
         FOO = enum.auto()
         BAR = enum.auto()
 
-      class B(enum.StrEnum):
+      class B(epy.StrEnum):
         FOO = enum.auto()
         BAR = enum.auto()
       """,
@@ -319,13 +322,16 @@ def test_reload_enum(reloader: _Reloader):  # pylint: disable=redefined-outer-na
       """
       import enum
 
+      from etils import epy
+
+
       class A(enum.Enum):
         BUZZ = enum.auto()
 
         FOO = enum.auto()
         BAR = enum.auto()
 
-      class B(enum.StrEnum):
+      class B(epy.StrEnum):
         BUZZ = enum.auto()
 
         FOO = enum.auto()
