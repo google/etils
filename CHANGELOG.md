@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.9.4] - 2024-09-03
+
 *   Return Python 3.10 support.
 
 ## [1.9.3] - 2024-08-30
@@ -442,7 +444,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.9.3...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.9.4...HEAD
+[1.9.3]: https://github.com/google/etils/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/google/etils/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/google/etils/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/google/etils/compare/v1.9.0...v1.9.1
