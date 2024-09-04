@@ -39,7 +39,7 @@ semantic already take up 3 cognitive registers (out of the limited 7±2). By
 opposition, the following code is semantically exactly equivalent:
 
 ```python
-x = random.uniform(50, 200)
+x = random.uniform(50, 250)
 ```
 
 It's about the same number of characters, but like the number example, it takes
