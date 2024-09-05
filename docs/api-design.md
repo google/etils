@@ -137,6 +137,35 @@ things simpler.
 Don't start implementing before having some idea of the end-user API (it does
 not need to be final).
 
+### API should match high-level semantic
+
+Usually, it's possible to describe the task you want to achieve in a list of
+sentence describing the high level concepts, like:
+
+1.  Launch the evaluations
+2.  Wait for results to come in
+3.  When there's a new result upload it to the spreadsheet
+
+For each of those sentences, there should be a **single** API call which
+encapsulate all the logic. This way the code match the way it was conceptually
+conceived. If a sentence is converted into multiple API calls, it likely
+indicates the abstractions of your API are too low level and you should wrap
+them in a higher level abstraction.
+
+The first draft of the API would be to just write dummy functions (you can worry
+about the exact function signatures later and refine over time). For the above
+example, this could be something like:
+
+```python
+futures = launch_evals()
+spreadsheet = Spreadsheet()
+
+for new_result in wait_for_results(futures):
+  spreadsheet.upload(new_result)
+```
+
+Then you can recurse to apply the same principle on each individual functions.
+
 ### Limit entry points
 
 Ideally, there should be a single way of using the API. Limiting the number of
@@ -376,7 +405,7 @@ readable.
       data = ne.fetch_data()
     ```
 
-*   Use dunder methods:
+*   Use dunder methods (when it make sense and don't hurt explicitness):
 
     *   `__getitem__`: `x.fetch_index(i)` -> `x[i]`
     *   `__len__`: `x.num_elems` -> `len(x)`
