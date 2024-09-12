@@ -71,7 +71,8 @@ class ContextManager(abc.ABC, Generic[_T]):
   __contextmanager__._cm_added = True  # pylint: disable=protected-access
 
   def __enter__(self) -> _T:
-    self._epy_cm = self.__contextmanager__()
+    # object.__setattr__ to support frozen dataclasses
+    object.__setattr__(self, '_epy_cm', self.__contextmanager__())
     return self._epy_cm.__enter__()  # pytype: disable=attribute-error
 
   def __exit__(self, exc_type, exc_value, traceback) -> None:

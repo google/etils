@@ -21,6 +21,7 @@ import dataclasses
 from typing import Iterable
 
 from etils import epy
+import pytest
 
 
 @dataclasses.dataclass
@@ -34,12 +35,24 @@ class A(epy.ContextManager):
     self.state.append(f'end:{self.x}')
 
 
-def test_contextmanager():
-  with A(1) as a1:
+@dataclasses.dataclass(frozen=True)
+class AFrozen(epy.ContextManager):
+  x: int
+  state: list[str] = dataclasses.field(default_factory=list)
+
+  def __contextmanager__(self) -> Iterable[AFrozen]:
+    self.state.append(f'start:{self.x}')
+    yield self
+    self.state.append(f'end:{self.x}')
+
+
+@pytest.mark.parametrize('cls', [A, AFrozen])
+def test_contextmanager(cls: type[A]):
+  with cls(1) as a1:
     assert a1.x == 1
 
     # Different instances can be nested (and don't share state)
-    with A(2) as a2:
+    with cls(2) as a2:
       assert a2.x == 2
 
     assert a1.state == ['start:1']
