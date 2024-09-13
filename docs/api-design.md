@@ -604,6 +604,29 @@ y = fn(x)
 
 The function makes it more clear that there's no hidden inputs/outputs.
 
+### Use `@cached_property` pattern
+
+This is a powerful pattern which keeps a class immutable while being very
+readable.
+
+Rather than creating methods, use `@functools.cached_property` to return
+outputs. `@functools.cached_property` can be nested if some intermediates values
+are reused in multiple outputs.
+
+```python
+@dataclasses.dataclass
+class ExperimentCollection:
+  xids: list[int]
+
+  @functools.cached_property
+  def experiments(self) -> list[Experiment]:
+    return [Experiment.from_xid(xid) for xid in self.xids]
+
+  @functools.cached_property
+  def is_completed(self) -> bool:
+    return all(xp.is_completed for xp in self.experiments)
+```
+
 ### Top-level functions defined first
 
 In a file, the top-level functions (public API, entry points,...) should come
