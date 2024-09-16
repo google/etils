@@ -115,6 +115,9 @@ class ArraySpec:
     elif _is_grain(array):
       shape = array.shape
       dtype = array.dtype
+    elif _is_pygrain(array):
+      shape = array.shape
+      dtype = array.dtype
     elif _is_orbax(array):
       shape = array.shape
       dtype = array.dtype
@@ -143,6 +146,7 @@ def is_fake_array(array: Array) -> bool:
       or isinstance(array, ArraySpec)
       or _is_orbax(array)
       or _is_grain(array)
+      or _is_pygrain(array)
       or _is_flax_summarry(array)
       or isinstance(array, array_types.ArrayAliasMeta)
   )
@@ -162,6 +166,17 @@ def _is_grain(array: Array) -> bool:
   from grain import tensorflow as grain  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
   return isinstance(array, grain.ArraySpec)
+
+
+def _is_pygrain(array: Array) -> bool:
+  if (
+      'grain._src.python' not in sys.modules
+      and 'grain.python' not in sys.modules
+  ):
+    return False
+  from grain._src.python import shared_memory_array  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+  return isinstance(array, shared_memory_array.SharedMemoryArrayMetadata)
 
 
 def _is_orbax(array: Array) -> bool:

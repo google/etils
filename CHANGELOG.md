@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *  `epy`: Add frozen dataclass support for `epy.ContextManager`
+*  `enp`: Add `ArraySpec` support for `grain.python.SharedMemoryArrays`.
 
 ## [1.9.4] - 2024-09-03
 
