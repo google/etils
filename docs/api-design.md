@@ -582,6 +582,8 @@ class MyModel:
 
 ```
 
+Dataclasses should be explicitly marked as `frozen=True`.
+
 ### Prefer functions to methods
 
 If a method don't use `self`, it should likely be a function. When someone see
