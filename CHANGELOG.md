@@ -8,6 +8,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*  `epath`: Allow `None` in `Path.glob`
 *  `epy`: Add frozen dataclass support for `epy.ContextManager`
 *  `enp`: Add `ArraySpec` support for `grain.python.SharedMemoryArrays`.
 

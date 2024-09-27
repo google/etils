@@ -100,7 +100,7 @@ class Path(pathlib.PurePosixPath):
     raise NotImplementedError
 
   @abstractmethod
-  def glob(self: _T, pattern: str) -> Iterator[_T]:
+  def glob(self: _T, pattern: str | None) -> Iterator[_T]:
     """Yields all matching files (of any kind)."""
     # Might be able to implement using `iterdir` (recursivelly for `rglob`).
     raise NotImplementedError

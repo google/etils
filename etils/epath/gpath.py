@@ -167,9 +167,12 @@ class _GPath(abstract_path.Path):
     # TODO(epot): In pathlib, `resolve` also resolve the symlinks
     return self._new(self._PATH.abspath(self._path_str))
 
-  def glob(self: _P, pattern: str) -> Iterator[_P]:
+  def glob(self: _P, pattern: str | None) -> Iterator[_P]:
     """Yielding all matching files (of any kind)."""
-    pattern = self._PATH.join(self._path_str, pattern)
+    if pattern is None:
+      pattern = self._path_str
+    else:
+      pattern = self._PATH.join(self._path_str, pattern)
 
     if '**' in pattern:
       raise NotImplementedError(
