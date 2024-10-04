@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+package etils_test.ecolab.tests.example_hyphen;
+
+message MyMessage {
+  optional string name = 1;
+}
