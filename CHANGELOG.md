@@ -11,6 +11,7 @@ Changelog follow https://keepachangelog.com/ format.
 *  `epy`:
     *   Add frozen dataclass support for `epy.ContextManager`
     *   Support adhoc import of proto files with hyphen.
+    *   Add `fiddle` supports to `epy.pretty_repr`
 *  `enp`: Add `ArraySpec` support for `grain.python.SharedMemoryArrays`.
 
 ## [1.9.4] - 2024-09-03

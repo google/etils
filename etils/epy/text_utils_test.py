@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for text_utils."""
-
 from __future__ import annotations
 
 import collections
@@ -21,6 +19,7 @@ import dataclasses
 import textwrap
 
 from etils import epy
+import fiddle as fdl
 
 
 def test_dedent():
@@ -126,6 +125,10 @@ def test_pretty_repr_tuple():
   assert epy.pretty_repr((1, 2)) == '(1, 2)'
   assert epy.pretty_repr([1]) == '[1]'
   assert epy.pretty_repr([1, 2]) == '[1, 2]'
+
+
+def _fn_with_var_kwargs(arg1, kwarg1=None, **kwargs):  # pylint: disable=unused-argument
+  return
 
 
 def test_lines_nested_indent():
