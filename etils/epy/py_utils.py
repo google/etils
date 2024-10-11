@@ -21,7 +21,7 @@ import enum
 import functools
 import sys
 import typing
-from typing import Any, Optional, TypeVar, Union
+from typing import Any, ClassVar, Optional, TypeVar, Union
 
 
 StrOrStrList = Union[str, Sequence[str]]
@@ -49,15 +49,21 @@ class StrEnum(*_StrEnum):
   `StrEnum` is case insensitive.
   """
 
-  # `issubclass(StrEnum, str)`, so can annotate `str` instead of `str | StrEnum`
+  _LOWER_TO_VAL: ClassVar[dict[str, StrEnum]]
+
+  def __init_subclass__(cls, **kwargs):
+    super().__init_subclass__(**kwargs)
+    cls._LOWER_TO_VAL = {e.value.lower(): e for e in cls}
 
   def _generate_next_value_(name, start, count, last_values) -> str:  # pylint: disable=no-self-argument
     return name.lower()
 
   @classmethod
   def _missing_(cls, value: str) -> StrEnum:
-    if isinstance(value, str) and not value.islower():
-      return cls(value.lower())
+    if isinstance(value, str):
+      enum_value = cls._LOWER_TO_VAL.get(value.lower())
+      if enum_value is not None:
+        return enum_value
     # Could also add `did you meant yy ?`
     all_values = [e.value for e in cls]
     raise ValueError(
@@ -66,7 +72,9 @@ class StrEnum(*_StrEnum):
     )
 
   def __eq__(self, other: str) -> bool:
-    return super().__eq__(other.lower())
+    if not isinstance(other, str):
+      return False
+    return other.lower() == self.value.lower()
 
   def __hash__(self) -> int:  # pylint: disable=useless-super-delegation
     # Somehow `hash` is not defined automatically (maybe because of

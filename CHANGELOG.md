@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *  `epy`:
     *   Add frozen dataclass support for `epy.ContextManager`
+    *   Make `epy.StrEnum` truly case-insensitive
     *   Support adhoc import of proto files with hyphen.
     *   Add `fiddle` supports to `epy.pretty_repr`
 *  `enp`: Add `ArraySpec` support for `grain.python.SharedMemoryArrays`.

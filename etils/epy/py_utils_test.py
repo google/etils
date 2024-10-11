@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for py_utils."""
-
 import collections
 import enum
+import sys
 import typing
 
 from etils import epy
@@ -23,23 +22,48 @@ import pytest
 
 
 def test_str_enum():
+  if sys.version_info[:2] <= (3, 11):
+    return  # Skip for 3.11
+
   class MyEnum(epy.StrEnum):
     MY_OTHER_ATTR = enum.auto()
     MY_ATTR = enum.auto()
+    MY_UPPER_ATTR = 'My_Upper_Attr'
+    OTHER = 'not_Other'
 
   assert MyEnum.MY_ATTR is MyEnum.MY_ATTR
   assert MyEnum('my_attr') is MyEnum.MY_ATTR
   assert MyEnum('MY_ATTR') is MyEnum.MY_ATTR
+  assert MyEnum('MY_UPPER_ATTR') is MyEnum.MY_UPPER_ATTR
+  assert MyEnum('my_upper_attr') is MyEnum.MY_UPPER_ATTR
   assert MyEnum.MY_ATTR == MyEnum.MY_ATTR
   assert MyEnum.MY_ATTR == 'my_attr'
   assert MyEnum.MY_ATTR == 'MY_ATTR'
+  assert MyEnum.MY_UPPER_ATTR == MyEnum.MY_UPPER_ATTR
+  assert MyEnum.MY_UPPER_ATTR == 'MY_UPPER_ATTR'
+  assert MyEnum.MY_UPPER_ATTR == 'my_upper_attr'
+  assert MyEnum.MY_UPPER_ATTR != MyEnum.MY_ATTR
+  assert MyEnum.MY_UPPER_ATTR != 'my_attr'
+  assert MyEnum.MY_UPPER_ATTR != 'unknonw_my_attr'
+  assert MyEnum.OTHER == MyEnum.OTHER
+  assert MyEnum.OTHER is MyEnum.OTHER
+  assert MyEnum.OTHER == 'not_other'
+  assert MyEnum.OTHER == 'NOT_OTHER'
+  assert MyEnum.OTHER != MyEnum.MY_ATTR
+  assert MyEnum.OTHER != 'my_attr'
+  assert MyEnum.OTHER != 'unknonw_my_attr'
 
   assert hash(MyEnum.MY_ATTR) == hash('my_attr')
 
   with pytest.raises(ValueError, match='Expected one of'):
     MyEnum('non-existing')
 
-  assert [e.value for e in MyEnum] == ['my_other_attr', 'my_attr']
+  assert [e.value for e in MyEnum] == [
+      'my_other_attr',
+      'my_attr',
+      'My_Upper_Attr',
+      'not_Other',
+  ]
 
 
 def test_is_namedtuple():
