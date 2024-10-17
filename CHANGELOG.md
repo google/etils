@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.10.0] - 2024-10-17
+
 *  `epy`:
     *   Add frozen dataclass support for `epy.ContextManager`
     *   Make `epy.StrEnum` truly case-insensitive
@@ -15,11 +17,11 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `fiddle` supports to `epy.pretty_repr`
 *  `enp`: Add `ArraySpec` support for `grain.python.SharedMemoryArrays`.
 
-## [1.9.4] - 2024-09-03
+## [1.9.4] - 2024-09-03  <!-- Should have been 1.10.1 -->
 
 *   Return Python 3.10 support.
 
-## [1.9.3] - 2024-08-30
+## [1.9.3] - 2024-08-30  <!-- Should have been 1.10.0 -->
 
 *   `eapp`:
     *   Allow extra kwargs in `eapp.make_flags_parser()`
@@ -451,7 +453,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.9.4...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/google/etils/compare/v1.9.4...v1.10.0
 [1.9.3]: https://github.com/google/etils/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/google/etils/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/google/etils/compare/v1.9.1...v1.9.2
