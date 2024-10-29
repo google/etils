@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   `ecolab.inspect`: Proto are better displayed (hide attributes
+        `DESCRIPTOR`, `Extensions` in sub-section)
+
 ## [1.10.0] - 2024-10-17
 
 *  `epy`:

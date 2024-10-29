@@ -28,6 +28,7 @@ import uuid
 from etils import enp
 from etils.ecolab.inspects import attrs
 from etils.ecolab.inspects import html_helper as H
+from google.protobuf import message
 
 # Import both C++ and Python API
 from google.protobuf.internal import containers
@@ -76,6 +77,7 @@ class Node:
         SetNode,
         ClsNode,
         ArrayNode,
+        ProtoNode,
         ExceptionNode,
         ObjectNode,
     ]:
@@ -371,12 +373,48 @@ class ClsNode(ObjectNode[Type[Any]]):
     else:
       mro = self.obj.mro()
     # Add `[[mro]]` subsection
+    # TODO(epot): Also add `[[mro]]` section to all objects (but hidden inside)
+    # private.
     return super().children + [
         SubsectionNode(
             children=[Node.from_obj(cls) for cls in mro],
             name='mro',
         )
     ]
+
+
+_PROTO_FIELD_NAMES = frozenset({
+    'DESCRIPTOR',
+    'Extensions',
+})
+
+
+class ProtoNode(ObjectNode[message.Message]):
+  """Proto."""
+
+  MATCH_TYPES = message.Message
+
+  @property
+  def children(self) -> list[Node]:
+    # Filter the proto-specific attributes to hide them in a separate section
+    val_attrs = []
+    proto_attrs = []
+    other_attrs = []
+    for c in super().children:
+      if isinstance(c, SubsectionNode):
+        other_attrs.append(c)
+      elif not isinstance(c, ObjectNode):
+        raise ValueError(f'Unexpected child {c!r}')
+      elif c.name in _PROTO_FIELD_NAMES:
+        proto_attrs.append(c)
+      else:
+        val_attrs.append(c)
+
+    return (
+        val_attrs
+        + other_attrs
+        + [SubsectionNode(children=proto_attrs, name='Proto')]
+    )
 
 
 @dataclasses.dataclass
