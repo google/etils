@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for tree_utils."""
-
 import dataclasses
 import sys
 
@@ -23,7 +21,7 @@ import numpy as np
 import pytest
 
 # pylint: disable=g-bad-import-order,g-import-not-at-top
-import chex
+import jax
 import jax.numpy as jnp
 import tensorflow as tf
 # pylint: enable=g-bad-import-order,g-import-not-at-top
@@ -82,7 +80,7 @@ def test_tree_stack(etree_api, xnp: enp.NpModule):  # pylint: disable=redefined-
       'a': xnp.asarray([[1], [2], [3]]),
       'b': xnp.asarray([[10], [20], [30]]),
   }
-  chex.assert_trees_all_close(x, y)
+  jax.tree.map(np.testing.assert_allclose, x, y)
 
 
 @dataclasses.dataclass
