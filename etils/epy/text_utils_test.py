@@ -127,6 +127,10 @@ def test_pretty_repr_tuple():
   assert epy.pretty_repr([1, 2]) == '[1, 2]'
 
 
+def _fn_with_var_args(*args):  # pylint: disable=unused-argument
+  return
+
+
 def _fn_with_var_kwargs(arg1, kwarg1=None, **kwargs):  # pylint: disable=unused-argument
   return
 
