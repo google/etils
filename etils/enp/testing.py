@@ -56,10 +56,10 @@ def parametrize_xnp(
     The fixture to apply to the `def test_xyz()` function
   """
   name_to_modules = {
-      'np': np,
-      'jnp': lazy.jnp,
-      'tnp': lazy.tnp,
-      'torch': lazy.torch,
+      'np': lambda: np,
+      'jnp': lambda: lazy.jnp,
+      'tnp': lambda: lazy.tnp,
+      'torch': lambda: lazy.torch,
   }
 
   keep = _normalize_set(
@@ -67,8 +67,9 @@ def parametrize_xnp(
   )
   skip = _normalize_set(skip, default=[], valid=name_to_modules)
 
+  # Only resolve the `lambda:` for the modules actually tested
   name_to_modules = {
-      k: v for k, v in name_to_modules.items() if k not in skip and k in keep
+      k: v() for k, v in name_to_modules.items() if k not in skip and k in keep
   }
 
   if with_none:

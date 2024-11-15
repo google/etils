@@ -148,7 +148,7 @@ exclude = [
   "*/**/README.md",
   "**/docs/**",
   "**/*_test.py",
-  "ecolab/tests/",
+  "**/tests/**",
 ]
 
 [tool.pyink]
