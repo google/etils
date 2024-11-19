@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `enp`:
+    *   Make `enp.testing.parametrize_xnp()` import only requested xnp modules.
 *   `ecolab`:
     *   `ecolab.inspect`: Proto are better displayed (hide attributes
         `DESCRIPTOR`, `Extensions` in sub-section)
