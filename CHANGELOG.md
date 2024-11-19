@@ -13,6 +13,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   `ecolab.inspect`: Proto are better displayed (hide attributes
         `DESCRIPTOR`, `Extensions` in sub-section)
+*   `epy`:
+    *   `epy.lazy_api_imports`: Fix infinite recursion when importing sub-module
 *   `exm`:
     *   Add dummy implementation of the API to simplify open-sourcing.
 

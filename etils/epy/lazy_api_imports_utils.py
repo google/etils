@@ -116,7 +116,10 @@ def _getattr(
   lazy_module = symbol_or_lazy_module
   with lazy_module._maybe_adhoc():  # pylint: disable=protected-access
     try:
-      symbol = _import_symbol(lazy_module.module_name)
+      symbol = _import_symbol(
+          import_qualname=lazy_module.module_name,
+          parent_module_name=module_name,
+      )
     except ImportError as e:
       if error_msg:
         reraise_utils.reraise(
@@ -139,8 +142,20 @@ def _dir(
   return list(globals_) + list(imported_symbols)
 
 
-def _import_symbol(module_name: str) -> Any:
+def _import_symbol(import_qualname: str, parent_module_name: str) -> Any:
   """Import the lazy-symbol."""
-  module_name, obj_name = module_name.rsplit('.', 1)
-  module = __import__(module_name, fromlist=[obj_name])
-  return getattr(module, obj_name)
+  module_name, obj_name = import_qualname.rsplit('.', 1)
+  if module_name == parent_module_name:
+    # To avoid infinite recursion, import sub-modules as
+    # `import parent_module.submodule` rather than
+    # `from parent_module import submodule`
+    module = __import__(f'{module_name}.{obj_name}')
+    parts = module_name.split('.')[1:] + [obj_name]
+    for name in parts:
+      module = getattr(module, name)
+    return module
+  else:
+    # Import symbols as `from module import obj` to supports functions,
+    # classes, etc.
+    module = __import__(module_name, fromlist=[obj_name])
+    return getattr(module, obj_name)
