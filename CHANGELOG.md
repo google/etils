@@ -13,6 +13,8 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   `ecolab.inspect`: Proto are better displayed (hide attributes
         `DESCRIPTOR`, `Extensions` in sub-section)
+*   `exm`:
+    *   Add dummy implementation of the API to simplify open-sourcing.
 
 ## [1.10.0] - 2024-10-17
 
