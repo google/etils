@@ -182,12 +182,12 @@ def _is_pygrain(array: Array) -> bool:
 def _is_orbax(array: Array) -> bool:
   if 'orbax.checkpoint' not in sys.modules:
     return False
-  from orbax import checkpoint as ocp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from orbax.checkpoint._src.serialization import type_handlers  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
   return isinstance(
       array,
       (
-          ocp.type_handlers.ArrayMetadata,
-          ocp.type_handlers.ScalarMetadata,
+          type_handlers.ArrayMetadata,
+          type_handlers.ScalarMetadata,
       ),
   )

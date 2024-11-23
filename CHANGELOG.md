@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `enp`:
     *   Make `enp.testing.parametrize_xnp()` import only requested xnp modules.
+    *   Fix orbax error when inspecting specs of an orbax checkpoint.
 *   `ecolab`:
     *   `ecolab.inspect`: Proto are better displayed (hide attributes
         `DESCRIPTOR`, `Extensions` in sub-section)
