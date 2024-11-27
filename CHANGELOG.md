@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.11.0] - 2024-11-27
+
 *   `enp`:
     *   Make `enp.testing.parametrize_xnp()` import only requested xnp modules.
     *   Fix orbax error when inspecting specs of an orbax checkpoint.
@@ -464,9 +466,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/google/etils/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/google/etils/compare/v1.9.4...v1.10.0
-[1.9.3]: https://github.com/google/etils/compare/v1.9.3...v1.9.4
+[1.9.4]: https://github.com/google/etils/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/google/etils/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/google/etils/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/google/etils/compare/v1.9.0...v1.9.1
