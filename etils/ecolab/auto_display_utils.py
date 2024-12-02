@@ -259,7 +259,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
         if line_info.print_line:
           fn_kwargs.append(ast.keyword('line_code', _unparse_line(node)))
 
-        node.value = ast.Call(
+        node.value = ast.Call(  # pytype: disable=wrong-arg-types
             func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
             args=[node.value],
             keywords=fn_kwargs,
@@ -350,12 +350,12 @@ def _has_trailing_semicolon(
     )
 
   # Extract the lines of the statement
-  line_num = node.end_lineno - 1
+  line_num = node.end_lineno - 1  # pytype: disable=attribute-error
   last_line = code_lines[line_num]  # lineno starts at `1`
 
   # `node.end_col_offset` is in bytes, so UTF-8 characters count 3.
   last_part_of_line = last_line.encode('utf-8')
-  last_part_of_line = last_part_of_line[node.end_col_offset :]
+  last_part_of_line = last_part_of_line[node.end_col_offset :]  # pytype: disable=attribute-error
   last_part_of_line = last_part_of_line.decode('utf-8')
 
   # Check if the last character is a `;` token
