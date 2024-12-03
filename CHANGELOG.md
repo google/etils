@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   `epy.lazy_api_imports`: Make lazy importing thread safe.
+
 ## [1.11.0] - 2024-11-27
 
 *   `enp`:

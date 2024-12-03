@@ -24,11 +24,13 @@
 from __future__ import annotations
 
 import builtins
+import collections
 import contextlib
 import dataclasses
 import functools
 import importlib
 import sys
+import threading
 import types
 from typing import Any, Callable, ContextManager, Iterator
 
@@ -38,6 +40,10 @@ from etils.epy.adhoc_utils import curr_args
 
 _ErrorCallback = Callable[[Exception], None]
 _SuccessCallback = Callable[[str], None]
+
+# Store a lock per module to avoid problems with multiple threads trying to
+# import the same module at the same time.
+_LOCK_PER_MODULE = collections.defaultdict(threading.Lock)
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -67,7 +73,10 @@ class LazyModule:
     # Try to import the module, eventually replaying the adhoc scope
     with self._maybe_adhoc():
       try:
-        module = importlib.import_module(self.module_name)
+        # When multiple threads try to import the same module, make sure only
+        # one of them is importing it at the same time.
+        with _LOCK_PER_MODULE[self.module_name]:
+          module = importlib.import_module(self.module_name)
       except ImportError as e:
         if self.error_callback is not None:
           if isinstance(self.error_callback, str):
