@@ -9,6 +9,8 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `epy`:
+    *   Add experimental util for ml_python + multi-process compatibility
+        for adhoc-imports (when using PyGrain).
     *   `epy.lazy_api_imports`: Make lazy importing thread safe.
 
 ## [1.11.0] - 2024-11-27
