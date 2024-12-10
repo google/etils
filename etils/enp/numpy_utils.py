@@ -26,6 +26,7 @@ from typing import Any, Optional, TypeVar
 
 from etils import epy
 import numpy as np
+import pandas as pd
 
 if typing.TYPE_CHECKING:
   from etils.enp.typing import Array
@@ -42,7 +43,7 @@ tau = 2 * np.pi
 
 # When `strict=False` (in `get_xnp`, `is_array`,...), those types are also
 # accepted:
-_ARRAY_LIKE_TYPES = (int, bool, float, list, tuple)
+_ARRAY_LIKE_TYPES = (int, bool, float, list, tuple, pd.Series)
 
 # During the class construction, pytype fails because of name conflict between
 # the `np` `@property` and the module.
