@@ -36,13 +36,14 @@ from etils.epath.typing import PathLike  # pylint: disable=g-multiple-import,g-i
 
 _P = TypeVar('_P')
 
-_URI_PREFIXES = ('gs://', 's3://', 'az://')
-_URI_SCHEMES = frozenset(('gs', 's3', 'az'))
+_URI_PREFIXES = ('gs://', 's3://', 'az://', 'hf://')
+_URI_SCHEMES = frozenset(('gs', 's3', 'az', 'hf'))
 
 _URI_MAP_ROOT = {
     'gs://': '/gs/',
     's3://': '/s3/',
     'az://': '/az/',
+    'hf://': '/hf/',
 }
 
 
@@ -58,6 +59,7 @@ _PREFIX_TO_BACKEND = {
     'gs': backend_lib.fsspec_backend,
     's3': backend_lib.fsspec_backend,
     'az': backend_lib.fsspec_backend,
+    'hf': backend_lib.fsspec_backend,
     None: backend_lib.os_backend,
 }
 _GCS_BACKENDS = frozenset({
@@ -71,7 +73,7 @@ _OPEN_MODES = ('r', 'w', 'a')
 
 
 class _GPath(abstract_path.Path):
-  """Pathlib like api with gs://, s3://, az:// support."""
+  """Pathlib like api with gs://, s3://, az://, hf:// support."""
 
   # `_PATH` is `posixpath` or `ntpath`.
   # Use explicit `join()` rather than `super().joinpath()` to avoid infinite
