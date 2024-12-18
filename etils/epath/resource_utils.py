@@ -128,6 +128,8 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
     # a non-path object, so convert manually.
     # Note this is not the true path (`/google_src/` vs
     # `/export/.../server/ml_notebook.runfiles`), but should be equivalent.
+    if isinstance(package, types.ModuleType):
+      package = package.__name__
     path = pathlib.Path(sys.modules[package].__file__)
     if path.name == '__init__.py':
       path = path.parent
