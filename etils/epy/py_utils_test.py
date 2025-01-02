@@ -21,15 +21,16 @@ from etils import epy
 import pytest
 
 
+class MyEnum(epy.StrEnum):
+  MY_OTHER_ATTR = enum.auto()
+  MY_ATTR = enum.auto()
+  MY_UPPER_ATTR = 'My_Upper_Attr'
+  OTHER = 'not_Other'
+
+
 def test_str_enum():
   if sys.version_info[:2] <= (3, 11):
     return  # Skip for 3.11
-
-  class MyEnum(epy.StrEnum):
-    MY_OTHER_ATTR = enum.auto()
-    MY_ATTR = enum.auto()
-    MY_UPPER_ATTR = 'My_Upper_Attr'
-    OTHER = 'not_Other'
 
   assert MyEnum.MY_ATTR is MyEnum.MY_ATTR
   assert MyEnum('my_attr') is MyEnum.MY_ATTR
@@ -147,3 +148,14 @@ def test_frozen_inheritance_new_init():
 def test_issubclass():
   assert not epy.issubclass(1, int)
   assert epy.issubclass(bool, int)
+
+
+def test_equality():
+  x = MyEnum.MY_ATTR
+  assert x == 'MY_ATTR'
+  assert x == 'my_attr'
+  assert not x != 'MY_ATTR'  # pylint: disable=g-comparison-negation
+  assert not x != 'my_attr'  # pylint: disable=g-comparison-negation
+
+  assert x != 'MY_OTHER_ATTR'
+  assert x != MyEnum.MY_OTHER_ATTR

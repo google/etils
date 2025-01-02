@@ -76,6 +76,9 @@ class StrEnum(*_StrEnum):
       return False
     return other.lower() == self.value.lower()
 
+  def __ne__(self, other: str) -> bool:
+    return not self.__eq__(other)
+
   def __hash__(self) -> int:  # pylint: disable=useless-super-delegation
     # Somehow `hash` is not defined automatically (maybe because of
     # the `__eq__`, so define it explicitly.
