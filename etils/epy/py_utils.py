@@ -76,6 +76,8 @@ class StrEnum(*_StrEnum):
       return False
     return other.lower() == self.value.lower()
 
+  # `__ne__` is required because `str.__ne__()` exists, so it is not
+  # automatically inferred.
   def __ne__(self, other: str) -> bool:
     return not self.__eq__(other)
 

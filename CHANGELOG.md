@@ -12,6 +12,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add experimental util for ml_python + multi-process compatibility
         for adhoc-imports (when using PyGrain).
     *   `epy.lazy_api_imports`: Make lazy importing thread safe.
+    *   `epy.StrEnum`: Fix `!=` operator.
 
 ## [1.11.0] - 2024-11-27
 
