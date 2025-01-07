@@ -13,6 +13,8 @@ Changelog follow https://keepachangelog.com/ format.
         for adhoc-imports (when using PyGrain).
     *   `epy.lazy_api_imports`: Make lazy importing thread safe.
     *   `epy.StrEnum`: Fix `!=` operator.
+*   `epath`:
+    *   Supports `hf://` urls.
 
 ## [1.11.0] - 2024-11-27
 

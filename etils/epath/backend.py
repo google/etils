@@ -440,6 +440,8 @@ class _FileSystemSpecBackend(Backend):
       return self._get_filesystem('s3')
     elif path.startswith('az://'):
       return self._get_filesystem('az')
+    elif path.startswith('hf://'):
+      return self._get_filesystem('hf')
     else:
       return self._get_filesystem('file')
 
