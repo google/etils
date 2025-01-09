@@ -2,6 +2,10 @@
 
 Good practices for designing APIs, mainly targeted for Python.
 
+## Disclaimer
+
+The policies herein only apply to the etils project.
+
 ## Miller's law and cognitive overhead
 
 From the
