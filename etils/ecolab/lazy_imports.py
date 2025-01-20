@@ -154,6 +154,7 @@ with _builder.replace_imports(is_std=False):
   import flask
   import flax
   from flax import linen as nn
+  from flax import nnx
   import functorch
   import gin
   import grain.python as grain
