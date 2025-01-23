@@ -15,17 +15,7 @@ Will lazily import in the namespace 100+ common Python packages (jax, tfds,
 numpy, functools,...). This has 0 overhead cost as modules are only imported at
 first usage.
 
-Some notes:
-
-*   Colab auto-complete & cie will work as expected.
-*   Just typing the module name in a cell can trigger an import on the
-    background (Colab inspect the names to display metadata, like the link to
-    source code & cie).
-*   It is recommended to run this before any other import statement so that
-    `import *` doesn't overwrite your imports (in case of name collision).
-*   If you `adhoc_import` modules already lazy-imported, make sure to call
-    `colab_import.reload_package`
-*   This should only be used in Colab.
+This avoids the same 20+ lines of import statements at the start of every Colab.
 
 To get the list of available modules:
 
