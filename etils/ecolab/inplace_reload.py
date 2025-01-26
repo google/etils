@@ -129,7 +129,7 @@ class _ObjectUpdater:
     ]:
       try:
         setattr(old, name, getattr(new, name))
-      except (AttributeError, TypeError):
+      except (AttributeError, TypeError, ValueError):
         pass
 
   def _update_property(self, old: property, new: property):

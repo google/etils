@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests."""
-
 from __future__ import annotations
 
 import dataclasses
@@ -225,6 +223,36 @@ def test_reload_delete_field(reloader: _Reloader):  # pylint: disable=redefined-
   )
   assert not hasattr(a, 'X')
   assert a.fn() == 2
+
+
+def test_reload_decorated_method(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_module = reloader.reimport_module(
+      'test_module',
+      """
+      class A:
+        def fn(self, value):
+          return value
+      """,
+  )
+
+  a = old_module.A()
+  assert a.fn('value') == 'value'
+
+  reloader.reimport_module(
+      'test_module',
+      """
+      def decorator(fn):
+        def wrapper(self, value, *args, **kwargs):
+          return fn(self, 'decorated-' + value, *args, **kwargs)
+        return wrapper
+
+      class A:
+        @decorator
+        def fn(self, value):
+          return value
+      """,
+  )
+  assert a.fn('value') == 'decorated-value'
 
 
 def test_reload_inter_module(reloader: _Reloader):  # pylint: disable=redefined-outer-name
