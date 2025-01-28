@@ -203,10 +203,14 @@ class _GPath(abstract_path.Path):
       exist_ok: bool = False,
   ) -> None:
     """Create a new directory at this given path."""
-    if parents:
-      self._backend.makedirs(self._path_str, exist_ok=exist_ok, mode=mode)
-    else:
-      self._backend.mkdir(self._path_str, exist_ok=exist_ok, mode=mode)
+    try:
+      if parents:
+        self._backend.makedirs(self._path_str, exist_ok=exist_ok, mode=mode)
+      else:
+        self._backend.mkdir(self._path_str, exist_ok=exist_ok, mode=mode)
+    except OSError as e:
+      e.add_note(f'Failed to mkdir folder `{self._path_str}`')
+      raise
 
   def rmdir(self) -> None:
     """Remove the empty directory."""
