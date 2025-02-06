@@ -30,7 +30,7 @@ from etils.ecolab import highlight_util
 from etils.ecolab.inspects import core as inspects
 from etils.etree import jax as etree  # pylint: disable=g-importing-member
 import IPython
-import packaging
+import packaging.version
 
 _T = TypeVar('_T')
 _DisplayFn = Callable[[Any], None]

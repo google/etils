@@ -29,13 +29,20 @@ import traceback
 from typing import Any, Optional, Tuple
 
 from etils import enp
-
+from etils import epy
 from etils.epy import _internal
 
 with _internal.check_missing_deps():
   # pylint: disable=g-import-not-at-top
   import IPython
   import IPython.display
+  # pylint: enable=g-import-not-at-top
+
+
+with epy.lazy_imports(
+    error_callback='Use `pip install etils[ecolab]` to install missing deps'
+):
+  # pylint: disable=g-import-not-at-top
   import mediapy as media
   # pylint: enable=g-import-not-at-top
 
