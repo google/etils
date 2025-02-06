@@ -15,6 +15,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   `epy.StrEnum`: Fix `!=` operator.
 *   `epath`:
     *   Supports `hf://` urls.
+*   `ecolab`:
+    *   Make mediapy lazy
 
 ## [1.11.0] - 2024-11-27
 
