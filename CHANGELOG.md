@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.12.0] - 2025-02-07
+
 *   `epy`:
     *   Add experimental util for ml_python + multi-process compatibility
         for adhoc-imports (when using PyGrain).
@@ -476,7 +478,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   Automated github release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/google/etils/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/google/etils/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/google/etils/compare/v1.9.4...v1.10.0
 [1.9.4]: https://github.com/google/etils/compare/v1.9.3...v1.9.4
