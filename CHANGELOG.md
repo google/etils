@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.12.0] - 2025-02-07
+
 *   `epy`:
     *   Add experimental util for ml_python + multi-process compatibility
         for adhoc-imports (when using PyGrain).
@@ -40,11 +42,11 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add `fiddle` supports to `epy.pretty_repr`
 *  `enp`: Add `ArraySpec` support for `grain.python.SharedMemoryArrays`.
 
-## [1.9.4] - 2024-09-03  <!-- Should have been 1.10.1 -->
+## [1.9.4] - 2024-09-03 <!-- Should have been 1.10.1 -->
 
 *   Return Python 3.10 support.
 
-## [1.9.3] - 2024-08-30  <!-- Should have been 1.10.0 -->
+## [1.9.3] - 2024-08-30 <!-- Should have been 1.10.0 -->
 
 *   `eapp`:
     *   Allow extra kwargs in `eapp.make_flags_parser()`
@@ -207,7 +209,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Fix `@epy.frozen` when class has custom `__getattr__`
 *   `ecolab`:
     *   `ecolab.collapse()`
-        *   Breaking: Remove `widget=True` argument to  (widget always enabled).
+        *   Breaking: Remove `widget=True` argument (widget always enabled).
             *   Add `expanded: bool` kwargs to control whether the widget is
                 expanded or collapsed by default.
     *   Breaking: Remove `keep_proto` kwargs from `clear_cached_modules` and
@@ -474,9 +476,12 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [0.3.2] - 2022-01-04
 
-*   Automated github release
+*   Automated GitHub release
 
-[Unreleased]: https://github.com/google/etils/compare/v1.11.0...HEAD
+<!-- mdlint off(LINK_UNUSED_ID) -->
+
+[Unreleased]: https://github.com/google/etils/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/google/etils/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/google/etils/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/google/etils/compare/v1.9.4...v1.10.0
 [1.9.4]: https://github.com/google/etils/compare/v1.9.3...v1.9.4
