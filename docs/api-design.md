@@ -6,7 +6,7 @@ Good practices for designing APIs, mainly targeted for Python.
 
 From the
 [excellent talk](https://youtu.be/UANN2Eu6ZnM?si=sZ434QT1J1783mir&t=340) from
-Haymond Hettinger.
+Raymond Hettinger.
 
 The human brain has a limited capacity that is well known by neuroscientists.
 **It cannot store more than 7±2 information (chunks) at the same time** (5 on a
@@ -108,19 +108,19 @@ The above concepts might sound trivial, but every API could be simplified:
     array = jax.make_array_from_single_device_arrays(global_shape, sharding, arrays)
     ```
 
-    Parsing this code requires the user to read each line to reverse engineer the
-    logic behind the code. Someone new reading this code will have no idea this
-    snippet is doing data-parallel shading.
+    Parsing this code requires the user to read each line to reverse engineer
+    the logic behind the code. Someone new reading this code will have no idea
+    this snippet is doing data-parallel shading.
 
     Jax could instead provide simpler abstractions, so users can write code that
     users directly understand, such as:
 
     ```python
-    array = jax.device_put(array, jax.sharding.SHARDED)
+    array = jax.device_put(array, jax.sharding.FIRST_DIM)
     ```
 
     When the libraries you're using don't provide good abstractions, you will
-    have to create your own (e.g. the `kd.sharding.SHARDED` from this example
+    have to create your own (e.g. the `kd.sharding.FIRST_DIM` from this example
     was implemented in [Kauldron](https://github.com/google-research/kauldron)).
 
 ## High level
