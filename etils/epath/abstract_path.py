@@ -109,6 +109,13 @@ class Path(pathlib.PurePosixPath):
     """Yields all matching files recursively (of any kind)."""
     return self.glob(f'**/{pattern}')
 
+  def relative_to(self: _T, other: PathLike) -> _T:
+    """Returns the current path relative to `other`."""
+    other_path = (
+        other if isinstance(other, self.__class__) else self.__class__(other)
+    )
+    return super().relative_to(other_path)
+
   @abstractmethod
   def walk(
       self: _T,
