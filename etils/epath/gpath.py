@@ -287,11 +287,6 @@ class _GPath(abstract_path.Path):
     """Returns metadata for the file/directory."""
     return self._backend.stat(self._path_str)
 
-  def relative_to(self: _P, other: PathLike) -> _P:
-    """Returns the current path relative to `other`."""
-    other_path = other if isinstance(other, self.__class__) else self._new(other)
-    return self.relative_to(other_path)
-
 
 @register.register_path_cls(_URI_PREFIXES)
 class PosixGPath(_GPath):

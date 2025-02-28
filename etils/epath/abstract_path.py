@@ -155,6 +155,12 @@ class Path(pathlib.PurePosixPath):
     """Returns metadata for the file/directory."""
     raise NotImplementedError
 
+
+  def relative_to(self, other: PathLike) -> _T:
+    """Returns the current path relative to `other`."""
+    other_path = other if isinstance(other, self.__class__) else self._new(other)
+    return self.relative_to(other_path)
+
   # ====== Write methods ======
 
   @abstractmethod
