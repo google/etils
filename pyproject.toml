@@ -56,6 +56,7 @@ edc = [
 ]
 enp = [
     "numpy",
+    "einops",
     "etils[epy]",
 ]
 epath = [

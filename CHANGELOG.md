@@ -8,6 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `enp`:
+    *   Add `enp.flatten` / `enp.unflatten` to flatten batch shape using an
+        einops-like syntax.
+
 ## [1.12.0] - 2025-02-07
 
 *   `epy`:

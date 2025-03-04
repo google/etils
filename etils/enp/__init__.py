@@ -21,7 +21,7 @@ both numpy and jax.numpy.
 
 import sys
 
-# pylint: disable=g-bad-import-order
+# pylint: disable=g-bad-import-order,g-importing-member
 
 # Lazy, array types and xnp utils
 from etils.enp import typing
@@ -41,6 +41,8 @@ from etils.enp.numpy_utils import normalize_bytes2str
 
 # Additional numpy ops
 from etils.enp import linalg
+from etils.enp.einops_utils import flatten
+from etils.enp.einops_utils import unflatten
 from etils.enp.interp_utils import interp
 from etils.enp.numpy_utils import tau
 from etils.enp.geo_utils import angle_between
