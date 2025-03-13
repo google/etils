@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*  `ecolab.adhoc`:
+    *   Better error message for adhoc invalidate with `epy.reraise`
+
 ## [1.12.2] - 2025-03-10
 
 *   `enp`:

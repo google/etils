@@ -35,7 +35,7 @@ def _maybe_better_error(self, type_, value, traceback, tb_offset=None):
   """Update the error message."""
 
   if (
-      type(value) is NameError  # pylint: disable=unidiomatic-typecheck
+      isinstance(value, NameError)  # isinstance to supports `epy.reraise`
       and len(value.args) == 1
       and _is_from_invalidate_module(value)
   ):
