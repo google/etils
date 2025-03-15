@@ -64,6 +64,16 @@ def test_import_with_alias():
   assert 'tensorflow_datasets' in sys.modules
 
 
+def test_import_setattr():
+  assert 'tensorflow_datasets' not in sys.modules
+  with epy.lazy_imports():
+    import tensorflow_datasets as tfds  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  tfds.features = 'foo'
+  assert 'tensorflow_datasets' in sys.modules
+  assert tfds.features == 'foo'
+
+
 def test_error_callback():
   success_callback = mock.MagicMock()
   error_callback = mock.MagicMock()
