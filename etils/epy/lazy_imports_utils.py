@@ -66,6 +66,7 @@ class LazyModule:
       self.adhoc_kwargs.pop("reload_workspace", None)
       self.adhoc_kwargs.pop("cell_autoreload", None)
       self.adhoc_kwargs.pop("restrict_reload", None)
+    self._initialized = True
 
   @functools.cached_property
   def _module(self) -> types.ModuleType:
@@ -117,7 +118,13 @@ class LazyModule:
     else:
       return getattr(self._module, name)
 
-  # TODO(epot): Also support __setattr__
+  def __setattr__(self, name: str, value: Any) -> None:
+    # Override setattr after dataclass is initialized
+    if "_initialized" in self.__dir__():
+      # Trigger import first to overwrite the old attribute if it exists.
+      setattr(self._module, name, value)
+    else:
+      super().__setattr__(name, value)
 
 
 def _register_submodule(module: LazyModule, name: str) -> LazyModule:
