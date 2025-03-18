@@ -180,7 +180,13 @@ class _ModuleRefs:
 
   def save_module(self, module: types.ModuleType) -> None:
     """Save reference on all previous modules/objects."""
-    self.modules.append(weakref.ref(module))
+    try:
+      weak_module = weakref.ref(module)
+    except TypeError:
+      # Some modules, like '_bcrypt.lib' raises:
+      # TypeError: cannot create weak reference to '_cffi_backend.Lib' object
+      return
+    self.modules.append(weak_module)
 
     for name, old_obj in module.__dict__.items():
       # Only update objects part of the module (filter other imported symbols)

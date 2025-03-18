@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *  `ecolab.adhoc`:
     *   Better error message for adhoc invalidate with `epy.reraise`
+    *   Fix crash when importing module not supporting weak_ref
 
 ## [1.12.2] - 2025-03-10
 
