@@ -455,3 +455,11 @@ def test_public_access():
   # Test a public bucket
   p = epath.Path('gs://tfds-data/datasets')
   assert p.exists()
+
+
+def test_relative_to():
+  path = epath.Path('gs://bucket/dir/subdir')
+  assert path.relative_to(path) == epath.Path('.')
+  assert path.relative_to('gs://bucket/dir') == epath.Path('subdir')
+  with pytest.raises(ValueError, match='not in the subpath'):
+    path.relative_to('gs://bucket/other-dir')

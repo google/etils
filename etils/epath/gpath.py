@@ -258,6 +258,11 @@ class _GPath(abstract_path.Path):
     gfile = typing.cast(typing.IO[Union[str, bytes]], gfile)
     return gfile
 
+  def relative_to(self: _P, other: PathLike) -> _P:
+    """Returns the current path relative to `other`."""
+    other_path = self._new(other)
+    return super().relative_to(other_path)
+
   def rename(self: _P, target: PathLike) -> _P:
     """Rename file or directory to the given target."""
     # Note: Issue if WindowsPath and target is gs://. Rather than using `_new`,
