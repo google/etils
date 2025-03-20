@@ -8,8 +8,10 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
-*  `ecolab.adhoc`:
+*   `ecolab.adhoc`:
     *   Better error message for adhoc invalidate with `epy.reraise`
+*   `epy`:
+    *   Support `__setattr__` and `__delattr__` on LazyModules.
 
 ## [1.12.2] - 2025-03-10
 

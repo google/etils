@@ -29,6 +29,7 @@ import contextlib
 import dataclasses
 import functools
 import importlib
+import inspect
 import sys
 import threading
 import types
@@ -40,6 +41,8 @@ from etils.epy.adhoc_utils import curr_args
 
 _ErrorCallback = Callable[[Exception], None]
 _SuccessCallback = Callable[[str], None]
+# Eagerly resolve this import since it's needed in setattr.
+_getattr_static = inspect.getattr_static
 
 # Store a lock per module to avoid problems with multiple threads trying to
 # import the same module at the same time.
@@ -55,6 +58,7 @@ class LazyModule:
   error_callback: str | _ErrorCallback | None
   success_callback: _SuccessCallback | None
   _submodules: dict[str, LazyModule] = dataclasses.field(default_factory=dict)
+  _initialized: bool = dataclasses.field(default=False, init=False)
 
   def __post_init__(self):
     if self.adhoc_kwargs is not None:
@@ -66,6 +70,7 @@ class LazyModule:
       self.adhoc_kwargs.pop("reload_workspace", None)
       self.adhoc_kwargs.pop("cell_autoreload", None)
       self.adhoc_kwargs.pop("restrict_reload", None)
+    self._initialized = True
 
   @functools.cached_property
   def _module(self) -> types.ModuleType:
@@ -117,7 +122,20 @@ class LazyModule:
     else:
       return getattr(self._module, name)
 
-  # TODO(epot): Also support __setattr__
+  def __setattr__(self, name: str, value: Any) -> None:
+    # Avoid regular `__getattr__` path during initialization.
+    if _getattr_static(self, "_initialized"):
+      # Trigger import first to overwrite the old attribute if it exists.
+      setattr(self._module, name, value)
+    else:
+      super().__setattr__(name, value)
+
+  def __delattr__(self, name: str):
+    if name in self._submodules:
+      del self._submodules[name]
+    # Always delete from underlying module so that lazy import doesn't replace
+    # a deleted attribute.
+    delattr(self._module, name)
 
 
 def _register_submodule(module: LazyModule, name: str) -> LazyModule:

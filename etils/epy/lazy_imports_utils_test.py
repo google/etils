@@ -64,6 +64,37 @@ def test_import_with_alias():
   assert 'tensorflow_datasets' in sys.modules
 
 
+def test_setattr():
+  assert 'tensorflow_datasets' not in sys.modules
+  with epy.lazy_imports():
+    import tensorflow_datasets as tfds  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  tfds.features = 'foo'
+  assert 'tensorflow_datasets' in sys.modules
+  assert tfds.features == 'foo'
+
+
+def test_delattr():
+  assert 'tensorflow_datasets' not in sys.modules
+  with epy.lazy_imports():
+    import tensorflow_datasets as tfds  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  del tfds.features
+  assert 'tensorflow_datasets' in sys.modules
+  with pytest.raises(AttributeError):
+    _ = tfds.features
+
+
+def test_delattr_submodule():
+  assert 'tensorflow_datasets' not in sys.modules
+  with epy.lazy_imports():
+    import tensorflow_datasets.core  # pylint: disable=g-import-not-at-top
+  assert 'tensorflow_datasets' not in sys.modules
+  del tensorflow_datasets.core
+  with pytest.raises(AttributeError):
+    _ = tensorflow_datasets.core
+
+
 def test_error_callback():
   success_callback = mock.MagicMock()
   error_callback = mock.MagicMock()
