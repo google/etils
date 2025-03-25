@@ -10,6 +10,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `ecolab.adhoc`:
     *   Better error message for adhoc invalidate with `epy.reraise`
+*   `edc`:
+    *   Add a `edc.ContextStack()` util for a thread-safe / contextvars-aware
+        stack.
 *   `epy`:
     *   Support `__setattr__` and `__delattr__` on LazyModules.
 
