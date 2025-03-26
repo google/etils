@@ -118,6 +118,25 @@ This result in cleaner and more compact error messages.
 * `epy.issubclass`: Like `issubclass`, but do not raise error if value is not
   `type`.
 
+### Thread-utils
+
+With `edc` (dataclass utils), you can create a stack object which is both
+thread-safe and contextvars-safe:
+
+```python
+from etils import edc
+
+_stack = edc.ContextStack[int]()
+
+@contextlib.contextmanager
+def my_thread_safe_contextmanager():
+  _stack.append(1)
+  try:
+    yield
+  finally:
+    _stack.pop()
+```
+
 ### Miscellaneous
 
 * `epy.StrEnum`: Like `enum.StrEnum`, but is case insensitive.

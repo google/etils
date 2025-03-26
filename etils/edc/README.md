@@ -118,6 +118,8 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     executor.submit(worker)
 ```
 
+A convenience wrapper exists `edc.ContextStack` to create a thread-safe stack.
+
 ### Other augmentations
 
 `@edc.dataclass(**options)` augment dataclasses with additional features. It

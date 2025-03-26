@@ -14,8 +14,11 @@
 
 """Dataclasses utils."""
 
+# pylint: disable=g-importing-member
+
 from etils.edc.cast_utils import AutoCast
 from etils.edc.context import ContextVar
 from etils.edc.dataclass_utils import __repr__ as repr  # pylint: disable=redefined-builtin
 from etils.edc.dataclass_utils import dataclass
 from etils.edc.field_utils import field
+from etils.edc.stack import ContextStack
