@@ -10,6 +10,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `ecolab.adhoc`:
     *   Better error message for adhoc invalidate with `epy.reraise`
+*   `epath`:
+    *   Fix error in `path.is_file()` when the file do not exists.
 *   `edc`:
     *   Add a `edc.ContextStack()` util for a thread-safe / contextvars-aware
         stack.

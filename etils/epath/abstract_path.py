@@ -92,7 +92,7 @@ class Path(pathlib.PurePosixPath):
 
   def is_file(self) -> bool:
     """Returns True if self is a file."""
-    return not self.is_dir()
+    return self.exists() and not self.is_dir()
 
   @abstractmethod
   def iterdir(self: _T) -> Iterator[_T]:
