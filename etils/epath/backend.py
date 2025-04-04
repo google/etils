@@ -166,8 +166,8 @@ class _OsPathBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    mode_kwargs = {} if mode is None else {'mode': mode}
-    os.makedirs(path, exist_ok=exist_ok, **mode_kwargs)
+    mode = 0o777 if mode is None else mode
+    os.makedirs(path, exist_ok=exist_ok, mode=mode)
 
   def mkdir(
       self,
@@ -176,9 +176,9 @@ class _OsPathBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    mode_kwargs = {} if mode is None else {'mode': mode}
+    mode = 0o777 if mode is None else mode
     try:
-      os.mkdir(path, **mode_kwargs)
+      os.mkdir(path, mode=mode)
     except FileExistsError:
       if self.isdir(path):  # No-op if directory already exists
         if exist_ok:
@@ -302,7 +302,8 @@ class _TfBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None:
+    mode = 0o777 if mode is None else mode
+    if mode != 0o777:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
           'makedirs with custom `mode=` not supported for tf.io.gfile backend.'
@@ -328,7 +329,8 @@ class _TfBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None:
+    mode = 0o777 if mode is None else mode
+    if mode != 0o777:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
           'mkdir with custom `mode=` not supported for tf.io.gfile backend.'
@@ -484,7 +486,8 @@ class _FileSystemSpecBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None:
+    mode = 0o777 if mode is None else mode
+    if mode != 0o777:
       # FileSystemSpec backend do not support setting `mode=`
       raise NotImplementedError(
           'makedirs with custom `mode=` not supported for FileSystemSpec'
@@ -499,7 +502,8 @@ class _FileSystemSpecBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None:
+    mode = 0o777 if mode is None else mode
+    if mode != 0o777:
       # FileSystemSpec backend do not support setting `mode=`
       raise NotImplementedError(
           'mkdir with custom `mode=` not supported for FileSystemSpec backend.'
