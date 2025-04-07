@@ -69,9 +69,6 @@ def _better_logging() -> None:
   if FLAGS.logtostderr or FLAGS.alsologtostderr:
     return
 
-  # Display logs by default
-  absl_logging.use_python_logging(quiet=True)
-
   file_link = '{filename}:{lineno}'
 
   # Using cleaner, less verbose logger
@@ -85,8 +82,14 @@ def _better_logging() -> None:
       style='{',
   )
 
+  # Display logs by default
+  # We could also have used logging.use_python_logging() to have the correct
+  # behaviour but any call to logging.use_cpp_logging(), including in any
+  # imported dependency, could reset the configuration to C++ logging. By adding
+  # an handler we are not subjected to that.
   python_handler = absl_logging.get_absl_handler().python_handler
   python_handler.setFormatter(formatter)
+  py_logging.getLogger().addHandler(python_handler)
 
   if 'tqdm' in sys.modules:
     # Replace `sys.stderr` by the TQDM file
