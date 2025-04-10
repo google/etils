@@ -402,7 +402,7 @@ def _unparse_line(node: ast.AST) -> ast.Constant:
   return ast.Constant(ast.unparse(node))
 
 
-def disp(obj: Any, *, mode: str = '') -> None:
+def disp(obj: Any, mode: str = '') -> None:
   """Display the object.
 
   This is the functional API for the `;` auto display magic.
