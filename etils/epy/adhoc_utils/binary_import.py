@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 import contextlib
 import functools
-import os
+import getpass
 import sys
 from typing import Optional
 
@@ -66,5 +66,6 @@ def binary_adhoc(
     restrict: None | py_utils.StrOrStrList = None,
     reload: None | py_utils.StrOrStrList = None,
     verbose: bool = False,
+    legacy_backend: bool | None = None,
 ) -> Iterator[None]:
   yield
