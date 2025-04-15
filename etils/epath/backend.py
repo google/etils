@@ -302,7 +302,7 @@ class _TfBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None and mode != 0o777:
+    if mode is not None and mode != 0o750:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
           'makedirs with custom `mode=` not supported for tf.io.gfile backend.'
@@ -328,7 +328,7 @@ class _TfBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None and mode != 0o777:
+    if mode is not None and mode != 0o750:
       # tf.io.gfile do not support setting `mode=`
       raise NotImplementedError(
           'mkdir with custom `mode=` not supported for tf.io.gfile backend.'
@@ -484,7 +484,7 @@ class _FileSystemSpecBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None and mode != 0o777:
+    if mode is not None and mode != 0o750:
       # FileSystemSpec backend do not support setting `mode=`
       raise NotImplementedError(
           'makedirs with custom `mode=` not supported for FileSystemSpec'
@@ -499,7 +499,7 @@ class _FileSystemSpecBackend(Backend):
       exist_ok: bool = False,
       mode: Optional[int] = None,
   ) -> None:
-    if mode is not None and mode != 0o777:
+    if mode is not None and mode != 0o750:
       # FileSystemSpec backend do not support setting `mode=`
       raise NotImplementedError(
           'mkdir with custom `mode=` not supported for FileSystemSpec backend.'
