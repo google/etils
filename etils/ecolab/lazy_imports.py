@@ -87,6 +87,7 @@ with _builder.replace_imports(is_std=True):
   import enum
   import functools
   import gc
+  import getpass
   import gzip
   import html
   import inspect
@@ -148,6 +149,7 @@ with _builder.replace_imports(is_std=False):
   from absl import app
   from absl import flags
   import apache_beam as beam
+  import bagz
   import chex
   import dataclass_array as dca
   import einops
