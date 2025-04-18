@@ -20,6 +20,7 @@ from collections.abc import Iterator
 import contextlib
 import functools
 import getpass
+import os
 import sys
 from typing import Optional
 
