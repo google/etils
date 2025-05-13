@@ -73,8 +73,4 @@ def patch_graphviz() -> None:
     )
     publish.html(response.rendered_graph.rendered_bytes)
 
-  if getattr(graphviz, 'files', None):
-    files = getattr(graphviz, 'files')
-    files.File._ipython_display_ = (  # pylint: disable=protected-access
-        _ipython_display_
-    )
+  graphviz.Digraph._ipython_display_ = _ipython_display_  # pylint: disable=protected-access
