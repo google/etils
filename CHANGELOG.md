@@ -8,8 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
-*   `ecolab.adhoc`:
-    *   Better error message for adhoc invalidate with `epy.reraise`
+*   `ecolab`:
+    *   `adhoc`: Better error message for adhoc invalidate with `epy.reraise`
+    *   Fix Digraph `patch_graphviz()`
 *   `epath`:
     *   Fix error in `path.is_file()` when the file do not exists.
 *   `edc`:
