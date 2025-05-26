@@ -11,6 +11,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `ecolab`:
     *   `adhoc`: Better error message for adhoc invalidate with `epy.reraise`
     *   Fix Digraph `patch_graphviz()`
+    *   Fix pretty display with syntax-highlighting for `;l` and `;h`
 *   `epath`:
     *   Fix error in `path.is_file()` when the file do not exists.
 *   `edc`:
