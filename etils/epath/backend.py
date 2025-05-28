@@ -404,7 +404,10 @@ class _TfBackend(Backend):
       raise  # pylint: disable=misplaced-bare-raise
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:
-    st = self.gfile.stat(path)
+    try:
+      st = self.gfile.stat(path)
+    except self.tf.errors.NotFoundError as e:
+      raise FileNotFoundError(str(e)) from None
     return stat_utils.StatResult(
         is_directory=st.is_directory,
         length=st.length,
