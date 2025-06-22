@@ -28,7 +28,7 @@ import zipfile
 from etils.epath import abstract_path
 from etils.epath import register
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
-import importlib_resources
+import importlib.resources
 
 
 @register.register_path_cls
