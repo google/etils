@@ -121,7 +121,7 @@ class ArraySpec:
     elif _is_orbax(array):
       shape = array.shape
       dtype = array.dtype
-    elif _is_flax_summarry(array):
+    elif _is_flax_summary(array):
       shape = array.shape
       dtype = array.dtype
     elif isinstance(array, array_types.ArrayAliasMeta):
@@ -147,12 +147,12 @@ def is_fake_array(array: Array) -> bool:
       or _is_orbax(array)
       or _is_grain(array)
       or _is_pygrain(array)
-      or _is_flax_summarry(array)
+      or _is_flax_summary(array)
       or isinstance(array, array_types.ArrayAliasMeta)
   )
 
 
-def _is_flax_summarry(value: Array) -> bool:
+def _is_flax_summary(value: Array) -> bool:
   if 'flax.linen' not in sys.modules:
     return False
   from flax import linen as nn  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
