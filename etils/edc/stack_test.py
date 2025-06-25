@@ -48,3 +48,19 @@ def test_stack():
   # The original stack is always empty, even though the workers have added
   # values.
   assert not stack
+
+
+def test_multi_stacks():
+  # Each instance of the stack has it's own state.
+  stack0 = edc.ContextStack[int]()
+  stack0.append(1)
+  assert stack0.stack == [1]
+
+  stack1 = edc.ContextStack[int]()
+  assert stack0.stack == [1]
+  assert stack1.stack == []  # pylint: disable=g-explicit-bool-comparison
+
+  stack0.append(3)
+  stack1.append(2)
+  assert stack0.stack == [1, 3]
+  assert stack1.stack == [2]

@@ -19,6 +19,7 @@ Changelog follow https://keepachangelog.com/ format.
         stack.
 *   `epy`:
     *   Support `__setattr__` and `__delattr__` on LazyModules.
+    *   Fix `epy.ContextVar` descriptor that were sharing their state.
 
 ## [1.12.2] - 2025-03-10
 

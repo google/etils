@@ -68,9 +68,20 @@ class _ContextvarDescriptor:
     self._objtype = objtype
     self._attribute_name = name
 
-  @functools.cached_property
-  def _var(self) -> contextvars.ContextVar[Any]:
+  def _var(self, obj: _Dataclass) -> contextvars.ContextVar[Any]:
     """Contextvar."""
+    # Bind the contextvar value to the instance (not to the descriptor).
+    # Note this won't work with slots, but likely not an issue.
+    if self._cached_var_name not in obj.__dict__:
+      obj.__dict__[self._cached_var_name] = self._init_var()
+    return obj.__dict__[self._cached_var_name]
+
+  @functools.cached_property
+  def _cached_var_name(self) -> str:
+    return f'_etils_contextvar_{self._attribute_name}'
+
+  def _init_var(self) -> contextvars.ContextVar[Any]:
+    """Initialize the contextvar with its default value (if any)."""
     default_kwargs = {}
     if self._field.default is not dataclasses.MISSING:
       default_kwargs['default'] = self._field.default
@@ -87,7 +98,7 @@ class _ContextvarDescriptor:
   ):
     if obj is None:
       return self
-    return self._var.get()
+    return self._var(obj).get()
 
   def __set__(self, obj: _Dataclass, value: Any) -> None:
-    self._var.set(value)
+    self._var(obj).set(value)
