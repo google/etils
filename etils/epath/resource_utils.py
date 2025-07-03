@@ -128,11 +128,14 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
     # a non-path object, so convert manually.
     # Note this is not the true path (`/google_src/` vs
     # `/export/.../server/ml_notebook.runfiles`), but should be equivalent.
+    # TODO(b/390190120): Note that `module.__name__` behave inconsistently.
     if isinstance(package, types.ModuleType):
-      # TODO(b/390190120): We cannot use `.__name__` directly as adhoc import
-      # behave inconsistently.
-      package = getattr(package.__spec__, 'name', package.__name__)  # pytype: disable=attribute-error
-    path = pathlib.Path(sys.modules[package].__file__)
+      path = package.__file__
+    elif isinstance(package, str):
+      path = sys.modules[package].__file__
+    else:
+      raise TypeError(f'Unknown package type: {type(package)}: {package}')
+    path = pathlib.Path(path)
     if path.name == '__init__.py':
       path = path.parent
 
