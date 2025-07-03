@@ -383,12 +383,6 @@ class ClsNode(ObjectNode[Type[Any]]):
     ]
 
 
-_PROTO_FIELD_NAMES = frozenset({
-    'DESCRIPTOR',
-    'Extensions',
-})
-
-
 class ProtoNode(ObjectNode[message.Message]):
   """Proto."""
 
@@ -397,6 +391,8 @@ class ProtoNode(ObjectNode[message.Message]):
   @property
   def children(self) -> list[Node]:
     # Filter the proto-specific attributes to hide them in a separate section
+    used_fields = {desc.name for desc, _ in self.obj.ListFields()}
+
     val_attrs = []
     proto_attrs = []
     other_attrs = []
@@ -405,15 +401,15 @@ class ProtoNode(ObjectNode[message.Message]):
         other_attrs.append(c)
       elif not isinstance(c, ObjectNode):
         raise ValueError(f'Unexpected child {c!r}')
-      elif c.name in _PROTO_FIELD_NAMES:
-        proto_attrs.append(c)
-      else:
+      elif c.name in used_fields:
         val_attrs.append(c)
+      else:
+        proto_attrs.append(c)
 
     return (
         val_attrs
-        + other_attrs
         + [SubsectionNode(children=proto_attrs, name='Proto')]
+        + other_attrs
     )
 
 
