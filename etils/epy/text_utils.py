@@ -271,7 +271,7 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
     return lines
   elif type(obj) is dict:  # pylint: disable=unidiomatic-typecheck
     return Lines.make_block(
-        content={repr(k): v for k, v in obj.items()},
+        content={pretty_repr(k): v for k, v in obj.items()},
         braces='{',
         equal=': ',
     )
@@ -307,6 +307,13 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
             for field in all_fields.values()
             if field.repr
         },
+    )
+  elif _is_immutabledict(obj, force=force):
+    return Lines.make_block(
+        header=obj.__class__.__name__,
+        content={pretty_repr(k): v for k, v in obj.items()},
+        braces=('({', '})'),
+        equal=': ',
     )
   # TODO(epot): When the new fiddle version is release on PyPI, this
   # code could be activated (with the matching test).
@@ -399,6 +406,21 @@ def _is_pydantic(obj: Any, *, force: bool = False) -> bool:
   if force:  # Force pretty-print even if custom `__repr__`
     return True
   if type(obj).__repr__ == pydantic.BaseModel.__repr__:  # Default repr
+    return True
+  return False  # Custom repr, do not pretty-print
+
+
+def _is_immutabledict(obj: Any, *, force: bool = False) -> bool:
+  """Returns `True` if the object is an `immutabledict`."""
+  if 'immutabledict' not in sys.modules:
+    return False
+  import immutabledict  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+
+  if not isinstance(obj, immutabledict.immutabledict):
+    return False
+  if force:  # Force pretty-print even if custom `__repr__`
+    return True
+  if type(obj).__repr__ == immutabledict.immutabledict.__repr__:  # Default repr
     return True
   return False  # Custom repr, do not pretty-print
 
