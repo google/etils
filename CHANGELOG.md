@@ -24,6 +24,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   `epy.pretty_repr` dict keys are pretty-printed.
     *   Support `__setattr__` and `__delattr__` on LazyModules.
     *   Fix `epy.ContextVar` descriptor that were sharing their state.
+*   `etree`:
+    *   Add a `etree.copy` to copy a tree structure without modifying its leaves
 
 ## [1.12.2] - 2025-03-10
 
