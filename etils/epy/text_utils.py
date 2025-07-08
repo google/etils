@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import collections
 import contextlib
 import dataclasses
 import difflib
@@ -70,7 +71,6 @@ class Lines:
       b=2,
   )
   ```
-
   """
 
   def __init__(self, *, indent: int = 4):
@@ -315,6 +315,13 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
         braces=('({', '})'),
         equal=': ',
     )
+  elif _is_userdict(obj, force=force):
+    return Lines.make_block(
+        header=obj.__class__.__name__,
+        content={pretty_repr(k): v for k, v in obj.items()},
+        braces=('({', '})'),
+        equal=': ',
+    )
   # TODO(epot): When the new fiddle version is release on PyPI, this
   # code could be activated (with the matching test).
   elif _is_fiddle(obj):
@@ -421,6 +428,17 @@ def _is_immutabledict(obj: Any, *, force: bool = False) -> bool:
   if force:  # Force pretty-print even if custom `__repr__`
     return True
   if type(obj).__repr__ == immutabledict.immutabledict.__repr__:  # Default repr
+    return True
+  return False  # Custom repr, do not pretty-print
+
+
+def _is_userdict(obj: Any, *, force: bool = False) -> bool:
+  """Returns `True` if the object is a `collections.UserDict`."""
+  if not isinstance(obj, collections.UserDict):
+    return False
+  if force:  # Force pretty-print even if custom `__repr__`
+    return True
+  if type(obj).__repr__ == collections.UserDict.__repr__:  # Default repr
     return True
   return False  # Custom repr, do not pretty-print
 

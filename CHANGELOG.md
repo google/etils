@@ -19,7 +19,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add a `edc.ContextStack()` util for a thread-safe / contextvars-aware
         stack.
 *   `epy`:
-    *   `epy.pretty_repr` supports `pydantic`, `immutabledict` objects.
+    *   `epy.pretty_repr` supports `collections.UserDict`, `pydantic`,
+        `immutabledict` objects.
     *   `epy.pretty_repr` dict keys are pretty-printed.
     *   Support `__setattr__` and `__delattr__` on LazyModules.
     *   Fix `epy.ContextVar` descriptor that were sharing their state.
