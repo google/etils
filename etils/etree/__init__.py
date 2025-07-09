@@ -30,3 +30,4 @@ parallel_map = py.parallel_map
 unzip = py.unzip
 stack = py.stack
 spec_like = py.spec_like
+copy = py.copy

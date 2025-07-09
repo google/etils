@@ -179,6 +179,10 @@ class TreeAPI:
 
     return self.backend.map(_to_spec_array, tree)
 
+  def copy(self, tree: Tree[Any]) -> Tree[Any]:
+    """Copy a tree structure but not its leaves."""
+    return self.map(lambda x: x, tree)
+
 
 def _stack(*arrs: Array) -> Array:
   """Stack arrays together."""
