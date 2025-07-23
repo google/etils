@@ -8,6 +8,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `ecolab`:
+    *   `adhoc`: Use the official DM colab backend.
+
 ## [1.13.0] - 2025-07-15
 
 *   `ecolab`:

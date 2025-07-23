@@ -18,8 +18,6 @@ import atexit
 import os
 import sys
 
-from etils.epy.adhoc_utils import dm_backend  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-
 
 def is_ipython_subprocess() -> bool:
   """Check if we are in a sub-process launched from within a `ipython` terminal.
