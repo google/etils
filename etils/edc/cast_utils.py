@@ -17,31 +17,17 @@
 from __future__ import annotations
 
 import dataclasses
-import typing
-from typing import Any, TypeVar
+from typing import Any
 
 from etils.edc import field_utils
 from etils.edc import helpers
 from typing_extensions import Annotated
 
 
-_T = TypeVar('_T')
-
 _IS_NORMALIZED = object()
 
 
-if typing.TYPE_CHECKING:
-  # TODO(b/254514368): Remove hack
-  class _AutoCastMeta(type):
-
-    def __getitem__(cls, value):
-      return value
-
-  class AutoCast(metaclass=_AutoCastMeta):
-    pass
-
-else:
-  AutoCast = Annotated[_T, _IS_NORMALIZED]  # pytype: disable=invalid-typevar
+type AutoCast[T] = Annotated[T, _IS_NORMALIZED]
 
 
 def make_auto_cast_descriptor(
