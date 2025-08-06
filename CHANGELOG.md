@@ -9,7 +9,9 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `ecolab`:
-    *   `adhoc`: Use the official DM colab backend.
+    *   `adhoc`:
+        *   Use the official DM colab backend.
+        *   `inspect.getfile` cache is correctly reset
 
 ## [1.13.0] - 2025-07-15
 
