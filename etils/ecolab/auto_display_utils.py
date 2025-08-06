@@ -105,6 +105,7 @@ def auto_display(activate: bool = True) -> None:
   Args:
     activate: Allow to disable `auto_display`
   """
+
   if not epy.is_notebook():  # No-op outside Colab
     return
 
