@@ -54,7 +54,6 @@ class _Options(epy.StrEnum):
   QUIET = 'q'
 
   @classmethod
-  @property
   def all_letters(cls) -> set[str]:
     return {option.value for option in cls}
 
@@ -279,7 +278,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
         pass
       case _:
         return False
-    if any(l not in _Options.all_letters for l in name):
+    if any(l not in _Options.all_letters() for l in name):
       return False
     # The alias is not in the same line as a trailing `;`
     if node.end_lineno - 1 not in self.lines_recorder.trailing_stmt_line_nums:
@@ -387,7 +386,7 @@ def _detect_trailing_regex() -> re.Pattern[str]:
   # * `; a; b`
   # * `; a=1`
 
-  available_letters = ''.join(sorted(_Options.all_letters))  # pytype: disable=wrong-arg-types
+  available_letters = ''.join(sorted(_Options.all_letters()))
   return re.compile(
       ' *; *'  # Trailing `;` (surrounded by spaces)
       f'(?P<options>[{available_letters}]*)?'  # Optionally a `option` letter
