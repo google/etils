@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epy`:
+    *   Add a `epy.classproperty`
 *   `ecolab`:
     *   `adhoc`:
         *   Use the official DM colab backend.

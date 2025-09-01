@@ -53,9 +53,8 @@ class _Options(epy.StrEnum):
   LINE = 'l'
   QUIET = 'q'
 
-  @classmethod
-  @property
-  def all_letters(cls) -> set[str]:
+  @epy.classproperty
+  def all_letters(cls) -> set[str]:  # pylint: disable=no-self-argument
     return {option.value for option in cls}
 
 
