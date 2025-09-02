@@ -14,6 +14,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   `adhoc`:
         *   Use the official DM colab backend.
         *   `inspect.getfile` cache is correctly reset
+        *   Better error message when invalid reload value.
 
 ## [1.13.0] - 2025-07-15
 

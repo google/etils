@@ -41,6 +41,9 @@ def normalize_restrict_and_reload(
   if restrict_reload:
     restrict = _remove_duplicate(restrict + reload)
 
+  if '' in reload:
+    raise ValueError(f'reload={reload} contains empty string.')
+
   return restrict, reload
 
 
