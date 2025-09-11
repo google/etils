@@ -53,6 +53,9 @@ class ArraySpec:
   def __init__(self, shape, dtype):
     if numpy_utils.is_dtype_str(dtype):  # Normalize `str` dtype
       dtype = np.dtype('O')
+    elif _is_jax_random_dtype(dtype):
+      # `jax.random.key(0).dtype` is not a valid np.dtype
+      dtype = np.dtype('O')
     self.shape = tuple(shape)
     self.dtype = np.dtype(dtype)
 
@@ -191,3 +194,7 @@ def _is_orbax(array: Array) -> bool:
           value.ScalarMetadata,
       ),
   )
+
+
+def _is_jax_random_dtype(dtype: Any) -> bool:
+  return lazy.has_jax and isinstance(dtype, lazy.jax._src.prng.KeyTy)  # pylint: disable=protected-access
