@@ -153,6 +153,7 @@ with _builder.replace_imports(is_std=False):
   import chex
   import dataclass_array as dca
   import einops
+  import fiddle as fdl
   import flask
   import flax
   from flax import linen as nn
