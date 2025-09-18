@@ -228,11 +228,12 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
   inside `__repr__`:
 
   ```python
+  @attrs.frozen  # Or @dataclasses.dataclass
   class A:
     def __repr__(self):
-      return epy.pretty_repr_top_level(self)
+      return epy.pretty_repr_top_level(self, force=True)
 
-  epy.pretty_repr(A())  # Do not display `...`
+  print(repr(A()))
   ```
 
   Args:
