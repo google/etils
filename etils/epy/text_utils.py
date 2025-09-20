@@ -218,20 +218,21 @@ def pprint(obj: Any) -> None:
 @reprlib.recursive_repr()
 def pretty_repr(obj: Any) -> str:
   """Pretty `repr(obj)` for nested list, dict, dataclasses,..."""
-  return pretty_repr_top_level(obj)
+  return pretty_repr_top_level(obj, force=False)
 
 
-def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
+def pretty_repr_top_level(obj: Any, *, force: bool = True) -> str:
   """Pretty `repr(obj)` for nested list, dict, dataclasses,...
 
   This version do not use `@reprlib.recursive_repr()` to avoid bug when used
   inside `__repr__`:
 
   ```python
-  @attrs.frozen  # Or @dataclasses.dataclass
+  @dataclasses.dataclass  # Or @attrs.frozen,...
   class A:
+
     def __repr__(self):
-      return epy.pretty_repr_top_level(self, force=True)
+      return epy.pretty_repr_top_level(self)
 
   print(repr(A()))
   ```
@@ -347,6 +348,11 @@ def pretty_repr_top_level(obj: Any, *, force: bool = False) -> str:
         header=f'<{cls_name}[{formatted_fn_or_cls}',
         content=formatted_params,
         braces=('(', ')]>'),
+    )
+  elif force:
+    raise ValueError(
+        '`epy.pretty_repr_top_level` should only be called on `@dataclasses`,'
+        f' `attrs`,... objects. Got {type(obj)!r}'
     )
   else:
     return repr(obj)
