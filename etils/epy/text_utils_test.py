@@ -135,6 +135,25 @@ def _fn_with_var_kwargs(arg1, kwarg1=None, **kwargs):  # pylint: disable=unused-
   return
 
 
+def test_pretty_repr_ordereddict():
+  obj = collections.OrderedDict(
+      x=2,
+      z=3,
+      y={'aaaaaaaaaaaaaaaaaaaa': 1, 'bbbbbbbbbbbbbbbbbbbb': 1},
+  )
+  expected_repr = epy.dedent("""
+  OrderedDict({
+      'x': 2,
+      'z': 3,
+      'y': {
+          'aaaaaaaaaaaaaaaaaaaa': 1,
+          'bbbbbbbbbbbbbbbbbbbb': 1,
+      },
+  })
+  """)
+  assert epy.pretty_repr(obj) == expected_repr
+
+
 def test_lines_nested_indent():
   lines = epy.Lines(indent=2)
   lines += '['

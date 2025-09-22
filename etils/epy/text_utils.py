@@ -277,6 +277,13 @@ def pretty_repr_top_level(obj: Any, *, force: bool = True) -> str:
         braces='{',
         equal=': ',
     )
+  elif _is_dict_subclass(obj, force=force):  # pylint: disable=unidiomatic-typecheck
+    return Lines.make_block(
+        header=obj.__class__.__name__,
+        content={pretty_repr(k): v for k, v in obj.items()},
+        braces=('({', '})'),
+        equal=': ',
+    )
   elif _is_datclass(obj, force=force):
     all_fields = dataclasses.fields(obj)
 
@@ -446,6 +453,20 @@ def _is_userdict(obj: Any, *, force: bool = False) -> bool:
   if force:  # Force pretty-print even if custom `__repr__`
     return True
   if type(obj).__repr__ == collections.UserDict.__repr__:  # Default repr
+    return True
+  return False  # Custom repr, do not pretty-print
+
+
+def _is_dict_subclass(obj: Any, *, force: bool = False) -> bool:
+  """Returns `True` if the object is a dict subclass."""
+  if not isinstance(obj, dict):
+    return False
+  if force:  # Force pretty-print even if custom `__repr__`
+    return True
+  if type(obj).__repr__ in (  # Default repr
+      dict.__repr__,
+      collections.OrderedDict.__repr__,
+  ):
     return True
   return False  # Custom repr, do not pretty-print
 

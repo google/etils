@@ -11,6 +11,7 @@ Changelog follow https://keepachangelog.com/ format.
 *   `epy`:
     *   Add a `epy.classproperty`
     *   Better error when `epy.pretty_repr_top_level` is miss-used.
+    *   Add support for `dict` subclasses to `epy.pretty_repr`.
 *   `ecolab`:
     *   `adhoc`:
         *   Use the official DM colab backend.
