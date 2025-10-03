@@ -180,6 +180,7 @@ with _builder.replace_imports(is_std=False):
   import optax
   import orbax
   from orbax import checkpoint as ocp
+  from orbax.checkpoint.experimental import v1 as ocp_v1
   from orbax import export as oex
   import pandas as pd
   import PIL
