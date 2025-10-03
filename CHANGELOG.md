@@ -10,6 +10,7 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `epy`:
     *   Add a `epy.classproperty`
+    *   Add a `epy.getuser`, colab-friendly alias of `getpass.getuser`
     *   Better error when `epy.pretty_repr_top_level` is miss-used.
     *   Add support for `dict` subclasses to `epy.pretty_repr`.
 *   `ecolab`:
