@@ -38,7 +38,7 @@ html[theme=dark] .hljs {
 pre code.hljs {
   /* background-color: var(--background-color); */
   display: block;
-  padding: 1em;
+  /* padding: 1em; */
 }
 
 .hljs-comment {
