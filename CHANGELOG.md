@@ -18,6 +18,9 @@ Changelog follow https://keepachangelog.com/ format.
         *   Use the official DM colab backend.
         *   `inspect.getfile` cache is correctly reset
         *   Better error message when invalid reload value.
+*   `epath`:
+    *   Add `path.absolute()`
+    *   Add `path.listdir()`, a convenience alias for `list(path.iterdir())`
 
 ## [1.13.0] - 2025-07-15
 
