@@ -74,8 +74,7 @@ class _ObjectUpdater:
     """Update the class."""
     self._type_updates[old] = new
 
-    for key in list(old.__dict__.keys()):
-      old_obj = getattr(old, key)
+    for key, old_obj in list(old.__dict__.items()):
 
       try:
         new_obj = getattr(new, key)
