@@ -31,6 +31,7 @@ from etils.ecolab.patch_utils import patch_graphviz
 from etils.ecolab.patch_utils import set_verbose
 from etils.ecolab.pyjs_com import js_import as pyjs_import
 from etils.ecolab.pyjs_com import register_js_fn
+from etils.ecolab.tabs import iter_tab
 from etils.epy.adhoc_utils.module_utils import clear_cached_modules
 
 # Activate auto-display by default

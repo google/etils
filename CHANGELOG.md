@@ -18,6 +18,7 @@ Changelog follow https://keepachangelog.com/ format.
         *   Use the official DM colab backend.
         *   `inspect.getfile` cache is correctly reset
         *   Better error message when invalid reload value.
+    *   Add `ecolab.iter_tab()`: Each element will be displayed in a new tab.
 *   `epath`:
     *   Add `path.absolute()`
     *   Add `path.listdir()`, a convenience alias for `list(path.iterdir())`
