@@ -163,6 +163,7 @@ with _builder.replace_imports(is_std=False):
   import grain.python as grain
   import graphviz
   import imageio
+  import immutabledict
   # Even though `import ipywidgets as widgets` is the common alias, widgets
   # is likely too ambiguous.
   import ipywidgets
