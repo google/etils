@@ -62,6 +62,11 @@ class TqdmStream:
 
 def _better_logging() -> None:
   """Modify Python logging (internal)."""
+  logger = py_logging.getLogger()
+
+  if getattr(logger, "_better_logging_configured", False):
+    return
+  logger._better_logging_configured = True
   # If `absl.run` was not called (e.g. open source `pytest` tests)
   if not FLAGS.is_parsed():
     return
