@@ -163,7 +163,8 @@ class _ObjectUpdater:
     refs = gc.get_referrers(*self._type_updates.keys())
     for ref in refs:
       if (new := self._type_updates.get(type(ref))) is not None:
-        object.__setattr__(ref, "__class__", new)
+        ref_type = type if isinstance(ref, type) else object
+        ref_type.__setattr__(ref, "__class__", new)
 
 
 @dataclasses.dataclass(frozen=True)
