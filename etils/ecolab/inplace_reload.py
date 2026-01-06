@@ -356,7 +356,7 @@ def _update_old_module(
 
 def _belong_to_module(obj: Any, module: types.ModuleType) -> bool:
   """Returns `True` if the instance, class, function belong to module."""
-  return hasattr(obj, "__module__") and obj.__module__ == module.__name__
+  return inspect.getattr_static(obj, "__module__", None) == module.__name__
 
 
 def _wrap_fn(old_fn, new_fn):
