@@ -18,3 +18,4 @@ from __future__ import annotations
 
 _JsonLeaf = str | float | int | bool | None
 Json = _JsonLeaf | dict[_JsonLeaf, "Json"] | list["Json"] | tuple["Json", ...]
+JsonDict = dict[str, Json]
