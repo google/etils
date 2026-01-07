@@ -140,6 +140,13 @@ class ArraySpec:
     # Should we also handle `bytes` case ?
     return cls(shape=shape, dtype=dtype)
 
+  def __konfig_export__(self):
+    return {
+        '__qualname__': 'etils.enp.array_spec:ArraySpec',
+        'shape': self.shape,
+        'dtype': self.dtype.name,
+    }
+
 
 def is_fake_array(array: Array) -> bool:
   """Returns `True` if the given array is a fake array."""
