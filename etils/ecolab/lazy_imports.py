@@ -174,6 +174,7 @@ with _builder.replace_imports(is_std=False):
   import matplotlib
   import matplotlib as mpl  # Standard alias
   from matplotlib import pyplot as plt
+  import mcp
   import mediapy as media
   import ml_collections
   import networkx as nx
