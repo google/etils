@@ -23,6 +23,20 @@ from etils.enp.typing import FloatArray  # pylint: disable=g-multiple-import
 lazy = numpy_utils.lazy
 
 
-def normalize(x: FloatArray['*d'], axis: int = -1) -> FloatArray['*d']:
-  """Normalize the vector to the unit norm."""
-  return x / compat.norm(x, axis=axis, keepdims=True)
+def normalize(
+    x: FloatArray['*d'],
+    axis: int = -1,
+    *,
+    eps: float = 0.0,
+) -> FloatArray['*d']:
+  """Normalize the vector to the unit norm.
+
+  Args:
+    x: Input array to normalize.
+    axis: Axis along which to compute the norm.
+    eps: Optional epsilon to avoid division by zero for zero-norm vectors.
+  """
+  denom = compat.norm(x, axis=axis, keepdims=True)
+  if eps:
+    denom = denom + eps
+  return x / denom
