@@ -13,6 +13,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add a `epy.getuser`, colab-friendly alias of `getpass.getuser`
     *   Better error when `epy.pretty_repr_top_level` is miss-used.
     *   Add support for `dict` subclasses to `epy.pretty_repr`.
+    *   Add `epy.Lines.Repr` to escape quotes `''` when display
 *   `ecolab`:
     *   `adhoc`:
         *   Use the official DM colab backend.

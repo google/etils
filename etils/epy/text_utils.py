@@ -35,6 +35,13 @@ _BRACE_TO_BRACES = {
 }
 
 
+class _Repr(str):
+  """Display `str.__repr__` without quotes `'`."""
+
+  def __repr__(self):
+    return str(self)
+
+
 @dataclasses.dataclass
 class _Line:
   """Line item."""
@@ -72,6 +79,8 @@ class Lines:
   )
   ```
   """
+
+  Repr = _Repr  # pylint: disable=invalid-name
 
   def __init__(self, *, indent: int = 4):
     self._lines: list[_Line] = []
@@ -363,13 +372,6 @@ def pretty_repr_top_level(obj: Any, *, force: bool = True) -> str:
     )
   else:
     return repr(obj)
-
-
-class _Repr(str):
-  """Display `str.__repr__` without quotes `'`."""
-
-  def __repr__(self):
-    return str(self)
 
 
 def has_default_repr(cls: Any) -> bool:
