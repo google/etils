@@ -8,6 +8,12 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `epath`:
+    *   [fsspec](https://filesystem-spec.readthedocs.io/en/latest/) is now the
+        default backend even if TensorFlow is installed. This means that you
+        need to install [gcsfs](https://gcsfs.readthedocs.io/en/latest/) or
+        [s3fs](https://github.com/s3fs-fuse/s3fs-fuse) to read from respectively
+        GCS or S3.
 *   `epy`:
     *   Add a `epy.classproperty`
     *   Add a `epy.getuser`, colab-friendly alias of `getpass.getuser`
