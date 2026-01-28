@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import dataclasses
-import typing
 from typing import Generic, TypeVar
 
 from etils.edc import context
@@ -54,12 +53,7 @@ class ContextStack(Generic[_T]):
   ```
   """
 
-  if typing.TYPE_CHECKING:
-    stack: list[_T] = dataclasses.field(default_factory=list)
-  else:
-    stack: context.ContextVar[list[_T]] = dataclasses.field(
-        default_factory=list
-    )
+  stack: context.ContextVar[list[_T]] = dataclasses.field(default_factory=list)
 
   def append(self, value: _T) -> None:
     """Append a value to the stack."""
