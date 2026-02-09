@@ -1,4 +1,4 @@
-# Copyright 2025 The etils Authors.
+# Copyright 2026 The etils Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,6 +69,25 @@ def reraise(
   # Hide the function from the traceback. Is supported by Pytest and IPython 7
   __tracebackhide__ = True  # pylint: disable=unused-variable,invalid-name
 
+  new_exception = wrap_error(e, prefix=prefix, suffix=suffix)
+
+  # Propagate the exception:
+  # * `with_traceback` will propagate the original stacktrace
+  # * `from e.__cause__` will:
+  #   * Propagate the original `__cause__` (likely `None`)
+  #   * Set `__suppress_context__` to True, so `__context__` isn't displayed
+  #     This avoid multiple `During handling of the above exception, another
+  #     exception occurred:` messages when nesting `reraise`
+  raise new_exception from new_exception.__cause__
+
+
+def wrap_error(
+    e: Exception,
+    prefix: Optional[_Str] = None,
+    suffix: Optional[_Str] = None,
+) -> Exception:
+  """Wrap the exception in a new exception with the given prefix."""
+
   # Lazy-evaluate functions
   prefix = prefix() if callable(prefix) else prefix
   suffix = suffix() if callable(suffix) else suffix
@@ -101,15 +120,9 @@ def reraise(
   WrappedException.__qualname__ = type(e).__qualname__
   WrappedException.__module__ = type(e).__module__
   new_exception = WrappedException(msg)
-
-  # Propagate the exception:
-  # * `with_traceback` will propagate the original stacktrace
-  # * `from e.__cause__` will:
-  #   * Propagate the original `__cause__` (likely `None`)
-  #   * Set `__suppress_context__` to True, so `__context__` isn't displayed
-  #     This avoid multiple `During handling of the above exception, another
-  #     exception occurred:` messages when nesting `reraise`
-  raise new_exception.with_traceback(e.__traceback__) from e.__cause__
+  new_exception.__cause__ = e.__cause__
+  new_exception = new_exception.with_traceback(e.__traceback__)
+  return new_exception
 
 
 @contextlib.contextmanager
