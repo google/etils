@@ -28,7 +28,9 @@ import uuid
 from etils import enp
 from etils.ecolab.inspects import attrs
 from etils.ecolab.inspects import html_helper as H
+from google.protobuf import descriptor_pool
 from google.protobuf import message
+from google.protobuf import symbol_database
 
 # Import both C++ and Python API
 from google.protobuf.internal import containers
@@ -391,7 +393,9 @@ class ProtoNode(ObjectNode[message.Message]):
   @property
   def children(self) -> list[Node]:
     # Filter the proto-specific attributes to hide them in a separate section
-    used_fields = {desc.name for desc, _ in self.obj.ListFields()}
+    used_fields = {
+        desc.name: (desc, value) for desc, value in self.obj.ListFields()
+    }
 
     val_attrs = []
     proto_attrs = []
@@ -402,9 +406,18 @@ class ProtoNode(ObjectNode[message.Message]):
       elif not isinstance(c, ObjectNode):
         raise ValueError(f'Unexpected child {c!r}')
       elif c.name in used_fields:
+        del used_fields[c.name]
         val_attrs.append(c)
       else:
         proto_attrs.append(c)
+
+    # Add the proto extensions
+    if used_fields:
+      exts_attrs = [
+          Node.from_obj(v, name=f'[{desc.full_name}]')
+          for desc, v in used_fields.values()
+      ]
+      val_attrs.extend(exts_attrs)
 
     return (
         val_attrs
@@ -584,3 +597,17 @@ def _fn_html_repr(fn: Callable[..., Any]) -> str:
   sig_str = f'{fn_name}({_fn_signature_repr(fn)})'
   sig_str = _truncate_long_str(sig_str)
   return H.span(class_='fn')('ƒ') + ' ' + H.span(class_=['preview'])(sig_str)
+
+
+def _has_extension(
+    proto: message.Message, ext: message.FieldDescriptor
+) -> bool:
+  if ext.label == ext.LABEL_REPEATED:
+    return bool(len(proto.Extensions[ext]))
+  return proto.HasExtension(ext)
+
+
+@functools.cache
+def _pool() -> descriptor_pool.DescriptorPool:
+  """Returns a descriptor pool with all registered protos."""
+  return symbol_database.Default().pool

@@ -15,6 +15,7 @@ Changelog follow https://keepachangelog.com/ format.
     *   Add support for `dict` subclasses to `epy.pretty_repr`.
     *   Add `epy.Lines.Repr` to escape quotes `''` when display
 *   `ecolab`:
+    *   `ecolab.inspect` (or `;i`) now display proto extensions.
     *   `adhoc`:
         *   Use the official DM colab backend.
         *   `inspect.getfile` cache is correctly reset
