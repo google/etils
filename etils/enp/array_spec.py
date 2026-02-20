@@ -184,9 +184,9 @@ def _is_pygrain(array: Array) -> bool:
       and 'grain.python' not in sys.modules
   ):
     return False
-  from grain._src.python.ipc import shared_memory_array  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  import grain  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
-  return isinstance(array, shared_memory_array.SharedMemoryArrayMetadata)
+  return isinstance(array, grain.multiprocessing.SharedMemoryArrayMetadata)
 
 
 def _is_orbax(array: Array) -> bool:
