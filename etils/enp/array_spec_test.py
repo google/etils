@@ -15,6 +15,7 @@
 """Tests for array_spec."""
 
 from etils import enp
+from etils.enp import array_spec
 from etils.enp.typing import f32
 import jax
 import jax.numpy as jnp

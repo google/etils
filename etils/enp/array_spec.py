@@ -178,15 +178,32 @@ def _is_grain(array: Array) -> bool:
   return isinstance(array, grain.ArraySpec)
 
 
+def _get_grain_shm_array_metadata_cls():
+  """Imports the shm metadata from `grain` in a cross-version compatible way."""
+  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  import grain
+
+  cls = getattr(
+      grain.multiprocessing,
+      'SharedMemoryArrayMetadata',
+      None,
+  )
+  if cls is None:
+    from grain._src.python import shared_memory_array
+
+    cls = shared_memory_array.SharedMemoryArrayMetadata
+  # pylint: enable=g-import-not-at-top  # pytype: enable=import-error
+  return cls
+
+
 def _is_pygrain(array: Array) -> bool:
   if (
       'grain._src.python' not in sys.modules
       and 'grain.python' not in sys.modules
   ):
     return False
-  import grain  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
 
-  return isinstance(array, grain.multiprocessing.SharedMemoryArrayMetadata)
+  return isinstance(array, _get_grain_shm_array_metadata_cls())
 
 
 def _is_orbax(array: Array) -> bool:
