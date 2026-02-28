@@ -9,6 +9,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `epy`:
+    *   Add a `epy.sliding_window` iterator.
     *   Add a `epy.classproperty`
     *   Add a `epy.getuser`, colab-friendly alias of `getpass.getuser`
     *   Better error when `epy.pretty_repr_top_level` is miss-used.
