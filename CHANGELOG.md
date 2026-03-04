@@ -8,6 +8,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-03-04
+
 *   `epy`:
     *   Add a `epy.classproperty`
     *   Add a `epy.getuser`, colab-friendly alias of `getpass.getuser`
@@ -530,8 +532,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 <!-- mdlint off(LINK_UNUSED_ID) -->
 
-[Unreleased]: https://github.com/google/etils/compare/v1.13.0...HEAD
-[1.12.2]: https://github.com/google/etils/compare/v1.12.2...v1.13.0
+[Unreleased]: https://github.com/google/etils/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/google/etils/compare/v1.13.0...v1.14.0
+[1.13.0]: https://github.com/google/etils/compare/v1.12.2...v1.13.0
 [1.12.2]: https://github.com/google/etils/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/google/etils/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/google/etils/compare/v1.11.0...v1.12.0
