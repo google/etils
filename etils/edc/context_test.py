@@ -49,3 +49,28 @@ def test_context():
   with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     for _ in range(10):
       executor.submit(worker)
+
+
+def test_default_factory_thread_isolation():
+  ctx = Context()
+
+  ctx.stack.append(99)
+
+  errors = []
+  barrier = threading.Barrier(4)
+
+  def worker():
+    try:
+      barrier.wait(timeout=5)
+      local_stack = ctx.stack
+      assert not local_stack, f'Expected empty list, got {local_stack!r}'
+      local_stack.append(1)
+      assert len(local_stack) == 1, f'Expected length 1, got {len(local_stack)}'
+    except Exception as e:  # pylint: disable=broad-except
+      errors.append(e)
+
+  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+    for _ in range(4):
+      executor.submit(worker)
+
+  assert not errors, f'Thread isolation violated: {errors}'
