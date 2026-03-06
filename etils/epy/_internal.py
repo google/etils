@@ -17,7 +17,7 @@
 from collections.abc import Callable
 import contextlib
 import functools
-from typing import Any, Iterator, TypeVar
+from typing import Any, cast, Iterator, TypeVar
 
 from etils.epy import reraise_utils
 
@@ -64,7 +64,7 @@ def wraps_with_reload(fn: Callable[..., Any]) -> Callable[[_FnT], _FnT]:
 
   def decorator(fn_to_wrap):
     fn_to_wrap = functools.wraps(fn)(fn_to_wrap)
-    fn_to_wrap.__original_fn__ = fn
+    fn_to_wrap.__original_fn__ = fn  # pyrefly: ignore[missing-attribute]
     return fn_to_wrap
 
-  return decorator
+  return cast(Callable[[_FnT], _FnT], decorator)

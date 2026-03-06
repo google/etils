@@ -50,6 +50,7 @@ from etils.epy.text_utils import pretty_repr_top_level
 # Inside tests, can use `epy.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import
   try:
+    # pyrefly: ignore[missing-module-attribute]
     from etils.epy import testing  # pylint: disable=g-import-not-at-top
   except ImportError:
     pass

@@ -88,7 +88,7 @@ def clear_cached_modules(
   if not modules_to_clear:
     return
 
-  modules = set(py_utils.normalize_str_to_list(modules))
+  modules: set[str] = set(py_utils.normalize_str_to_list(modules))
 
   for module_name in modules_to_clear:
     if verbose:
@@ -147,4 +147,4 @@ def _invalidate_module(module: types.ModuleType) -> None:
   module.__dict__.clear()
   module.__getattr__ = __getattr__
   # Allow `adhoc_error` to detect invalidated modules and raise better errors
-  module.__etils_invalidated__ = True
+  module.__etils_invalidated__ = True  # pyrefly: ignore[missing-attribute]

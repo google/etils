@@ -40,8 +40,8 @@ def reverse_fstring(pattern: str, string: str) -> dict[str, str] | None:
   Returns:
     The extracted info
   """
-  pattern = _pattern_cache(pattern)
-  if m := pattern.fullmatch(string):
+  compiled_pattern = _pattern_cache(pattern)
+  if m := compiled_pattern.fullmatch(string):
     return m.groupdict()
   else:
     return None
