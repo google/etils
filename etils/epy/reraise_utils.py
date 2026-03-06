@@ -98,7 +98,7 @@ def wrap_error(
   # Dynamically create an exception for:
   # * Compatibility with caller core (e.g. `except OriginalError`)
 
-  class WrappedException(type(e)):
+  class WrappedException(type(e)):  # pyrefly: ignore[invalid-inheritance]
     """Exception proxy with additional message."""
 
     def __init__(self, msg):

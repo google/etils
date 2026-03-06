@@ -206,7 +206,7 @@ def lazy_imports(
   original_import = builtins.__import__
   try:
     builtins.__import__ = functools.partial(
-        _lazy_import,
+        _lazy_import,  # pyrefly: ignore[bad-argument-type]
         error_callback=error_callback,
         success_callback=success_callback,
     )

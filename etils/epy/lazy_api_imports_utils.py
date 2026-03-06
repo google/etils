@@ -122,6 +122,8 @@ def _getattr(
       )
     except ImportError as e:
       if error_msg:
+        # TODO(slebedev): Remove once Pyrefly correctly handles the call below.
+        symbol = object()
         reraise_utils.reraise(
             e,
             prefix=error_msg.format(symbol_name=lazy_module.module_name),
