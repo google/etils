@@ -85,10 +85,6 @@ class _ContextvarDescriptor:
     default_kwargs = {}
     if self._field.default is not dataclasses.MISSING:
       default_kwargs['default'] = self._field.default
-    elif self._field.default_factory is not dataclasses.MISSING:
-      default_kwargs['default'] = self._field.default_factory()
-    else:
-      pass
     return contextvars.ContextVar(self._attribute_name, **default_kwargs)
 
   def __get__(
@@ -98,7 +94,15 @@ class _ContextvarDescriptor:
   ):
     if obj is None:
       return self
-    return self._var(obj).get()
+    var = self._var(obj)
+    try:
+      return var.get()
+    except LookupError:
+      if self._field.default_factory is not dataclasses.MISSING:
+        value = self._field.default_factory()
+        var.set(value)
+        return value
+      raise
 
   def __set__(self, obj: _Dataclass, value: Any) -> None:
     self._var(obj).set(value)
