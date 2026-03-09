@@ -19,10 +19,11 @@ from __future__ import annotations
 import os
 import sys
 import typing
-from typing import Literal, Optional
+from typing import Optional
 
 from etils.epath import abstract_path
 from etils.epath import typing as epath_typing
+from typing_extensions import Literal
 
 if typing.TYPE_CHECKING:
   from absl import flags

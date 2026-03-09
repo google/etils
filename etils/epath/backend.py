@@ -26,7 +26,7 @@ import pathlib
 import shutil
 import stat as stat_lib
 import typing
-from typing import Any, Callable, Iterator, NoReturn, Optional, Union
+from typing import Callable, Iterator, NoReturn, Optional, Union
 
 from etils.epath import stat_utils
 from etils.epath.typing import PathLike  # pylint: disable=g-importing-member
@@ -143,7 +143,7 @@ class _OsPathBackend(Backend):
     return [p for p in os.listdir(path) if not p.endswith('~')]
 
   def glob(self, path: PathLike) -> list[str]:
-    return glob_lib.glob(path)  # pyrefly: ignore[bad-argument-type]
+    return glob_lib.glob(path)
 
   def walk(
       self,
@@ -263,7 +263,7 @@ class _TfBackend(Backend):
     return self.tf.io.gfile
 
   @contextlib.contextmanager
-  def open(  # pyrefly: ignore[bad-override]
+  def open(
       self,
       path: PathLike,
       mode: str,
@@ -284,7 +284,7 @@ class _TfBackend(Backend):
     return self.gfile.listdir(path)
 
   def glob(self, path: PathLike) -> list[str]:
-    return self.gfile.glob(path)  # pyrefly: ignore[bad-argument-type]
+    return self.gfile.glob(path)
 
   def walk(
       self,
@@ -470,11 +470,13 @@ class _FileSystemSpecBackend(Backend):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
   ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
+
+    if on_error is None:
+      on_error = 'omit'  # default behavior for pathlib.Path.walk
     yield from self.fs(top).walk(  # pytype: disable=bad-return-type
         top,
         topdown=top_down,
-        # default behavior for pathlib.Path.walk
-        on_error='omit' if on_error is None else on_error,
+        on_error=on_error,
         max_depth=None,
     )
 
@@ -572,16 +574,16 @@ class _FileSystemSpecBackend(Backend):
     # Stringify paths, because PosixPaths do not implement len:
     path, dst = os.fspath(path), os.fspath(dst)
     chunksize = 1024 * 1024  # 1 MB
-    with self.open(path, mode='rb') as src_buf:
-      with self.open(dst, mode='wb') as dst_buf:
+    with self.open(path, mode='rb') as src:
+      with self.open(dst, mode='wb') as dst:
         while True:
-          data = src_buf.read(chunksize)
+          data = src.read(chunksize)
           if not data:
             break
-          dst_buf.write(data)
+          dst.write(data)
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:
-    info: dict[str, Any] = self.fs(path).info(path)
+    info = self.fs(path).info(path)
 
     mtime_obj = info.get('mtime')
     if mtime_obj is None:
@@ -598,7 +600,7 @@ class _FileSystemSpecBackend(Backend):
 
     return stat_utils.StatResult(
         is_directory=info.get('type') == 'directory',
-        length=info.get('size'),  # pyrefly: ignore[bad-argument-type]
+        length=info.get('size'),
         mtime=mtime,
         owner=info.get('owner'),
         group=info.get('group'),

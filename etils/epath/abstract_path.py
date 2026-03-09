@@ -21,7 +21,7 @@ import functools
 import os
 import pathlib
 import typing
-from typing import Any, AnyStr, Iterator, Optional, Self, TypeVar
+from typing import Any, AnyStr, Iterator, Optional, Type, TypeVar
 
 from etils import epy
 from etils.epath import register
@@ -49,7 +49,7 @@ class Path(pathlib.PurePosixPath):
   # TODO(epot): With 3.12, might be able to inherit from `pathlib.PosixPath`
   # directly so some of those methods are automatically implemented.
 
-  def __new__(cls, *args: PathLike) -> Self:
+  def __new__(cls: Type[_T], *args: PathLike) -> _T:
     """Create a new path.
 
     ```python
@@ -76,7 +76,7 @@ class Path(pathlib.PurePosixPath):
 
   # ====== Pure paths ======
 
-  def format(self, *args: Any, **kwargs: Any) -> Self:
+  def format(self: _T, *args: Any, **kwargs: Any) -> _T:
     """Apply `str.format()` to the path."""
     return type(self)(os.fspath(self).format(*args, **kwargs))  # pytype: disable=not-instantiable
 
@@ -97,12 +97,12 @@ class Path(pathlib.PurePosixPath):
     return self.exists() and not self.is_dir()
 
   @abstractmethod
-  def iterdir(self) -> Iterator[Self]:
+  def iterdir(self: _T) -> Iterator[_T]:
     """Iterates over the directory."""
     raise NotImplementedError
 
   @abstractmethod
-  def listdir(self) -> list[Self]:
+  def listdir(self: _T) -> list[_T]:
     """Lists files/folders in a directory.
 
     Colab usage only!
@@ -119,36 +119,36 @@ class Path(pathlib.PurePosixPath):
     return list(self.iterdir())
 
   @abstractmethod
-  def glob(self, pattern: str) -> Iterator[Self]:
+  def glob(self: _T, pattern: str) -> Iterator[_T]:
     """Yields all matching files (of any kind)."""
     # Might be able to implement using `iterdir` (recursivelly for `rglob`).
     raise NotImplementedError
 
-  def rglob(self, pattern: str) -> Iterator[Self]:
+  def rglob(self: _T, pattern: str) -> Iterator[_T]:
     """Yields all matching files recursively (of any kind)."""
     return self.glob(f'**/{pattern}')
 
   @abstractmethod
   def walk(
-      self,
+      self: _T,
       *,
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
-  ) -> Iterator[tuple[Self, list[str], list[str]]]:
+  ) -> Iterator[tuple[_T, list[str], list[str]]]:
     raise NotImplementedError
 
-  def expanduser(self) -> Self:
+  def expanduser(self: _T) -> _T:
     """Returns a new path with expanded `~` and `~user` constructs."""
     if '~' not in self.parts:  # pytype: disable=attribute-error
       return self
     raise NotImplementedError
 
-  def absolute(self) -> Self:
+  def absolute(self: _T) -> _T:
     """Returns the absolute path."""
     return self.resolve()
 
   @abstractmethod
-  def resolve(self, strict: bool = False) -> Self:
+  def resolve(self: _T, strict: bool = False) -> _T:
     """Returns the absolute path."""
     raise NotImplementedError
 
@@ -237,15 +237,15 @@ class Path(pathlib.PurePosixPath):
 
   # pytype: disable=bad-return-type
   @abstractmethod
-  def rename(self, target: PathLike) -> Self:
+  def rename(self: _T, target: PathLike) -> _T:
     """Renames the path."""
 
   @abstractmethod
-  def replace(self, target: PathLike) -> Self:
+  def replace(self: _T, target: PathLike) -> _T:
     """Overwrites the destination path."""
 
   @abstractmethod
-  def copy(self, dst: PathLike, overwrite: bool = False) -> Self:
+  def copy(self: _T, dst: PathLike, overwrite: bool = False) -> _T:
     """Copy the current file to the given destination."""
 
   # pytype: enable=bad-return-type

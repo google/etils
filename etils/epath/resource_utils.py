@@ -15,6 +15,7 @@
 """Utils to handle resources."""
 
 from __future__ import annotations
+
 import importlib.resources as importlib_resources  # pylint: disable=unused-import
 import itertools
 import pathlib
@@ -112,7 +113,6 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
   try:
     path = importlib_resources.files(package)  # pytype: disable=module-attr
   except AttributeError:
-    path = None
     is_adhoc = True
   else:
     is_adhoc = False
@@ -130,7 +130,6 @@ def resource_path(package: Union[str, types.ModuleType]) -> abstract_path.Path:
       path = sys.modules[package].__file__
     else:
       raise TypeError(f'Unknown package type: {type(package)}: {package}')
-    assert path is not None
     path = pathlib.Path(path)
     if path.name == '__init__.py':
       path = path.parent
