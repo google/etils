@@ -24,7 +24,7 @@ from etils.epath import abstract_path
 from etils.epath import gpath
 from etils.epath.typing import PathLike  # pylint: disable=g-multiple-import,g-importing-member
 
-_T = TypeVar('_T')
+_T = TypeVar('_T', bound=type)
 
 # Classes and uri are registered in `gpath.py`
 _PATHLIKE_CLS: tuple[type[abstract_path.Path], ...] = ()
@@ -71,9 +71,9 @@ def register_path_cls(path_cls_or_uri_prefix):
       elif isinstance(path_cls_or_uri_prefix, (list, tuple)):
         for uri_prefix in path_cls_or_uri_prefix:
           _URI_PREFIXES_TO_CLS[uri_prefix] = cls
-      return register_path_cls(cls)
+      return register_path_cls(cls)  # pytype: disable=bad-return-type
 
-    return register_path_cls_decorator
+    return register_path_cls_decorator  # pytype: disable=bad-return-type
   else:
     _PATHLIKE_CLS = _PATHLIKE_CLS + (path_cls_or_uri_prefix,)
     return path_cls_or_uri_prefix

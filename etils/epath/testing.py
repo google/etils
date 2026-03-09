@@ -38,12 +38,11 @@ _backend_cls = backend._OsPathBackend  # pylint: disable=protected-access
 class _MockBackend(_backend_cls):
   """Backend with functions overwritten."""
 
-  mock_fns: dict[str, _MockFn]
+  mock_fns: dict[str, _MockFn | None]
 
   def _get_fn(self, fn_name):
     original_fn = getattr(super(), fn_name)
-    if self.mock_fns[fn_name] is not None:
-      fn_to_call = self.mock_fns[fn_name]
+    if (fn_to_call := self.mock_fns[fn_name]) is not None:
       fn_to_call = functools.partial(fn_to_call, original_fn)
     else:
       fn_to_call = original_fn

@@ -25,7 +25,7 @@ import posixpath
 import sys
 import types
 import typing
-from typing import Any, Callable, ClassVar, Iterator, Optional, Type, TypeVar, Union
+from typing import Any, Callable, ClassVar, Iterator, Optional, Self, TypeVar, Union
 
 from etils import epy
 from etils.epath import abstract_path
@@ -83,7 +83,7 @@ class _GPath(abstract_path.Path):
 
   if sys.version_info < (3, 12):
 
-    def __new__(cls: Type[_P], *parts: PathLike) -> _P:
+    def __new__(cls, *parts: PathLike) -> Self:
       return super().__new__(cls, *_process_parts(*parts))
 
   else:
@@ -91,7 +91,7 @@ class _GPath(abstract_path.Path):
     def __init__(self, *parts: PathLike) -> None:
       super().__init__(*_process_parts(*parts))
 
-  def _new(self: _P, *parts: PathLike) -> _P:
+  def _new(self, *parts: PathLike) -> Self:
     """Create a new `Path` child of same type."""
     return type(self)(*parts)
 
@@ -155,21 +155,21 @@ class _GPath(abstract_path.Path):
     """Returns True if self is a directory."""
     return self._backend.isdir(self._path_str)
 
-  def iterdir(self: _P) -> Iterator[_P]:
+  def iterdir(self) -> Iterator[Self]:
     """Iterates over the directory."""
     for f in self._backend.listdir(self._path_str):
       yield self._new(self, f)
 
-  def expanduser(self: _P) -> _P:
+  def expanduser(self) -> Self:
     """Returns a new path with expanded `~` and `~user` constructs."""
     return self._new(self._PATH.expanduser(self._path_str))
 
-  def resolve(self: _P, strict: bool = False) -> _P:
+  def resolve(self, strict: bool = False) -> Self:
     """Returns the abolute path."""
     # TODO(epot): In pathlib, `resolve` also resolve the symlinks
     return self._new(self._PATH.abspath(self._path_str))
 
-  def glob(self: _P, pattern: str) -> Iterator[_P]:
+  def glob(self, pattern: str) -> Iterator[Self]:
     """Yielding all matching files (of any kind)."""
     pattern = self._PATH.join(self._path_str, pattern)
 
@@ -184,11 +184,11 @@ class _GPath(abstract_path.Path):
       yield self._new(f)
 
   def walk(
-      self: _P,
+      self,
       *,
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
-  ) -> Iterator[tuple[_P, list[str], list[str]]]:
+  ) -> Iterator[tuple[Self, list[str], list[str]]]:
     for root, dirs, files in self._backend.walk(
         self._path_str,
         top_down=top_down,
@@ -258,12 +258,13 @@ class _GPath(abstract_path.Path):
     gfile = typing.cast(typing.IO[Union[str, bytes]], gfile)
     return gfile
 
-  def relative_to(self: _P, other: PathLike) -> _P:
+  # pyrefly: ignore[bad-override]
+  def relative_to(self, other: PathLike) -> Self:
     """Returns the current path relative to `other`."""
     other_path = self._new(other)
     return super().relative_to(other_path)
 
-  def rename(self: _P, target: PathLike) -> _P:
+  def rename(self, target: PathLike) -> Self:
     """Rename file or directory to the given target."""
     # Note: Issue if WindowsPath and target is gs://. Rather than using `_new`,
     # `GPath.__new__` should dynamically return either `PosixGPath` or
@@ -273,14 +274,14 @@ class _GPath(abstract_path.Path):
     backend.rename(self._path_str, os.fspath(target))
     return target
 
-  def replace(self: _P, target: PathLike) -> _P:
+  def replace(self, target: PathLike) -> Self:
     """Replace file or directory to the given target."""
     target = self._new(target)
     backend = _get_backend(self, target)
     backend.replace(self._path_str, os.fspath(target))
     return target
 
-  def copy(self: _P, dst: PathLike, overwrite: bool = False) -> _P:
+  def copy(self, dst: PathLike, overwrite: bool = False) -> Self:
     """Copy file or directory to the given target."""
     # Could add a recursive=True mode
     dst = self._new(dst)
