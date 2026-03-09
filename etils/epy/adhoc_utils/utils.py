@@ -22,8 +22,8 @@ from etils.epy import py_utils
 
 
 def normalize_restrict_and_reload(
-    restrict: py_utils.StrOrStrList,
-    reload: py_utils.StrOrStrList,
+    restrict: py_utils.StrOrStrList | None,
+    reload: py_utils.StrOrStrList | None,
     *,
     restrict_reload: bool = True,
 ) -> tuple[list[str], list[str]]:
