@@ -32,7 +32,7 @@ class Context:
 
 
 def test_context():
-  # Global context object
+  # Global context object — shared across all threads.
   context = Context(thread_id=0)
   assert context.thread_id == 0
   assert context.stack == []  # pylint: disable=g-explicit-bool-comparison
@@ -40,12 +40,44 @@ def test_context():
   context.stack.append(1)
   assert context.stack == [0, 1]
 
+  # Use a barrier, so each worker is launched in a separate thread. Otherwise,
+  # ThreadPoolExecutor reuses threads.
+  barrier = threading.Barrier(5)
+
   def worker():
-    # Inside each thread, the worker use it's own context
-    assert context.thread_id != 0
+    barrier.wait(timeout=5)
+    assert context.thread_id == threading.get_native_id()
     assert context.stack == []  # pylint: disable=g-explicit-bool-comparison
     context.stack.append(1)
+    assert context.stack == [1]
 
   with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-    for _ in range(10):
-      executor.submit(worker)
+    futures = [executor.submit(worker) for _ in range(5)]
+    for f in futures:
+      f.result()  # Re-raises worker exceptions in the main thread
+
+
+def test_context_default_thread_id():
+  context = Context()
+  assert context.thread_id == threading.get_native_id()
+  assert context.stack == []  # pylint: disable=g-explicit-bool-comparison
+  context.stack.append(0)
+  context.stack.append(1)
+  assert context.stack == [0, 1]
+
+  # Use a barrier, so each worker is launched in a separate thread. Otherwise,
+  # ThreadPoolExecutor reuses threads.
+  barrier = threading.Barrier(5)
+
+  def worker():
+    barrier.wait(timeout=5)
+    # Each worker must see its own native thread ID, not the main thread's.
+    assert context.thread_id == threading.get_native_id()
+    assert context.stack == []  # pylint: disable=g-explicit-bool-comparison
+    context.stack.append(1)
+    assert context.stack == [1]
+
+  with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    futures = [executor.submit(worker) for _ in range(5)]
+    for f in futures:
+      f.result()

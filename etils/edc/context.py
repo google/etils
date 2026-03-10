@@ -81,14 +81,10 @@ class _ContextvarDescriptor:
     return f'_etils_contextvar_{self._attribute_name}'
 
   def _init_var(self) -> contextvars.ContextVar[Any]:
-    """Initialize the contextvar with its default value (if any)."""
+    """Initialize the contextvar."""
     default_kwargs = {}
     if self._field.default is not dataclasses.MISSING:
       default_kwargs['default'] = self._field.default
-    elif self._field.default_factory is not dataclasses.MISSING:
-      default_kwargs['default'] = self._field.default_factory()
-    else:
-      pass
     return contextvars.ContextVar(self._attribute_name, **default_kwargs)
 
   def __get__(
@@ -98,7 +94,18 @@ class _ContextvarDescriptor:
   ):
     if obj is None:
       return self
-    return self._var(obj).get()
+    var = self._var(obj)
+    try:
+      return var.get()
+    except LookupError:
+      if self._field.default_factory is not dataclasses.MISSING:
+        # Lazy-resolve default_factory per-context.
+        # Note: contexts created via copy_context() inherit the parent's
+        # already-set value (standard contextvars behavior).
+        value = self._field.default_factory()
+        var.set(value)
+        return value
+      raise
 
   def __set__(self, obj: _Dataclass, value: Any) -> None:
     self._var(obj).set(value)

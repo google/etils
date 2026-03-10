@@ -8,6 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+*   `edc`:
+    *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
+        per-context, so each thread / coroutine gets its own independent
+        default value.
+
 ## [1.14.0] - 2026-03-04
 
 *   `epy`:

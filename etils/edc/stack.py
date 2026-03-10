@@ -52,6 +52,11 @@ class ContextStack(Generic[_T]):
     finally:
       _stack.pop()
   ```
+
+  Note:
+
+  * Remember that `ThreadPoolExecutor` can reuses threads between tasks, so
+    workers might reuse the same stack.
   """
 
   if typing.TYPE_CHECKING:
