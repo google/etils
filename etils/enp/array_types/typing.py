@@ -17,6 +17,7 @@
 from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
 from etils.enp.array_types import dtypes
+from etils.enp.numpy_utils import lazy  # pylint: disable=g-importing-member
 import numpy as np
 
 _T = TypeVar('_T')
@@ -109,6 +110,8 @@ def _normalize_shape_item(item: _ShapeItem) -> ShapeSpec:
     return '...'
   elif item is None:
     return '_'
+  elif lazy.has_jax and lazy.jax.export.is_symbolic_dim(item):
+    return str(item)
   else:
     raise TypeError(f'Invalid shape type {type(item)} of: {item}')
 

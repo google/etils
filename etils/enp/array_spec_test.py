@@ -104,3 +104,16 @@ def test_array_spec_repr():
   assert repr(enp.ArraySpec((4,), str)) == 'str[4]'
   # `str()` works too:
   assert str(enp.ArraySpec((1,), np.int32)) == 'i32[1]'
+
+
+def test_array_spec_repr_symbolic_dims():
+  (sym_b,) = jax.export.symbolic_shape('B')
+  spec = enp.ArraySpec((sym_b, 32), np.float32)
+  assert repr(spec) == 'f32[B 32]'
+
+
+def test_array_spec_from_array_symbolic_dims():
+  (sym_b,) = jax.export.symbolic_shape('B')
+  struct = jax.ShapeDtypeStruct((sym_b, 32), dtype=np.float32)
+  spec = enp.ArraySpec.from_array(struct)
+  assert repr(spec) == 'f32[B 32]'
