@@ -41,7 +41,7 @@ def DEFINE_path(  # pylint: disable=invalid-name
     name: str,
     default: None,
     help: str,  # pylint: disable=redefined-builtin
-    flag_values: flags.FlagValues = ...,
+    flag_values: flags.FlagValues | None = ...,
     *,
     required: Literal[True],
     **kwargs,
@@ -55,7 +55,7 @@ def DEFINE_path(  # For consistency with other flags, pylint: disable=invalid-na
     name: str,
     default: None,
     help: str,  # pylint: disable=redefined-builtin
-    flag_values: flags.FlagValues = ...,
+    flag_values: flags.FlagValues | None = ...,
     *,
     required: Literal[False] = False,
     **kwargs,
@@ -69,7 +69,7 @@ def DEFINE_path(  # For consistency with other flags, pylint: disable=invalid-na
     name: str,
     default: epath_typing.PathLike,
     help: str,  # pylint: disable=redefined-builtin
-    flag_values: flags.FlagValues = ...,
+    flag_values: flags.FlagValues | None = ...,
     *,
     required: Literal[False] = False,
     **kwargs,
