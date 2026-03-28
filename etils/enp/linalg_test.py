@@ -29,6 +29,16 @@ def test_normalize(xnp: enp.NpModule):
   assert y.shape == x.shape
   np.testing.assert_allclose(y, [1.0, 0.0, 0.0])
 
+  y = enp.linalg.normalize(x, eps=1e-6)
+  np.testing.assert_allclose(y, [1.0, 0.0, 0.0], rtol=1e-6, atol=1e-6)
+
+
+@enp.testing.parametrize_xnp()
+def test_normalize_eps_zero(xnp: enp.NpModule):
+  x = xnp.asarray([0.0, 0.0, 0.0])
+  y = enp.linalg.normalize(x, eps=1e-6)
+  assert enp.compat.is_array_xnp(y, xnp)
+  np.testing.assert_allclose(y, [0.0, 0.0, 0.0])
 
 @enp.testing.parametrize_xnp()
 def test_normalize_batched(xnp: enp.NpModule):
@@ -51,6 +61,9 @@ def test_normalize_batched(xnp: enp.NpModule):
           [2.0 / norm, 3.0 / norm, 0],
       ],
   )
+
+  y_eps = enp.linalg.normalize(x, eps=1e-6)
+  np.testing.assert_allclose(y_eps, y, rtol=1e-6, atol=1e-6)
 
 
 @enp.testing.parametrize_xnp()
