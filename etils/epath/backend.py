@@ -232,8 +232,14 @@ class _OsPathBackend(Backend):
       import grp  # pylint: disable=g-import-not-at-top
       import pwd  # pylint: disable=g-import-not-at-top
 
-      owner = pwd.getpwuid(st.st_uid).pw_name
-      group = grp.getgrgid(st.st_gid).gr_name
+      try:
+        owner = pwd.getpwuid(st.st_uid).pw_name
+      except KeyError:
+        owner = str(st.st_uid)
+      try:
+        group = grp.getgrgid(st.st_gid).gr_name
+      except KeyError:
+        group = str(st.st_gid)
 
     return stat_utils.StatResult(
         is_directory=stat_lib.S_ISDIR(st.st_mode),
