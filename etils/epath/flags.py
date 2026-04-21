@@ -83,7 +83,7 @@ def DEFINE_path(  # pylint: disable=invalid-name
     help,  # pylint: disable=redefined-builtin
     flag_values=None,
     *,
-    required=False,
+    required: bool = False,
     **kwargs,
 ):
   """Defines a flag containing a epath.Path value."""
