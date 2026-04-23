@@ -218,8 +218,14 @@ class _GPath(abstract_path.Path):
 
   def rmtree(self, missing_ok: bool = False) -> None:
     """Remove the directory."""
+    path_str = self._path_str
+    # copybara: strip_begin
+    # gfile.DeleteRecursively doesn't work when there's a trailing slash.
+    # copybara: strip_end
+    if path_str.endswith('/'):
+      path_str = path_str[:-1]
     try:
-      self._backend.rmtree(self._path_str)
+      self._backend.rmtree(path_str)
     except FileNotFoundError:
       if not missing_ok:
         raise
