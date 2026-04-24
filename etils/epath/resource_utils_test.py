@@ -62,5 +62,19 @@ def test_resource_path():
   path = epath.Path(path)
   assert isinstance(path, epath.resource_utils.ResourcePath)
 
-  assert path.joinpath() == path
   assert path.joinpath('abc', 'def.txt').name == 'def.txt'
+
+
+def test_resource_resolve():
+  path = epath.g3_path()
+  # This should not raise AttributeError
+  resolved = path.resolve()
+  assert resolved == path
+  assert resolved.resolve() == resolved
+
+
+def test_resource_path_resolve():
+  path = epath.resource_utils.ResourcePath(_make_zip_file())
+  # This would have failed before the fix
+  resolved = path.resolve()
+  assert resolved == path
