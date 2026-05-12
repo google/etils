@@ -148,3 +148,7 @@ def _invalidate_module(module: types.ModuleType) -> None:
   module.__getattr__ = __getattr__
   # Allow `adhoc_error` to detect invalidated modules and raise better errors
   module.__etils_invalidated__ = True  # pyrefly: ignore[missing-attribute]
+  # Preserve __name__ in __dict__ so error handlers can identify this module
+  # from frame.f_globals. We write to __dict__ directly because
+  # `module.__name__` may write to a C-level slot that bypasses __dict__.
+  module.__dict__['__name__'] = module_name
