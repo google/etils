@@ -221,4 +221,9 @@ def _is_orbax(array: Array) -> bool:
 
 
 def _is_jax_random_dtype(dtype: Any) -> bool:
-  return lazy.has_jax and isinstance(dtype, lazy.jax._src.prng.KeyTy)  # pylint: disable=protected-access
+  if not lazy.has_jax:
+    return False
+  prng = getattr(lazy.jax._src, 'prng', None)  # pylint: disable=protected-access
+  if prng is None:
+    prng = lazy.jax._src.random.prng  # pylint: disable=protected-access
+  return isinstance(dtype, prng.KeyTy)  # pylint: disable=protected-access
