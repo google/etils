@@ -143,7 +143,7 @@ class _OsPathBackend(Backend):
     return [p for p in os.listdir(path) if not p.endswith('~')]
 
   def glob(self, path: PathLike) -> list[str]:
-    return glob_lib.glob(path)  # pyrefly: ignore[bad-argument-type]
+    return glob_lib.glob(path)  # pyrefly: ignore[bad-return, bad-specialization]
 
   def walk(
       self,
