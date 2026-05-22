@@ -49,5 +49,8 @@ def reverse_fstring(pattern: str, string: str) -> dict[str, str] | None:
 
 @functools.cache
 def _pattern_cache(pattern: str) -> re.Pattern[str]:
-  pattern = re.sub(r'\{(?P<name>\w+)\}', r'(?P<\g<name>>.+)', pattern)
+  def _replace_named_group(m: re.Match[str]) -> str:
+    return f'(?P<{m.group(1)}>[^/]+)'
+  pattern = re.escape(pattern)
+  pattern = re.sub(r'\\\{(?P<name>\w+)\\\}', _replace_named_group, pattern)
   return re.compile(pattern)
