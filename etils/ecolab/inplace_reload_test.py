@@ -19,6 +19,7 @@ import os
 import pathlib
 import sys
 import textwrap
+import time
 import types
 from typing import Iterator
 
@@ -380,3 +381,40 @@ def test_reload_enum(reloader: _Reloader):  # pylint: disable=redefined-outer-na
   assert hasattr(mod.A, 'BUZZ')
   # The singletons are updated (even if saved values aren't).
   assert old_mod.A.FOO is mod.A.FOO
+
+
+def test_reload_enum_recursion_loop(reloader: _Reloader):  # pylint: disable=redefined-outer-name
+  old_classes = []
+  old_mod = reloader.reimport_module(
+      'test_module',
+      """
+      import enum
+
+      class Color(enum.Enum):
+        RED = enum.auto()
+      """,
+  )
+  a = old_mod.Color.RED
+  old_classes.append(old_mod.Color)
+
+  # Reload 22 times to build a nested chain.
+  for _ in range(22):
+    mod = reloader.reimport_module(
+        'test_module',
+        """
+        import enum
+
+        class Color(enum.Enum):
+          RED = enum.auto()
+        """,
+    )
+    old_classes.append(mod.Color)
+
+  start_t = time.time()
+  res = a == mod.Color.RED
+  duration = time.time() - start_t
+  print(f'a == mod.Color.RED took {duration:.6f} seconds')
+  assert res
+  assert (
+      duration < 1.0
+  ), f'Comparison took too long ({duration:.6f}s), indicating a recursion loop'

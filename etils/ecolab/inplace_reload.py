@@ -110,7 +110,7 @@ class _ObjectUpdater:
       # Normal enums compare by singleton and dont implement eq. For these,
       # override it to our special eq. If eq is implemented (eg. for
       # ReprEnum's) just leave it alone.
-      if cur_eq(x, y) == NotImplemented:
+      if eq == NotImplemented:
         return x is y or x.__class__ == y.__class__ and x.name == y.name
       return eq
 
