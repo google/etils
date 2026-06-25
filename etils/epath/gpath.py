@@ -55,6 +55,15 @@ def _epath_use_tf() -> bool:
       '0',
   ]
 
+
+def _epath_prefer_fsspec() -> bool:
+  return os.environ.get('EPATH_PREFER_FSSPEC', '').lower() in [
+      'true',
+      'yes',
+      'y',
+      '1',
+  ]
+
 _PREFIX_TO_BACKEND = {
     'gs': backend_lib.fsspec_backend,
     's3': backend_lib.fsspec_backend,
@@ -112,11 +121,11 @@ class _GPath(abstract_path.Path):
   def _backend(self) -> backend_lib.Backend:
     try:
       backend = _PREFIX_TO_BACKEND[self._uri_scheme]
-      # Choose tf_backend if tf is installed. We don't use FSSpec by default
-      # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
-      # may not be installed. fsspec_backend was indeed introduced later.
-      if _is_tf_installed() and self._uri_scheme is not None:
-        return backend_lib.tf_backend
+      if self._uri_scheme is not None:
+        if _is_fsspec_gcsfs_installed():
+          return backend_lib.fsspec_backend
+        elif _is_tf_installed():
+          return backend_lib.tf_backend
       return backend
     except KeyError:
       supported = ', '.join(f'`{k}://`' for k in _PREFIX_TO_BACKEND)
@@ -306,6 +315,17 @@ class WindowsGPath(pathlib.PureWindowsPath, _GPath):
   """Pathlib like api with gs://, s3:// support."""
 
   _PATH = ntpath
+
+
+@functools.cache
+def _is_fsspec_gcsfs_installed() -> bool:
+  """Checks whether fsspec and gcsfs are installed and environment variable is set"""
+  if not _epath_prefer_fsspec():
+    return False
+  return (
+      importlib.util.find_spec('fsspec') is not None
+      and importlib.util.find_spec('gcsfs') is not None
+  )
 
 
 @functools.cache
