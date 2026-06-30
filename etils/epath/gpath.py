@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import functools
 import importlib.util
+import logging
 import ntpath
 import os
 import pathlib
@@ -76,6 +77,18 @@ _GCS_BACKENDS = frozenset({
     backend_lib.tf_backend,
 })
 
+
+_SCHEME_TO_LOGGED_BACKEND = {}
+
+def _log_backend_selection(scheme: str, backend: backend_lib.Backend):
+  backend_type = type(backend)
+  if _SCHEME_TO_LOGGED_BACKEND.get(scheme) != backend_type:
+    logging.info(
+        'epath: Using %s backend for %s://', backend_type.__name__, scheme
+    )
+    _SCHEME_TO_LOGGED_BACKEND[scheme] = backend_type
+
+
 # Available modes (from tensorflow/python/lib/io/file_io.py;l=55)
 # Also exclude `+` as broken in gfile
 _OPEN_MODES = ('r', 'w', 'a')
@@ -123,9 +136,10 @@ class _GPath(abstract_path.Path):
       backend = _PREFIX_TO_BACKEND[self._uri_scheme]
       if self._uri_scheme is not None:
         if _is_fsspec_gcsfs_installed():
-          return backend_lib.fsspec_backend
+          backend = backend_lib.fsspec_backend
         elif _is_tf_installed():
-          return backend_lib.tf_backend
+          backend = backend_lib.tf_backend
+        _log_backend_selection(self._uri_scheme, backend)
       return backend
     except KeyError:
       supported = ', '.join(f'`{k}://`' for k in _PREFIX_TO_BACKEND)
