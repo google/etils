@@ -49,6 +49,7 @@ def reload_workspace(
     reload_mode: (
         inplace_reload.ReloadMode | str
     ) = inplace_reload.ReloadMode.INVALIDATE,
+    reload_protos: bool = True,
 ) -> None:
   """Reload all modified files in the current workspace.
 
@@ -62,6 +63,7 @@ def reload_workspace(
     restrict: Same as `ecolab.adhoc`
     verbose: Same as `ecolab.adhoc`
     reload_mode: Same as `ecolab.adhoc`
+    reload_protos: Same as `ecolab.adhoc`
   """
 
   from etils import g3_utils  # pylint: disable=g-import-not-at-top
@@ -107,6 +109,7 @@ def reload_workspace(
       reload_recursive=False,
       reload_mode=reload_mode,
       verbose=verbose,
+      reload_protos=reload_protos,
       collapse_prefix=f'Reload workspace ({len(modules_to_reload)} modules): ',
   ):
     for module_name in modules_to_reload:
