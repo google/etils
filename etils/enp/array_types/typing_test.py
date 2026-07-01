@@ -26,15 +26,15 @@ bf16 = enp.typing.ArrayAliasMeta(shape=None, dtype=np.dtype(jnp.bfloat16))
 
 
 # Make sure annotations do not trigger pytype errors
-def f(x: f32, y: ui8['... c']):
+def f(x: f32, y: ui8['... c']):  # pyrefly: ignore[not-a-type]
   return x + y
 
 
 def g():
-  x0: Array = np.array([0])
-  x1: Array['...'] = np.array([0])
-  x2: f32['...'] = np.array([0])
-  x3: ui8['...'] = np.array([0])
+  x0: Array = np.array([0])  # pyrefly: ignore[not-a-type]
+  x1: Array['...'] = np.array([0])  # pyrefly: ignore[not-a-type]
+  x2: f32['...'] = np.array([0])  # pyrefly: ignore[not-a-type]
+  x3: ui8['...'] = np.array([0])  # pyrefly: ignore[not-a-type]
 
   f(np.array([0]), np.array([0]))
   f(x0, x1)

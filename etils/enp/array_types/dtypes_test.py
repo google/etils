@@ -85,7 +85,7 @@ _ALL_ITEMS = [
             _ArrayItem([1], np.float32, iscast=False),  # pytype: disable=wrong-arg-types  # numpy-scalars
             _ArrayItem([1.0], np.float32),  # pytype: disable=wrong-arg-types  # numpy-scalars
             _ArrayItem(  # pytype: disable=wrong-arg-types  # numpy-scalars
-                np.array([True], dtype=np.bool_), np.float32, iscast=True
+                np.array([True], dtype=np.bool_), np.float32, iscast=True  # pyrefly: ignore[bad-argument-type]
             ),
             _ArrayItem(np.array(1, dtype=np.uint8), np.float32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
             # Float values not casted

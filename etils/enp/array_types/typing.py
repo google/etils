@@ -80,9 +80,9 @@ class ArrayAliasMeta(type):
   def __getitem__(cls, shape: _ShapeSpecInput) -> 'ArrayAliasMeta':
     if shape is None:  # Normalize 'Array[None]'
       shape = (shape,)
-    return ArrayAliasMeta(shape=shape, dtype=cls.dtype)
+    return ArrayAliasMeta(shape=shape, dtype=cls.dtype)  # pyrefly: ignore[bad-argument-type]
 
-  def __eq__(cls, other: 'ArrayAliasMeta') -> bool:
+  def __eq__(cls, other: 'ArrayAliasMeta') -> bool:  # pyrefly: ignore[bad-override]
     return (
         isinstance(other, ArrayAliasMeta)
         and cls.shape == other.shape

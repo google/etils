@@ -68,9 +68,9 @@ class Path(pathlib.PurePosixPath):
 
     if cls == Path:
       if not args:
-        return register.make_path('.')
+        return register.make_path('.')  # pyrefly: ignore[bad-return]
       root, *parts = args
-      return register.make_path(root).joinpath(*parts)
+      return register.make_path(root).joinpath(*parts)  # pyrefly: ignore[bad-return]
     else:
       return super().__new__(cls, *args)
 
