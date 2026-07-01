@@ -59,7 +59,7 @@ def test_splitby():
 def test_zip_dict():
   d0 = {'a': 1, 'b': 2}
   d1 = {'a': 10, 'b': 20}
-  assert list(epy.zip_dict(d0, d1)) == [
+  assert list(epy.zip_dict(d0, d1)) == [  # pyrefly: ignore[bad-argument-type]
       ('a', (1, 10)),
       ('b', (2, 20)),
   ]
@@ -67,7 +67,7 @@ def test_zip_dict():
   # Order is preserved
   d0 = {'b': 1, 'a': 2}
   d1 = {'b': 10, 'a': 20}
-  assert list(epy.zip_dict(d0, d1)) == [
+  assert list(epy.zip_dict(d0, d1)) == [  # pyrefly: ignore[bad-argument-type]
       ('b', (1, 10)),
       ('a', (2, 20)),
   ]
@@ -75,10 +75,10 @@ def test_zip_dict():
   d0 = {'a': 1}
   d1 = {'a': 10, 'b': 20}
   with pytest.raises(KeyError):
-    list(epy.zip_dict(d0, d1))
+    list(epy.zip_dict(d0, d1))  # pyrefly: ignore[bad-argument-type]
 
   with pytest.raises(KeyError):
-    list(epy.zip_dict(d1, d0))
+    list(epy.zip_dict(d1, d0))  # pyrefly: ignore[bad-argument-type]
 
 
 def test_zip_dict_three():
@@ -86,15 +86,15 @@ def test_zip_dict_three():
   d1 = {'a': 10, 'b': 20}
   d2 = {'a': 100, 'b': 200}
 
-  assert list(epy.zip_dict(d0, d1, d2)) == [
+  assert list(epy.zip_dict(d0, d1, d2)) == [  # pyrefly: ignore[bad-argument-type]
       ('a', (1, 10, 100)),
       ('b', (2, 20, 200)),
   ]
 
   d2 = {'a': 100, 'b': 200, 'c': 300}
   with pytest.raises(KeyError):
-    list(epy.zip_dict(d0, d1, d2))
+    list(epy.zip_dict(d0, d1, d2))  # pyrefly: ignore[bad-argument-type]
 
   d2 = {'a': 100, 'c': 300}
   with pytest.raises(KeyError):
-    list(epy.zip_dict(d0, d1, d2))
+    list(epy.zip_dict(d0, d1, d2))  # pyrefly: ignore[bad-argument-type]

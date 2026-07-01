@@ -55,8 +55,8 @@ def test_py_map():
   tree_out = etree.py.map(lambda x, y: x + y, tree0, tree1)
   assert tree_out == expected_tree
   # type preserved
-  assert isinstance(tree_out['a'][1], NamedTuple)
-  assert isinstance(tree_out['a'][2], collections.UserDict)
+  assert isinstance(tree_out['a'][1], NamedTuple)  # pyrefly: ignore[bad-index]
+  assert isinstance(tree_out['a'][2], collections.UserDict)  # pyrefly: ignore[bad-index]
   # dict key order preserved
   assert list(tree_out) == ['b', 'a']
 
@@ -66,8 +66,8 @@ def test_py_map():
   assert flat0 == [7, 6, 5, 4, 2, 1]
   unflat = etree.py.backend.unflatten(tree_struct, flat0)
   assert unflat == tree_struct
-  assert isinstance(unflat['a'][1], NamedTuple)
-  assert isinstance(unflat['a'][2], collections.UserDict)
+  assert isinstance(unflat['a'][1], NamedTuple)  # pyrefly: ignore[bad-index]
+  assert isinstance(unflat['a'][2], collections.UserDict)  # pyrefly: ignore[bad-index]
 
 
 def test_py_map_defaultdict():
@@ -75,7 +75,7 @@ def test_py_map_defaultdict():
   d[0] = 1
 
   d = etree.map(lambda x: x + 1, d)
-  assert d[0] == 2
+  assert d[0] == 2  # pyrefly: ignore[bad-index]
   assert isinstance(d, collections.defaultdict)
 
   flat0, tree_struct = etree.py.backend.flatten(d)

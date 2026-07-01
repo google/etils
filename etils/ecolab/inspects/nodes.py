@@ -345,7 +345,7 @@ class FnNode(ObjectNode[Callable[..., Any]]):
 
 
 @dataclasses.dataclass
-class ArrayNode(ObjectNode[enp.typing.Array]):
+class ArrayNode(ObjectNode[enp.typing.Array]):  # pyrefly: ignore[not-a-type]
   """Array."""
 
   MATCH_TYPES = enp.lazy.LazyArray

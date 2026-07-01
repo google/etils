@@ -50,7 +50,7 @@ def test_edc(frozen: bool):
   assert d.c_non_autocast == '456'
 
   if not frozen:
-    d.d = '444'
+    d.d = '444'  # pyrefly: ignore[bad-assignment]
     assert d.d == 444
 
 

@@ -39,10 +39,10 @@ def tag(name: str, **attributes: str | list[str] | None) -> Callable[..., str]:
   # Could be much more optimized by first building the graph of nested
   # element, then joining individual parts
 
-  attributes = _format_tag_attributes(attributes)
+  attributes = _format_tag_attributes(attributes)  # pyrefly: ignore[bad-argument-type, bad-assignment]
 
   def apply(*content: str) -> str:
-    content = ''.join(content)
+    content = ''.join(content)  # pyrefly: ignore[bad-assignment]
     return f'<{name}{attributes}>{content}</{name}>'
 
   return apply

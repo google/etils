@@ -174,7 +174,7 @@ def test_unfrozen_assigned_object():
   x = x_origin.unfrozen()  # pytype: disable=attribute-error
 
   x.x = A(x=456)
-  x.x.y = 567
+  x.x.y = 567  # pyrefly: ignore[read-only]
   x = x.frozen()
   assert x == A(x=A(x=456, y=567))
   assert x_origin == A(x=A(x=123))

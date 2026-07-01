@@ -256,7 +256,7 @@ def _make_kw_only(cls: _ClsT) -> _ClsT:
           f'{self.__class__.__name__} contructor is keyword-only. '
           f'Got {len(args)} positional arguments.'
       )
-    return old_init(self, **kwargs)
+    return old_init(self, **kwargs)  # pyrefly: ignore[bad-argument-count]
 
   cls.__init__ = __init__
 
@@ -267,13 +267,13 @@ def _add_replace(cls: _ClsT) -> _ClsT:
   """Add a `.replace` method to the class, if not already present."""
   # Only add replace if not present
   if not hasattr(cls, 'replace'):
-    cls.replace = replace
+    cls.replace = replace  # pyrefly: ignore[missing-attribute]
   return cls
 
 
 def replace(self: _T, **kwargs: Any) -> _T:
   """Similar to `dataclasses.replace`."""
-  return dataclasses.replace(self, **kwargs)
+  return dataclasses.replace(self, **kwargs)  # pyrefly: ignore[bad-specialization]
 
 
 def add_repr(cls: _ClsT) -> _ClsT:
@@ -282,7 +282,7 @@ def add_repr(cls: _ClsT) -> _ClsT:
   if '__repr__' not in cls.__dict__:
     return cls
   if epy.text_utils.has_default_repr(cls):
-    cls.__repr__ = __repr__
+    cls.__repr__ = __repr__  # pyrefly: ignore[bad-assignment]
   return cls
 
 

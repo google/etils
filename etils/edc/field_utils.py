@@ -107,15 +107,15 @@ class _Field(Generic[_InT, _OutT]):
         # the default value, or raising an AttributeError. Currently, we just
         # return the descriptor:
         # assert isinstance(MyDataclass.my_attribute, _Field)
-        return self
+        return self  # pyrefly: ignore[bad-return]
     else:
       # Called as `my_dataclass.my_path`
-      return _getattr(obj, self._attribute_name)
+      return _getattr(obj, self._attribute_name)  # pyrefly: ignore[bad-argument-type]
 
   def __set__(self, obj: _Dataclass, value: _InT) -> None:
     """Called as `my_dataclass.x = value`."""
     # Validate the value during assignement
-    _setattr(obj, self._attribute_name, self._validate(value))
+    _setattr(obj, self._attribute_name, self._validate(value))  # pyrefly: ignore[bad-argument-type]
 
   def _validate(self, value: _InT) -> _OutT:
     try:

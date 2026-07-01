@@ -45,7 +45,7 @@ def get_attrs(obj: object) -> dict[str, object]:
   attrs = {}
   # Merge `dir(obj)` with `object.__dir__(obj)` to bypass custom object
   # `__dir__`
-  for k in dir(obj) + object.__dir__(obj):
+  for k in dir(obj) + object.__dir__(obj):  # pyrefly: ignore[unsupported-operation]
     if k in attrs:
       continue
     try:

@@ -90,7 +90,7 @@ class TreeAPI:
 
       for f in itr:  # Propagate exception to main thread.
         if f.exception():
-          raise f.exception()
+          raise f.exception()  # pyrefly: ignore[bad-raise]
 
     return self.backend.map(lambda f: f.result(), futures)
 
@@ -113,11 +113,11 @@ class TreeAPI:
     """
     leaves, treedef = self.backend.flatten(tree)
     for leaf_elems in zip(*leaves):  # TODO(py310): check=True
-      yield self.backend.unflatten(treedef, leaf_elems)
+      yield self.backend.unflatten(treedef, leaf_elems)  # pyrefly: ignore[bad-argument-type]
 
   def stack(
-      self, trees: Iterable[Tree[Array['*s']]]
-  ) -> Tree[Array['n_trees *s']]:
+      self, trees: Iterable[Tree[Array['*s']]]  # pyrefly: ignore[not-a-type]
+  ) -> Tree[Array['n_trees *s']]:  # pyrefly: ignore[not-a-type, unknown-name]
     """Stack a tree of `Iterable[Array]`.
 
     Supports `jax`, `tf`, `np`.
@@ -144,7 +144,7 @@ class TreeAPI:
 
   def spec_like(
       self,
-      tree: Tree[Array],
+      tree: Tree[Array],  # pyrefly: ignore[not-a-type]
       *,
       ignore_other: bool = True,
   ) -> Tree[enp.ArraySpec]:
@@ -184,7 +184,7 @@ class TreeAPI:
     return self.map(lambda x: x, tree)
 
 
-def _stack(*arrs: Array) -> Array:
+def _stack(*arrs: Array) -> Array:  # pyrefly: ignore[not-a-type]
   """Stack arrays together."""
   xnp = enp.lazy.get_xnp(arrs[0])
   return xnp.stack(arrs)

@@ -93,7 +93,7 @@ def test_frozen():
     a.x = 456
 
   with pytest.raises(AttributeError):
-    a.w = 456
+    a.w = 456  # pyrefly: ignore[missing-attribute]
 
 
 def test_frozen_inheritance_no_init():
@@ -106,7 +106,7 @@ def test_frozen_inheritance_no_init():
     a.x = 456
 
   with pytest.raises(AttributeError):
-    a.w = 456
+    a.w = 456  # pyrefly: ignore[missing-attribute]
 
 
 def test_frozen_inheritance_missing_frozen():
@@ -125,7 +125,7 @@ def test_frozen_inheritance_missing_frozen():
   assert b.x == 123
 
   with pytest.raises(AttributeError):
-    b.w = 456
+    b.w = 456  # pyrefly: ignore[missing-attribute]
 
 
 def test_frozen_inheritance_new_init():
@@ -142,7 +142,7 @@ def test_frozen_inheritance_new_init():
   assert b.x2 == 123
   assert b.x3 == 123
   with pytest.raises(AttributeError):
-    b.w = 456
+    b.w = 456  # pyrefly: ignore[missing-attribute]
 
 
 def test_issubclass():
