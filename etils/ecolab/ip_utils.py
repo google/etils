@@ -49,6 +49,6 @@ def register_once(
       break
 
   # Mark the function (so it can be cleared when reloaded)
-  callback.__ecolab_event__ = info
+  callback.__ecolab_event__ = info  # pyrefly: ignore[missing-attribute]
 
   ip.events.register(event_name, callback)

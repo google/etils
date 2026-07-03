@@ -67,7 +67,7 @@ class LazyModuleState:
   module_name: str
   alias: str
   is_std: bool = dataclasses.field(repr=False, default=False)
-  host: LazyModule = dataclasses.field(repr=False, default=None)
+  host: LazyModule = dataclasses.field(repr=False, default=None)  # pyrefly: ignore[bad-assignment]
   extra_imports: list[str] = dataclasses.field(default_factory=list)
   _module: Optional[types.ModuleType] = None
   # Track the trace which trigger the import
@@ -92,7 +92,7 @@ class LazyModuleState:
       )
       # Update the module.__doc__, module.__file__,...
       self._mutate_host()
-    return self._module
+    return self._module  # pyrefly: ignore[bad-return]
 
   @property
   def module_loaded(self) -> bool:
@@ -141,7 +141,7 @@ class module(types.ModuleType):  # pylint: disable=invalid-name
     object.__setattr__(self, '__file__', None)
     object.__setattr__(self, '_etils_state', state)
     assert state.host is None
-    state.host = self
+    state.host = self  # pyrefly: ignore[bad-assignment]
 
   def __getattr__(self, name: str) -> Any:
     if not self._etils_state.module_loaded and name in {
@@ -229,7 +229,7 @@ class LazyImportsBuilder:
     # to modify the `sys.modules` cache in any way)
     original_import = builtins.__import__
     try:
-      builtins.__import__ = _lazy_import
+      builtins.__import__ = _lazy_import  # pyrefly: ignore[bad-assignment]
       yield
     finally:
       builtins.__import__ = original_import
@@ -339,16 +339,16 @@ def current_import_statements(lazy_modules: dict[str, LazyModule]) -> str:
   """Returns the lazy import statement string."""
   lines = []
 
-  lazy_modules = [m._etils_state for m in lazy_modules.values()]  # pylint: disable=protected-access
+  lazy_modules = [m._etils_state for m in lazy_modules.values()]  # pylint: disable=protected-access  # pyrefly: ignore[bad-assignment]
   used_lazy_modules = [
       # For convenience, we do not add the `lazy_imports` import
       m
       for m in lazy_modules
-      if m.module_loaded and m.alias != 'lazy_imports'
+      if m.module_loaded and m.alias != 'lazy_imports'  # pyrefly: ignore[missing-attribute]
   ]
-  std_modules = [m.import_statement for m in used_lazy_modules if m.is_std]
+  std_modules = [m.import_statement for m in used_lazy_modules if m.is_std]  # pyrefly: ignore[missing-attribute]
   non_std_modules = [
-      m.import_statement for m in used_lazy_modules if not m.is_std
+      m.import_statement for m in used_lazy_modules if not m.is_std  # pyrefly: ignore[missing-attribute]
   ]
 
   # Import standard python module first, then other modules

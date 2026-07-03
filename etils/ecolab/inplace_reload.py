@@ -114,7 +114,7 @@ class _ObjectUpdater:
         return x is y or x.__class__ == y.__class__ and x.name == y.name
       return eq
 
-    new.__eq__ = enum_eq
+    new.__eq__ = enum_eq  # pyrefly: ignore[bad-assignment]
 
   def _update_function(self, old: types.FunctionType, new: types.FunctionType):
     """Upgrade the code object of a function."""
@@ -133,9 +133,9 @@ class _ObjectUpdater:
 
   def _update_property(self, old: property, new: property):
     """Replace get/set/del functions of a property."""
-    self._update_function(old.fdel, new.fdel)
-    self._update_function(old.fget, new.fget)
-    self._update_function(old.fset, new.fset)
+    self._update_function(old.fdel, new.fdel)  # pyrefly: ignore[bad-argument-type]
+    self._update_function(old.fget, new.fget)  # pyrefly: ignore[bad-argument-type]
+    self._update_function(old.fset, new.fset)  # pyrefly: ignore[bad-argument-type]
 
   def update(self, old, new):
     """Updates a function/class/method/property to a new definition."""

@@ -222,7 +222,7 @@ else:
 
 
 def _reraise_error(fn: _T) -> _T:
-  @functools.wraps(fn)
+  @functools.wraps(fn)  # pyrefly: ignore[bad-argument-type]
   def decorated(self, node: ast.AST):
     try:
       return fn(self, node)  # pytype: disable=wrong-arg-types
@@ -231,7 +231,7 @@ def _reraise_error(fn: _T) -> _T:
       print(f'Error for code:\n-----\n{code}\n-----')
       traceback.print_exception(e)
 
-  return decorated
+  return decorated  # pyrefly: ignore[bad-return]
 
 
 class _AddDisplayStatement(ast.NodeTransformer):
@@ -261,7 +261,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
           fn_kwargs.append(ast.keyword('line_code', _unparse_line(node)))
 
         node.value = ast.Call(  # pytype: disable=wrong-arg-types
-            func=_parse_expr('ecolab.auto_display_utils._display_and_return'),
+            func=_parse_expr('ecolab.auto_display_utils._display_and_return'),  # pyrefly: ignore[bad-argument-type]
             args=[node.value],
             keywords=fn_kwargs,
         )
@@ -281,7 +281,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
     if any(l not in _Options.all_letters for l in name):
       return False
     # The alias is not in the same line as a trailing `;`
-    if node.end_lineno - 1 not in self.lines_recorder.trailing_stmt_line_nums:
+    if node.end_lineno - 1 not in self.lines_recorder.trailing_stmt_line_nums:  # pyrefly: ignore[unsupported-operation]
       return False
     return True
 
@@ -292,13 +292,13 @@ class _AddDisplayStatement(ast.NodeTransformer):
     node = self._maybe_display(node)  # pytype: disable=wrong-arg-types
     assert isinstance(node, _WrapAssertNode)
     node = node._node  # Unwrap  # pylint: disable=protected-access
-    return node
+    return node  # pyrefly: ignore[bad-return]
 
   # pylint: disable=invalid-name
   visit_Assign = _reraise_error(_maybe_display)
   visit_AnnAssign = _reraise_error(_maybe_display)
   visit_Expr = _reraise_error(_maybe_display)
-  visit_Return = _reraise_error(_maybe_display)
+  visit_Return = _reraise_error(_maybe_display)  # pyrefly: ignore[bad-override]
   # pylint: enable=invalid-name
 
 
@@ -323,7 +323,7 @@ class _WrapAssertNode(ast.Assert):
 
   @value.setter
   def value(self, value: ast.AST) -> None:
-    self._node.test = value
+    self._node.test = value  # pyrefly: ignore[bad-assignment]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -397,7 +397,7 @@ def _detect_trailing_regex() -> re.Pattern[str]:
 def _unparse_line(node: ast.AST) -> ast.Constant:
   """Extract the line code."""
   if isinstance(node, ast.Assign):
-    node = node.targets
+    node = node.targets  # pyrefly: ignore[bad-assignment]
   elif isinstance(node, ast.AnnAssign):
     node = node.target
   return ast.Constant(ast.unparse(node))
@@ -427,13 +427,13 @@ def _display_and_return(
 ) -> _T:
   """Print `x` and return `x`."""
   x_origin = x
-  options = {_Options(o) for o in options}
+  options = {_Options(o) for o in options}  # pyrefly: ignore[bad-assignment]
 
   if _Options.QUIET in options:  # Do not display anything
     return x_origin
 
   if _Options.SPEC in options:  # Convert to spec
-    x = etree.spec_like(x)
+    x = etree.spec_like(x)  # pyrefly: ignore[bad-assignment]
 
   repr_fn = pretty.pretty
   display_fn = IPython.display.display

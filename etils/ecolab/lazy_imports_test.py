@@ -35,13 +35,13 @@ def test_lazy_imports():
   assert jax.numpy.zeros((2, 3)).shape == (2, 3)
   assert "jax" in sys.modules
   assert repr(jax).startswith("<lazy_module 'jax'")
-  assert jax._etils_state.module_loaded
+  assert jax._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
 
   from etils.ecolab.lazy_imports import jnp  # pylint: disable=g-import-not-at-top
 
-  assert not jnp._etils_state.module_loaded
+  assert not jnp._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
   _ = jnp.array  # Trigger import
-  assert jnp._etils_state.module_loaded
+  assert jnp._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
   del jnp
 
   from etils.ecolab.lazy_imports import epy  # pylint: disable=g-import-not-at-top
@@ -79,7 +79,7 @@ def test_lazy_imports_mutate():
   _ = enp.NpModule
   assert enp._etils_state.module_loaded  # pytype: disable=module-attr
 
-  enp.some_value = 123
+  enp.some_value = 123  # pyrefly: ignore[missing-attribute]
 
   # Mutating lazy import is propagated to the shared instance.
   from etils import enp as enp2  # pylint: disable=g-import-not-at-top

@@ -158,7 +158,7 @@ class ModuleReloader:
         'reload_recursive': False,
         'collapse_prefix': f'Autoreload ({len(modules_to_reload)} modules): ',
     }
-    with adhoc_imports.adhoc(**adhoc_kwargs):
+    with adhoc_imports.adhoc(**adhoc_kwargs):  # pyrefly: ignore[bad-argument-type]
       for module in modules_to_reload:
         importlib.import_module(module)
 

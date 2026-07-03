@@ -209,14 +209,14 @@ def _array_repr_html_inner(
 
   if ndim < 4:
     out = media.show_image(img, return_html=True, **show_images_kwargs)
-  elif num_frames < video_min_num_frames:
+  elif num_frames < video_min_num_frames:  # pyrefly: ignore[unbound-name]
     out = media.show_images(img, return_html=True, **show_images_kwargs)
   else:
     # TODO(epot): media.show_video does not support single channel video
     if num_channel != 3:
       return None
     # Dynamically compute the frame-rate, capped at 25 FPS
-    fps = min(num_frames // 5, 25.0)
+    fps = min(num_frames // 5, 25.0)  # pyrefly: ignore[unbound-name]
 
     show_videos_kwargs.setdefault('fps', fps)
 

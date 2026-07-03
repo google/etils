@@ -219,6 +219,6 @@ def get_permalink(
         if value != default  # Only add params which are different from default
     }
 
-  template_params = json_std.dumps(template_params)
-  template_params = urllib.parse.quote(template_params)
+  template_params = json_std.dumps(template_params)  # pyrefly: ignore[bad-assignment]
+  template_params = urllib.parse.quote(template_params)  # pyrefly: ignore[no-matching-overload]
   return f'{url}#templateParams={template_params}'

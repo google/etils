@@ -37,7 +37,7 @@ def _invalidate_module(module: types.ModuleType) -> None:
   """Simulate the invalidation done by adhoc reload."""
   module_name = module.__name__
   module.__dict__.clear()
-  module.__etils_invalidated__ = True
+  module.__etils_invalidated__ = True  # pyrefly: ignore[missing-attribute]
   module.__dict__['__name__'] = module_name
 
 
@@ -232,7 +232,7 @@ class TestModuleHasStaleRefs:
     )
 
     module = types.ModuleType('test')
-    module.stale_func = stale_func
+    module.stale_func = stale_func  # pyrefly: ignore[missing-attribute]
 
     assert adhoc_error._module_has_stale_refs(module)
 
@@ -249,7 +249,7 @@ class TestModuleHasStaleRefs:
     Float = Meta('Float', (), {})
 
     module = types.ModuleType('test')
-    module.Float = Float
+    module.Float = Float  # pyrefly: ignore[missing-attribute]
 
     assert adhoc_error._module_has_stale_refs(module)
 
@@ -263,13 +263,13 @@ class TestModuleHasStaleRefs:
     )
 
     module = types.ModuleType('test')
-    module.__stale__ = stale_func
+    module.__stale__ = stale_func  # pyrefly: ignore[missing-attribute]
 
     assert not adhoc_error._module_has_stale_refs(module)
 
   def test_no_stale_refs(self):
     module = types.ModuleType('test')
-    module.x = 42
+    module.x = 42  # pyrefly: ignore[missing-attribute]
 
     assert not adhoc_error._module_has_stale_refs(module)
 
@@ -284,7 +284,7 @@ class TestModuleHasStaleRefs:
         module.__dict__['_lazy_resolved'] = True
         return {}
 
-    module.trigger = LazyTrigger()
+    module.trigger = LazyTrigger()  # pyrefly: ignore[missing-attribute]
 
     # Before the list() snapshot fix, this would raise:
     #   RuntimeError: dictionary changed size during iteration
