@@ -24,18 +24,18 @@ from etils.enp.typing import Array, ArrayLike, FloatArray  # pylint: disable=g-m
 
 lazy = numpy_utils.lazy
 
-_MinMaxValue = Union[int, float, ArrayLike[Array['d']]]
+_MinMaxValue = Union[int, float, ArrayLike[Array['d']]]  # pyrefly: ignore[not-a-type, unknown-name]
 
 
 @checking.check_and_normalize_arrays(strict=False)
 def interp(
-    x: Array['*d'],
+    x: Array['*d'],  # pyrefly: ignore[not-a-type]
     from_: Tuple[_MinMaxValue, _MinMaxValue],
     to: Tuple[_MinMaxValue, _MinMaxValue],
     *,
     axis: int = -1,
     xnp: numpy_utils.NpModule = ...,
-) -> FloatArray['*d']:
+) -> FloatArray['*d']:  # pyrefly: ignore[not-a-type]
   """Linearly scale the given value by the given range.
 
   Somehow similar to `np.interp` or `scipy.interpolate.inter1d` with some
@@ -115,8 +115,8 @@ def _linear_interp_factors(
     old_max: _MinMaxValue,
     new_min: _MinMaxValue,
     new_max: _MinMaxValue,
-) -> Tuple[Union[float, FloatArray['d']], Union[float, FloatArray['d']]]:
+) -> Tuple[Union[float, FloatArray['d']], Union[float, FloatArray['d']]]:  # pyrefly: ignore[not-a-type, unknown-name]
   """Resolve the `y = a * x + b` equation and returns the factors."""
-  a = (new_min - new_max) / (old_min - old_max)
-  b = (old_min * new_max - new_min * old_max) / (old_min - old_max)
+  a = (new_min - new_max) / (old_min - old_max)  # pyrefly: ignore[unsupported-operation]
+  b = (old_min * new_max - new_min * old_max) / (old_min - old_max)  # pyrefly: ignore[unsupported-operation]
   return a, b

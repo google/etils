@@ -24,19 +24,19 @@ enable_tf_np_mode = enp.testing.set_tnp
 
 
 @enp.check_and_normalize_arrays
-def fn_base(x: f32, y: IntArray):
+def fn_base(x: f32, y: IntArray):  # pyrefly: ignore[not-a-type]
   assert enp.lazy.get_xnp(x) is enp.lazy.get_xnp(y)
   return x + y
 
 
 @enp.check_and_normalize_arrays(strict=False)
-def fn_non_strict(x: f32, y: IntArray):
+def fn_non_strict(x: f32, y: IntArray):  # pyrefly: ignore[not-a-type]
   assert enp.lazy.get_xnp(x) is enp.lazy.get_xnp(y)
   return x + y
 
 
 @enp.check_and_normalize_arrays
-def fn_xnp_kwarg(x: f32, y: IntArray, *, xnp: enp.NpModule = ...):
+def fn_xnp_kwarg(x: f32, y: IntArray, *, xnp: enp.NpModule = ...):  # pyrefly: ignore[not-a-type]
   assert enp.lazy.get_xnp(x) is enp.lazy.get_xnp(y)
   assert enp.lazy.get_xnp(x) is xnp
   return x + y

@@ -28,10 +28,10 @@ import pytest
     [
         (int, [int]),
         (f32[''], [f32['']]),
-        (Union[f32, int], [f32, int]),
-        (Union[f32[''], int, None], [f32[''], int, None]),
-        (Optional[f32['']], [f32[''], None]),
-        (Optional[Union[f32[''], int]], [f32[''], int, None]),
+        (Union[f32, int], [f32, int]),  # pyrefly: ignore[not-a-type]
+        (Union[f32[''], int, None], [f32[''], int, None]),  # pyrefly: ignore[not-a-type]
+        (Optional[f32['']], [f32[''], None]),  # pyrefly: ignore[not-a-type]
+        (Optional[Union[f32[''], int]], [f32[''], int, None]),  # pyrefly: ignore[not-a-type]
         (List[int], [List[int]]),
         (f32[3, 3], [f32[3, 3]]),
     ],

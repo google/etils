@@ -53,7 +53,7 @@ from etils.enp.geo_utils import project_onto_vector
 # Inside tests, can use `enp.testing`
 if 'pytest' in sys.modules:  # < Ensure open source does not trigger import
   try:
-    from etils.enp import testing  # pylint: disable=g-import-not-at-top
+    from etils.enp import testing  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-module-attribute]
   except ImportError:
     pass
 

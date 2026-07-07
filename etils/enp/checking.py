@@ -140,10 +140,10 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
       xnp = kwargs.pop('xnp', None)
 
       # First time the function is called, precompute & cache the info
-      if fn._array_types_state is None:  # pylint: disable=protected-access
-        fn._array_types_state = _parse_signature(fn)  # pylint: disable=protected-access
+      if fn._array_types_state is None:  # pylint: disable=protected-access  # pyrefly: ignore[missing-attribute]
+        fn._array_types_state = _parse_signature(fn)  # pylint: disable=protected-access  # pyrefly: ignore[missing-attribute]
 
-      state: _FnSignatureCache = fn._array_types_state  # pylint: disable=protected-access
+      state: _FnSignatureCache = fn._array_types_state  # pylint: disable=protected-access  # pyrefly: ignore[missing-attribute]
 
       # In case `xnp` do not have default value
       if state.has_xnp_kwargs:
@@ -182,11 +182,11 @@ def check_and_normalize_arrays(fn=None, *, strict: bool = True):
       epy.reraise(
           e,
           prefix=(
-              f'@enp.check_and_normalize_arrays error for {fn.__qualname__}: '
+              f'@enp.check_and_normalize_arrays error for {fn.__qualname__}: '  # pyrefly: ignore[missing-attribute]
           ),
       )
 
-    return fn(*bound_args.args, **bound_args.kwargs)
+    return fn(*bound_args.args, **bound_args.kwargs)  # pyrefly: ignore[not-callable]
 
   return decorated_fn
 
@@ -348,6 +348,6 @@ def _get_array_param(
 
   return _ArrayParam(
       is_optional=is_optional,
-      type=array_type,
+      type=array_type,  # pyrefly: ignore[bad-argument-type]
       name=name,
   )

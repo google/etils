@@ -23,6 +23,6 @@ from etils.enp.typing import FloatArray  # pylint: disable=g-multiple-import
 lazy = numpy_utils.lazy
 
 
-def normalize(x: FloatArray['*d'], axis: int = -1) -> FloatArray['*d']:
+def normalize(x: FloatArray['*d'], axis: int = -1) -> FloatArray['*d']:  # pyrefly: ignore[not-a-type]
   """Normalize the vector to the unit norm."""
   return x / compat.norm(x, axis=axis, keepdims=True)

@@ -63,9 +63,9 @@ def parametrize_xnp(
   }
 
   keep = _normalize_set(
-      restrict, default=name_to_modules, valid=name_to_modules
+      restrict, default=name_to_modules, valid=name_to_modules  # pyrefly: ignore[bad-argument-type]
   )
-  skip = _normalize_set(skip, default=[], valid=name_to_modules)
+  skip = _normalize_set(skip, default=[], valid=name_to_modules)  # pyrefly: ignore[bad-argument-type]
 
   # Only resolve the `lambda:` for the modules actually tested
   name_to_modules = {
@@ -76,7 +76,7 @@ def parametrize_xnp(
     # Allow to test without numpy module: `x = [1, 2]` vs `x = np.array([1, 2]`
     name_to_modules['no_np'] = None
 
-  return pytest.mark.parametrize(
+  return pytest.mark.parametrize(  # pyrefly: ignore[bad-return]
       'xnp',
       list(name_to_modules.values()),
       ids=list(name_to_modules.keys()),

@@ -59,7 +59,7 @@ _ORIGIN_TO_VISITOR = {
     None: _visit_leaf,  # Default origin
 }
 if sys.version_info >= (3, 10):
-  _ORIGIN_TO_VISITOR[types.UnionType] = _visit_union  # In Python 3.10+: x | y
+  _ORIGIN_TO_VISITOR[types.UnionType] = _visit_union  # In Python 3.10+: x | y  # pyrefly: ignore[unsupported-operation]
 
 
 def get_leaf_types(hint: TypeForm) -> list[type[Any]]:

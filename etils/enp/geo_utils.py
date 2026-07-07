@@ -24,12 +24,12 @@ from etils.enp.typing import FloatArray
 
 @checking.check_and_normalize_arrays(strict=False)
 def batch_dot(
-    x0: FloatArray['... n'],
-    x1: FloatArray['... n'],
+    x0: FloatArray['... n'],  # pyrefly: ignore[not-a-type]
+    x1: FloatArray['... n'],  # pyrefly: ignore[not-a-type]
     *,
     keepdims: bool = False,
     xnp: numpy_utils.NpModule = ...,
-) -> FloatArray['... 1?']:
+) -> FloatArray['... 1?']:  # pyrefly: ignore[not-a-type]
   """Dot product on the last dimension, with broadcasting support.
 
   Contrary to `np.dot`, the behavior is consistent for 1-dim vs n-dim (while
@@ -56,12 +56,12 @@ def batch_dot(
 
 @checking.check_and_normalize_arrays(strict=False)
 def angle_between(
-    x0: FloatArray[..., 3],
-    x1: FloatArray[..., 3],
+    x0: FloatArray[..., 3],  # pyrefly: ignore[not-a-type]
+    x1: FloatArray[..., 3],  # pyrefly: ignore[not-a-type]
     *,
     keepdims: bool = False,
     xnp: numpy_utils.NpModule = ...,
-) -> FloatArray['... 1?']:
+) -> FloatArray['... 1?']:  # pyrefly: ignore[not-a-type]
   """Compute angle between 2 vectors, unsigned."""
   a0 = compat.norm(xnp.cross(x0, x1), axis=-1, keepdims=keepdims)
   a1 = batch_dot(x0, x1, keepdims=keepdims)
@@ -71,9 +71,9 @@ def angle_between(
 
 @checking.check_and_normalize_arrays(strict=False)
 def project_onto_vector(
-    u: FloatArray[..., 3],
-    v: FloatArray[..., 3],
-) -> FloatArray[..., 3]:
+    u: FloatArray[..., 3],  # pyrefly: ignore[not-a-type]
+    v: FloatArray[..., 3],  # pyrefly: ignore[not-a-type]
+) -> FloatArray[..., 3]:  # pyrefly: ignore[not-a-type]
   """Project `u` onto `v`."""
   return (
       batch_dot(u, v, keepdims=True)
@@ -84,8 +84,8 @@ def project_onto_vector(
 
 @checking.check_and_normalize_arrays(strict=False)
 def project_onto_plane(
-    u: FloatArray[..., 3],
-    n: FloatArray[..., 3],
-) -> FloatArray[..., 3]:
+    u: FloatArray[..., 3],  # pyrefly: ignore[not-a-type]
+    n: FloatArray[..., 3],  # pyrefly: ignore[not-a-type]
+) -> FloatArray[..., 3]:  # pyrefly: ignore[not-a-type]
   """Project `u` onto the plane `n` (orthogonal vector)."""
   return u - project_onto_vector(u, n)

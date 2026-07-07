@@ -86,7 +86,7 @@ def is_array_xnp(x, xnp) -> bool:
     return isinstance(x, xnp.ndarray)
 
 
-def astype(x: Array['*d'], dtype) -> Array['*d']:
+def astype(x: Array['*d'], dtype) -> Array['*d']:  # pyrefly: ignore[not-a-type]
   """`x.astype(dtype)`."""
   if lazy.is_torch(x):
     return x.type(dtype)
@@ -96,7 +96,7 @@ def astype(x: Array['*d'], dtype) -> Array['*d']:
     return x.astype(dtype)
 
 
-def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:
+def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:  # pyrefly: ignore[not-a-type]
   """`xnp.expand_dims(x, axis=axis)`."""
   xnp = lazy.get_xnp(x)
   if lazy.is_torch(x):
@@ -105,7 +105,7 @@ def expand_dims(x: Array['*d'], *, axis) -> Array['*d']:
     return xnp.expand_dims(x, axis=axis)
 
 
-def concat(x: list[Array['*d']], *, axis) -> Array['*d']:
+def concat(x: list[Array['*d']], *, axis) -> Array['*d']:  # pyrefly: ignore[not-a-type]
   """`xnp.concatenate(x, axis=axis)`."""
   xnp = lazy.get_xnp(x[0])
   if lazy.is_torch(x[0]):
@@ -117,7 +117,7 @@ def concat(x: list[Array['*d']], *, axis) -> Array['*d']:
 # ======== TF issues ========
 
 
-def round(x: FloatArray['*d']) -> FloatArray['*d']:  # pylint: disable=redefined-builtin
+def round(x: FloatArray['*d']) -> FloatArray['*d']:  # pylint: disable=redefined-builtin  # pyrefly: ignore[not-a-type]
   """`x.round()` for jnp, tnp, np, otrch."""
   if lazy.is_tf(x):  # TODO(b/219427516): missing method
     return lazy.tnp.around(x)
@@ -125,10 +125,10 @@ def round(x: FloatArray['*d']) -> FloatArray['*d']:  # pylint: disable=redefined
 
 
 def norm(
-    x: FloatArray['*d'],
+    x: FloatArray['*d'],  # pyrefly: ignore[not-a-type]
     axis: Optional[int] = None,
     keepdims: bool = False,
-) -> FloatArray['*d']:
+) -> FloatArray['*d']:  # pyrefly: ignore[not-a-type]
   """Like `np.linalg.norm` but auto-support jnp, tnp, np."""
   if lazy.is_tf(x):  # TODO(b/219427516): tnp.linalg.norm missing
     return lazy.tf.norm(x, axis=axis, keepdims=keepdims)
@@ -136,17 +136,17 @@ def norm(
   return xnp.linalg.norm(x, axis=axis, keepdims=keepdims)
 
 
-def inv(x: FloatArray['*d']) -> FloatArray['*d']:
+def inv(x: FloatArray['*d']) -> FloatArray['*d']:  # pyrefly: ignore[not-a-type]
   """Like `np.linalg.inv` but auto-support jnp, tnp, np."""
   return _tf_or_xnp(x).linalg.inv(x)
 
 
-def det(x: FloatArray['*d m m']) -> FloatArray['*d']:
+def det(x: FloatArray['*d m m']) -> FloatArray['*d']:  # pyrefly: ignore[not-a-type]
   """Like `np.linalg.det` but auto-support jnp, tnp, np."""
   return _tf_or_xnp(x).linalg.det(x)
 
 
-def _tf_or_xnp(x: Array['*d']):
+def _tf_or_xnp(x: Array['*d']):  # pyrefly: ignore[not-a-type]
   xnp = lazy.get_xnp(x)
   if lazy.has_tf and xnp is lazy.tnp:
     return lazy.tf

@@ -121,10 +121,10 @@ class _LazyImporter:
   def is_torch_xnp(self, xnp: NpModule) -> bool:
     return self.has_torch and xnp is self.torch
 
-  def is_np(self, x: Array) -> bool:
+  def is_np(self, x: Array) -> bool:  # pyrefly: ignore[not-a-type]
     return isinstance(x, (np.ndarray, np.generic))
 
-  def is_tf(self, x: Array) -> bool:
+  def is_tf(self, x: Array) -> bool:  # pyrefly: ignore[not-a-type]
     return self.has_tf and isinstance(
         x,
         (
@@ -134,13 +134,13 @@ class _LazyImporter:
         ),
     )
 
-  def is_jax(self, x: Array) -> bool:
+  def is_jax(self, x: Array) -> bool:  # pyrefly: ignore[not-a-type]
     return self.has_jax and isinstance(x, self.jnp.ndarray)
 
-  def is_torch(self, x: Array) -> bool:
+  def is_torch(self, x: Array) -> bool:  # pyrefly: ignore[not-a-type]
     return self.has_torch and isinstance(x, self.torch.Tensor)
 
-  def is_array(self, x: Array, *, strict: bool = True) -> bool:
+  def is_array(self, x: Array, *, strict: bool = True) -> bool:  # pyrefly: ignore[not-a-type]
     is_array_like = False if strict else isinstance(x, _ARRAY_LIKE_TYPES)
     return (
         self.is_np(x)
@@ -212,7 +212,7 @@ class _LazyImporter:
 
   def dtype_from_array(
       self,
-      array_like: Array,
+      array_like: Array,  # pyrefly: ignore[not-a-type]
       *,
       strict: bool = True,
   ) -> Optional[_np.dtype]:
@@ -236,7 +236,7 @@ class _LazyImporter:
       raise TypeError(f'Cannot extract dtype from non-array {type(array_like)}')
     return self.as_dtype(dtype)
 
-  def get_xnp(self, x: Array, *, strict: bool = True):  # -> NpModule:
+  def get_xnp(self, x: Array, *, strict: bool = True):  # -> NpModule:  # pyrefly: ignore[not-a-type]
     """Returns the numpy module associated with the given array.
 
     Args:
@@ -287,7 +287,7 @@ class _LazyImporter:
 lazy = _LazyImporter()
 
 
-def get_np_module(array: Array, *, strict: bool = True):  # -> NpModule:
+def get_np_module(array: Array, *, strict: bool = True):  # -> NpModule:  # pyrefly: ignore[not-a-type]
   """Returns the numpy module associated with the given array.
 
   Args:
