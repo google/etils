@@ -831,3 +831,26 @@ _SRC_DST_ITEMS = (
         expected_copy_overwrite=IsADirectoryError(),
     ),
 )
+
+
+def test_fsspec_gcs_listdir_filtering():
+  from unittest import mock
+  import fsspec
+
+  with mock.patch.object(fsspec, 'filesystem') as mock_filesystem:
+    mock_fs = mock.MagicMock()
+    mock_fs.listdir.return_value = [
+        'bucket/dir',
+        'bucket/dir/file.txt',
+        'bucket/dir/subdir',
+    ]
+    mock_fs._strip_protocol.side_effect = lambda p: p.replace('gs://', '')
+    mock_filesystem.return_value = mock_fs
+
+    backend = epath.backend.fsspec_backend
+    backend._get_filesystem.cache_clear()
+
+    files = backend.listdir('gs://bucket/dir')
+
+    assert sorted(files) == ['file.txt', 'subdir']
+    mock_fs.listdir.assert_called_once_with('gs://bucket/dir', detail=False)
