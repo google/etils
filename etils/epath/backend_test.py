@@ -622,7 +622,7 @@ def _write_dir_content(root_path: pathlib.Path, content: _FileDict) -> None:
       pass
     else:
       p.parent.mkdir(parents=True, exist_ok=True)
-      p.write_bytes(v)
+      p.write_bytes(v)  # pyrefly: ignore[bad-argument-type]
 
 
 def _make_default_path(tmp_path: pathlib.Path):

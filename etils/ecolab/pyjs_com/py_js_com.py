@@ -140,10 +140,10 @@ def register_js_fn(fn: _FnT) -> _FnT:
   else:
     backend = _Jupyter()
 
-  @functools.wraps(fn)
+  @functools.wraps(fn)  # pyrefly: ignore[bad-argument-type]
   def decorated(*args, **kwargs):
     try:
-      out = fn(*args, **kwargs)
+      out = fn(*args, **kwargs)  # pyrefly: ignore[not-callable]
       # Wrap non-dict values inside JSON
       if not isinstance(out, dict):
         out = {'__etils_pyjs__': out}

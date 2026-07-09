@@ -46,7 +46,7 @@ class _LogFile:
 # having to change the import.
 def tqdm(iterable: Optional[_IterableT] = None, **kwargs) -> _IterableT:
   """Add a progressbar to the iterable."""
-  return tqdm_base.tqdm(iterable=iterable, **kwargs)
+  return tqdm_base.tqdm(iterable=iterable, **kwargs)  # pyrefly: ignore[bad-return]
 
 
 if typing.TYPE_CHECKING:
