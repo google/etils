@@ -69,7 +69,7 @@ def test_setattr():
   with epy.lazy_imports():
     import tensorflow_datasets as tfds  # pylint: disable=g-import-not-at-top
   assert 'tensorflow_datasets' not in sys.modules
-  tfds.features = 'foo'
+  tfds.features = 'foo'  # pyrefly: ignore[bad-assignment]
   assert 'tensorflow_datasets' in sys.modules
   assert tfds.features == 'foo'
 

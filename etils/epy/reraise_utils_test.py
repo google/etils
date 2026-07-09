@@ -61,7 +61,7 @@ def test_reraise():
   with pytest.raises(CustomError, match=re.escape("Caught: ('a', 'b', 'c')")):
     with epy.maybe_reraise(prefix='Caught: '):
       ex = CustomError(123, {})
-      ex.args = 'abc'  # Not a tuple
+      ex.args = 'abc'  # Not a tuple  # pyrefly: ignore[bad-assignment]
       raise ex
 
   with pytest.raises(ImportError, match='Caught: With message'):
@@ -109,5 +109,5 @@ def test_with_cause():
   assert 'Caught2: Caught: ' == str(e)
   assert "ImportError('Caught2: Caught: ')" == repr(e)
   # The original cause is properly forwarded (and displayed)
-  assert e.__cause__ is e_origin
+  assert e.__cause__ is e_origin  # pyrefly: ignore[unbound-name]
   assert e.__suppress_context__

@@ -39,7 +39,7 @@ def resource_import(
     filename: Path to the `.css`, `.js` resource
     module: Python module name from which the filename is relative too.
   """
-  path = epath.resource_path(module) if module else _static_path()
+  path = epath.resource_path(module) if module else _static_path()  # pyrefly: ignore[bad-argument-type]
   path = path.joinpath(filename)
   content = path.read_text()
   if path.suffix == '.css':

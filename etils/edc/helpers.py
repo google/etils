@@ -50,7 +50,7 @@ def wrap_new(cls: _ClsT, descriptor_infos: list[DescriptorInfo]) -> _ClsT:
   """`__new__` decorator to replace the fields by descriptors on first usage."""
   if not descriptor_infos:
     return cls
-  cls._edc_processed = False  # pylint: disable=protected-access
+  cls._edc_processed = False  # pylint: disable=protected-access  # pyrefly: ignore[missing-attribute]
 
   old_new_fn = cls.__new__
 
