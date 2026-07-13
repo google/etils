@@ -153,3 +153,34 @@ def zip_dict(  # pytype: disable=invalid-annotation
   for key in d0:  # set merge all keys
     # Will raise KeyError if the dict don't have the same keys
     yield key, tuple(d[key] for d in dicts)
+
+
+def sliding_window(iterable: Iterable[_T], n: int) -> Iterator[tuple[_T, ...]]:
+  """Returns a sliding window (of width n) over an iterable.
+
+  ```python
+  epy.sliding_window([1, 2, 3, 4, 5, 6, 7, 8, 9], 3) == [
+      (1, 2, 3),
+      (2, 3, 4),
+      (3, 4, 5),
+      ...,
+      (7, 8, 9),
+  ]
+  ```
+
+  Args:
+    iterable: The iterable to create the sliding window over
+    n: The width of the sliding window
+
+  Returns:
+    The sliding window
+  """
+  # Create n independent iterators from the original iterable
+  iters = itertools.tee(iterable, n)
+
+  # Advance each iterator by its position in the 'iters' tuple
+  for i, it in enumerate(iters):
+    # Use `None` as default if the iterator is exhausted.
+    next(itertools.islice(it, i, i), None)
+
+  return zip(*iters)

@@ -16,6 +16,7 @@ Changelog follow https://keepachangelog.com/ format.
 ## [1.14.0] - 2026-03-04
 
 *   `epy`:
+    *   Add a `epy.sliding_window` iterator.
     *   Add a `epy.classproperty`
     *   Add a `epy.getuser`, colab-friendly alias of `getpass.getuser`
     *   Better error when `epy.pretty_repr_top_level` is miss-used.

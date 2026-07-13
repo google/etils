@@ -20,6 +20,21 @@ from etils import epy
 import pytest
 
 
+def test_sliding_window():
+  out = epy.sliding_window([1, 2, 3, 4, 5, 6, 7, 8, 9], 3)
+  assert list(out) == [
+      (1, 2, 3),
+      (2, 3, 4),
+      (3, 4, 5),
+      (4, 5, 6),
+      (5, 6, 7),
+      (6, 7, 8),
+      (7, 8, 9),
+  ]
+  out = epy.sliding_window([1, 2, 3], 4)
+  assert list(out) == []  # pylint: disable=g-explicit-bool-comparison
+
+
 def test_group_by():
   out = epy.groupby(
       [0, 30, 2, 4, 2, 20, 3],
