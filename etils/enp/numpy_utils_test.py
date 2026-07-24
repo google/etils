@@ -18,6 +18,7 @@ from etils import enp
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pandas as pd
 import pytest
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
@@ -78,6 +79,7 @@ def test_lazy():
   assert lazy.get_xnp(np.array([123])) is np
   assert lazy.get_xnp(torch.Tensor([123])) is torch
   assert lazy.get_xnp([123], strict=False) is np
+  assert lazy.get_xnp(pd.Series([123]), strict=False)
 
   with pytest.raises(TypeError, match='Cannot infer the numpy'):
     lazy.get_xnp([123])
