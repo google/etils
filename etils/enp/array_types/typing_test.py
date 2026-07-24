@@ -20,6 +20,14 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
+try:
+  import dill
+
+  _DILL_AVAILABLE = True
+except ImportError:
+  dill = None
+  _DILL_AVAILABLE = False
+
 # TODO(epot): Add `bfloat16` to array_types. Not this might require some
 # LazyDType to lazy-load jax.
 bf16 = enp.typing.ArrayAliasMeta(shape=None, dtype=np.dtype(jnp.bfloat16))
@@ -89,3 +97,14 @@ def test_array_eq():
   assert f32['h w'] != ui8['h w']
 
   assert {f32['h w'], f32['h w'], f32['h', 'w']} == {f32['h w']}
+
+
+@pytest.mark.skipif(not _DILL_AVAILABLE, reason='dill not available')
+def test_f32_can_be_pickled_unpickled_with_dill():
+  assert dill is not None, (
+      'dill library is not available. We should have skipped this test, but for'
+      ' some reason we did not.'
+  )
+  my_type = f32['N']
+  my_type_pickled_unpickled = dill.loads(dill.dumps(my_type))
+  assert my_type_pickled_unpickled == my_type
