@@ -82,7 +82,7 @@ def test_array_spec_tensors():
 
 def test_array_spec_is_fake():
   for arr in [
-      jax.ShapeDtypeStruct((None,), dtype=np.int32),
+      jax.ShapeDtypeStruct((1,), dtype=np.int32),
       tf.TensorSpec((None,), dtype=tf.int32),
       enp.ArraySpec((1, 2), dtype=np.float32),
   ]:
