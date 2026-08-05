@@ -81,7 +81,11 @@ class LazyModule:
         # When multiple threads try to import the same module, make sure only
         # one of them is importing it at the same time.
         with _LOCK_PER_MODULE[self.module_name]:
-          module = importlib.import_module(self.module_name)
+          object.__setattr__(self, "_importing", True)
+          try:
+            module = importlib.import_module(self.module_name)
+          finally:
+            object.__setattr__(self, "_importing", False)
       except ImportError as e:
         if self.error_callback is not None:
           if isinstance(self.error_callback, str):
@@ -119,6 +123,11 @@ class LazyModule:
     if name in self._submodules:
       # known submodule accessed. Do not trigger import
       return self._submodules[name]
+    elif _getattr_static(self, "_importing", False):
+      raise AttributeError(
+          f"Module '{self.module_name}' is currently being imported, no"
+          f" attribute '{name}'"
+      )
     else:
       return getattr(self._module, name)
 
