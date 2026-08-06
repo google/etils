@@ -45,8 +45,10 @@ def highlight_html(code: str) -> str:
   Returns:
     The HTML string representation
   """
-  theme = resource_utils.resource_import(
-      'static/highlight.css', module='etils.ecolab'
+  theme = html.escape(
+      resource_utils.resource_import(
+          'static/highlight.css', module='etils.ecolab'
+      )
   )
   # html
   html_str = """
