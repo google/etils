@@ -14,6 +14,8 @@
 
 """Wrapper for tdqm."""
 
+import logging as logging_stdlib
+import sys
 import typing
 from typing import Optional, TypeVar
 
@@ -30,15 +32,46 @@ _IterableT = TypeVar('_IterableT')
 
 
 class _LogFile:
-  """A File-like object that log to INFO."""
+  """A tqdm-compatible file-like object that logs to INFO.
 
-  def write(self, message):
-    logging.info(message)
+  Captures the caller's source location at construction time so that
+  log messages attribute to the code that created the progress bar,
+  not to tqdm internals.
+  """
 
-  def flush(self):
+  def __init__(self, caller_depth: int = 2) -> None:
+    """Initializes the log file.
+
+    Args:
+      caller_depth: Number of frames to skip above ``_LogFile.__init__`` to
+        reach the "real" caller.  Default is 2, which skips ``__init__`` itself
+        and one wrapper (e.g. ``tqdm()``).
+    """
+    frame = sys._getframe(caller_depth)
+    self._caller_file = frame.f_code.co_filename
+    self._caller_lineno = frame.f_lineno
+    self._caller_func = frame.f_code.co_name
+
+  def write(self, message: str) -> None:
+    """Logs a non-empty message at INFO level with the captured source location."""
+    if message := message.strip():
+      logger = logging.get_absl_logger()
+      record = logger.makeRecord(
+          name=logger.name,
+          level=logging_stdlib.INFO,
+          fn=self._caller_file,
+          lno=self._caller_lineno,
+          msg=message,
+          args=(),
+          exc_info=None,
+          func=self._caller_func,
+      )
+      logger.handle(record)
+
+  def flush(self) -> None:
     pass
 
-  def close(self):
+  def close(self) -> None:
     pass
 
 

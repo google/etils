@@ -12,10 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for tensorflow_datasets.core.utils.tqdm_utils."""
+import logging
+import logging.handlers
+import os
+import unittest
+from unittest import mock
 
 from etils import etqdm
+from etils.etqdm import tqdm_utils
 
 
-def test_disable_tqdm():
-  assert list(etqdm.tqdm(range(3))) == [0, 1, 2]
+class TqdmBasicTest(unittest.TestCase):
+  """Baseline test that tqdm wraps iterables correctly."""
+
+  def test_tqdm_iterates(self):
+    self.assertEqual(list(etqdm.tqdm(range(3))), [0, 1, 2])
+
+
+if __name__ == '__main__':
+  unittest.main()
