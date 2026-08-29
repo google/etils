@@ -17,15 +17,17 @@
 from __future__ import annotations
 
 import dataclasses
-import grp
 import os
 import pathlib
-import pwd
 from typing import Dict, Union
 
 from etils import epath
 from etils import epy
 import pytest
+
+if os.name != 'nt':
+  import grp  # pylint: disable=g-import-not-at-top
+  import pwd  # pylint: disable=g-import-not-at-top
 
 with_subtests = epy.testing.with_subtests
 
@@ -502,8 +504,12 @@ def _test_stat(
     tmp_path: pathlib.Path,
 ):
   _make_default_path(tmp_path)
-  owner = pwd.getpwuid(os.geteuid()).pw_name
-  group = grp.getgrgid(os.getegid()).gr_name
+  if os.name == 'nt':
+    owner = None
+    group = None
+  else:
+    owner = pwd.getpwuid(os.geteuid()).pw_name
+    group = grp.getgrgid(os.getegid()).gr_name
 
   for name in _DIR_NAMES:
     p = tmp_path / name
@@ -512,7 +518,10 @@ def _test_stat(
     assert st.is_directory
     assert st.length == st_gt.st_size
     assert st.mtime == int(st_gt.st_mtime)
-    if backend in {epath.backend.tf_backend, epath.backend.fsspec_backend}:
+    if (
+        backend in {epath.backend.tf_backend, epath.backend.fsspec_backend}
+        or os.name == 'nt'
+    ):
       assert not st.owner
       assert not st.group
     else:
@@ -530,7 +539,10 @@ def _test_stat(
     assert not st.is_directory
     assert st.length == st_gt.st_size
     assert st.mtime == int(st_gt.st_mtime)
-    if backend in {epath.backend.tf_backend, epath.backend.fsspec_backend}:
+    if (
+        backend in {epath.backend.tf_backend, epath.backend.fsspec_backend}
+        or os.name == 'nt'
+    ):
       assert not st.owner
       assert not st.group
     else:
