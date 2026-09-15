@@ -447,7 +447,8 @@ class _FileSystemSpecBackend(Backend):
       return self._get_filesystem('file')
 
   def open(self, path: PathLike, mode: str) -> typing.IO[Union[str, bytes]]:
-    return self.fs(path).open(path, mode=mode)
+    encoding = None if 'b' in mode else 'utf-8'
+    return self.fs(path).open(path, mode=mode, encoding=encoding)
 
   def exists(self, path: PathLike) -> bool:
     return self.fs(path).exists(path)
