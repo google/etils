@@ -90,7 +90,7 @@ _ALL_ITEMS = [
             _ArrayItem(np.array(1, dtype=np.uint8), np.float32, iscast=True),  # pytype: disable=wrong-arg-types  # numpy-scalars
             # Float values not casted
             _ArrayItem(np.array(1, dtype=np.float16), np.float16),  # pytype: disable=wrong-arg-types  # numpy-scalars
-            _ArrayItem(np.array(1, dtype=jnp.bfloat16), jnp.bfloat16),
+            _ArrayItem(np.array(1, dtype=jnp.bfloat16), jnp.bfloat16),  # pyrefly: ignore[bad-argument-type]
         ],
     ),
     _DTypeTestItem(
