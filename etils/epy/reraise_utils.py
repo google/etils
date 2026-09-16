@@ -93,7 +93,11 @@ def wrap_error(
   suffix = suffix() if callable(suffix) else suffix
   prefix = prefix or ''
   suffix = '\n' + suffix if suffix else ''
-  msg = f'{prefix}{e}{suffix}'
+  # An exception group formats its own `(x sub-exceptions)` count, so wrap its
+  # bare `.message` to avoid repeating the count in the new message.
+  is_group = isinstance(e, BaseExceptionGroup)
+  original_msg = e.message if is_group else str(e)
+  msg = f'{prefix}{original_msg}{suffix}'
 
   # Dynamically create an exception for:
   # * Compatibility with caller core (e.g. `except OriginalError`)
@@ -101,20 +105,34 @@ def wrap_error(
   class WrappedException(type(e)):  # pyrefly: ignore[invalid-inheritance]
     """Exception proxy with additional message."""
 
+    if is_group:
+      # `BaseExceptionGroup.__new__` takes the sub-exceptions too, so the
+      # group is rebuilt with its own constructor rather than the inherited
+      # single-argument call, keeping the sub-exceptions untouched.
+      def __new__(cls, msg):  # pylint: disable=g-wrong-blank-lines
+        return type(e).__new__(cls, msg, e.exceptions)
+
     def __init__(self, msg):
       # We explicitly bypass super() as the `type(e).__init__` constructor
       # might have special kwargs
-      Exception.__init__(self, msg)  # pylint: disable=non-parent-init-called
+      if is_group:
+        type(e).__init__(self, msg, e.exceptions)
+      else:
+        # `BaseException` rather than `Exception`, so exceptions outside the
+        # `Exception` branch (`KeyboardInterrupt`,...) can be wrapped too.
+        BaseException.__init__(self, msg)  # pylint: disable=non-parent-init-called
 
     def __getattr__(self, name: str):
       # Capture `e` through closure. We do not pass e through __init__
       # to bypass `Exception.__new__` magic which add `__str__` artifacts.
       return getattr(e, name)
 
-    # The wrapped exception might have overwritten `__str__` & cie, so
-    # use the base exception ones.
-    __repr__ = BaseException.__repr__
-    __str__ = BaseException.__str__
+    if not is_group:
+      # The wrapped exception might have overwritten `__str__` & cie, so
+      # use the base exception ones. Groups keep their own, which report the
+      # sub-exception count.
+      __repr__ = BaseException.__repr__
+      __str__ = BaseException.__str__
 
   WrappedException.__name__ = type(e).__name__
   WrappedException.__qualname__ = type(e).__qualname__

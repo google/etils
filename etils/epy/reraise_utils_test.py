@@ -95,6 +95,41 @@ def test_no_cause():
   assert e.__suppress_context__
 
 
+def test_reraise_exception_group():
+  with pytest.raises(ExceptionGroup) as exc_info:
+    with epy.maybe_reraise(prefix='Caught: '):
+      raise ExceptionGroup('group msg', [ValueError('a'), TypeError('b')])
+
+  e = exc_info.value
+  # The count is formatted by the group itself, and appears only once
+  assert str(e) == 'Caught: group msg (2 sub-exceptions)'
+  # The sub-exceptions are forwarded untouched
+  assert [type(sub) for sub in e.exceptions] == [ValueError, TypeError]
+  assert [str(sub) for sub in e.exceptions] == ['a', 'b']
+
+
+def test_reraise_exception_group_subclass():
+  class CustomGroup(ExceptionGroup):
+    pass
+
+  with pytest.raises(CustomGroup) as exc_info:
+    with epy.maybe_reraise(prefix='Caught: '):
+      raise CustomGroup('group msg', [ValueError('a')])
+
+  e = exc_info.value
+  assert str(e) == 'Caught: group msg (1 sub-exception)'
+  assert [type(sub) for sub in e.exceptions] == [ValueError]
+
+
+def test_reraise_base_exception():
+  # `KeyboardInterrupt` & cie do not inherit from `Exception`
+  with pytest.raises(KeyboardInterrupt, match='Caught: stop'):
+    try:
+      raise KeyboardInterrupt('stop')
+    except BaseException as e:  # pylint: disable=broad-except
+      epy.reraise(e, prefix='Caught: ')  # pytype: disable=wrong-arg-types
+
+
 def test_with_cause():
   with pytest.raises(ImportError) as exc_info:
     with epy.maybe_reraise(prefix='Caught2: '):
