@@ -64,6 +64,16 @@ class ResourcePath(zipfile.Path):
   def __hash__(self) -> int:
     return hash((self.root, self.at))  # pytype: disable=attribute-error
 
+  def resolve(self, strict: bool = False) -> 'ResourcePath':
+    """Returns the absolute path."""
+    if strict and not self.exists():
+      raise FileNotFoundError(f'{self} not found.')
+    return self
+
+  def absolute(self) -> 'ResourcePath':
+    """Returns the absolute path."""
+    return self.resolve()
+
   if sys.version_info < (3, 10):
     # Required due to: https://bugs.python.org/issue42043
     def _next(self, at) -> 'ResourcePath':  # pylint: disable=g-wrong-blank-lines
