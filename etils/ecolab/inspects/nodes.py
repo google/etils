@@ -31,9 +31,10 @@ from etils.ecolab.inspects import html_helper as H
 from google.protobuf import descriptor_pool
 from google.protobuf import message
 from google.protobuf import symbol_database
+from google.protobuf.internal import containers
+from google.protobuf.pyext import _message as cpp_containers
 
 # Import both C++ and Python API
-from google.protobuf.internal import containers
 
 _T = TypeVar('_T')
 
