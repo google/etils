@@ -450,6 +450,16 @@ def test_use_backend():
   assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pytype: disable=wrong-arg-types
 
 
+@pytest.mark.parametrize('scheme', ['s3', 'az', 'hf'])
+def test_use_backend_non_gs_schemes_ignore_tf(scheme):
+  # TF's `tf.io.gfile` only ever backs `gs://`: S3 support was dropped from
+  # core TensorFlow in 2.6, and `az://`/`hf://` were never registered with
+  # it, so those schemes must keep using fsspec even when TF is installed.
+  path = epath.Path(f'{scheme}://bucket/datasets')
+  with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
+    assert path._backend == epath.backend.fsspec_backend
+
+
 @epy.testing.non_hermetic
 def test_public_access():
   # Test a public bucket
