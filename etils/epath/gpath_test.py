@@ -109,6 +109,23 @@ def test_repr_s3():
   assert os.fspath(path) == 's3://bucket/some/other/file.json/other'
 
 
+@pytest.mark.parametrize('scheme', ['gs', 's3', 'az', 'hf'])
+@pytest.mark.parametrize('suffix', ['', '/models/checkpoint'])
+@pytest.mark.parametrize('method', ['resolve', 'absolute'])
+def test_resolve_cloud_path(scheme, suffix, method):
+  uri = f'{scheme}://bucket{suffix}'
+  path = epath.Path(uri)
+
+  resolved = getattr(path, method)()
+
+  assert isinstance(resolved, epath.Path)
+  assert resolved.is_absolute()
+  assert resolved == path
+  assert os.fspath(resolved) == uri
+  assert resolved.as_uri() == uri
+  assert resolved.resolve() == resolved
+
+
 def test_repr_windows():
   path = epath.gpath.WindowsGPath('C:\\Program Files\\Directory')
   assert isinstance(path, epath.gpath.WindowsGPath)
