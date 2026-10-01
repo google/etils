@@ -232,7 +232,7 @@ class _GPath(abstract_path.Path):
       if not missing_ok:
         raise
 
-  def open(  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def open(  # pyrefly: ignore[bad-override]
       self,
       mode: str = 'r',
       *,

@@ -444,10 +444,10 @@ def test_use_backend():
         == epath.backend.fsspec_backend
     )
 
-  assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(loc_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pytype: disable=wrong-arg-types
+  assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pyrefly: ignore[bad-argument-type]
+  assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pyrefly: ignore[bad-argument-type]
+  assert epath.gpath._get_backend(loc_path, gs_path) == gs_backend  # pyrefly: ignore[bad-argument-type]
+  assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pyrefly: ignore[bad-argument-type]
 
 
 @epy.testing.non_hermetic

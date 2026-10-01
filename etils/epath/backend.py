@@ -251,7 +251,7 @@ class _TfBackend(Backend):
   @property
   def tf(self):
     try:
-      import tensorflow  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+      import tensorflow  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-source-for-stubs]
     except ImportError as e:
       raise ImportError(
           f'{e}. To use epath.Path with gs://, TensorFlow should be installed.'
@@ -268,7 +268,7 @@ class _TfBackend(Backend):
       path: PathLike,
       mode: str,
   ) -> Iterator[typing.IO[Union[str, bytes]]]:
-    with self.gfile.GFile(path, mode) as f:  # pytype: disable=bad-return-type
+    with self.gfile.GFile(path, mode) as f:
       try:
         yield f
       except self.tf.errors.NotFoundError as e:
@@ -284,7 +284,7 @@ class _TfBackend(Backend):
     return self.gfile.listdir(path)
 
   def glob(self, path: PathLike) -> list[str]:
-    return self.gfile.glob(path)  # pyrefly: ignore[bad-argument-type]
+    return self.gfile.glob(path)
 
   def walk(
       self,
@@ -470,7 +470,7 @@ class _FileSystemSpecBackend(Backend):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
   ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
-    yield from self.fs(top).walk(  # pytype: disable=bad-return-type
+    yield from self.fs(top).walk(
         top,
         topdown=top_down,
         # default behavior for pathlib.Path.walk
