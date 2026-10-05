@@ -115,7 +115,11 @@ class _GPath(abstract_path.Path):
       # Choose tf_backend if tf is installed. We don't use FSSpec by default
       # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
       # may not be installed. fsspec_backend was indeed introduced later.
-      if _is_tf_installed() and self._uri_scheme is not None:
+      # Only `gs://` is backed by `tf.io.gfile`: `s3://` support was removed
+      # from core TensorFlow in 2.6 (moved to the separate `tensorflow-io`
+      # package, which etils does not depend on), and `az://`/`hf://` were
+      # never registered with `tf.io.gfile` at all.
+      if _is_tf_installed() and self._uri_scheme == 'gs':
         return backend_lib.tf_backend
       return backend
     except KeyError:
