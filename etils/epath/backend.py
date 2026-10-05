@@ -221,6 +221,19 @@ class _OsPathBackend(Backend):
   def copy(self, path: PathLike, dst: PathLike, overwrite: bool) -> None:
     if not overwrite and self.exists(dst):
       raise FileExistsError(f'{dst} already exists. Cannot copy {path}.')
+    # `shutil.copyfile` reports directories through whatever the platform
+    # happens to raise (`IsADirectoryError` on Linux, `PermissionError` on
+    # Windows), so the directory cases are checked here instead, as the
+    # `fsspec` and TensorFlow backends already do.
+    is_dir_dst = self.isdir(dst)
+    if self.isdir(path) and not is_dir_dst:
+      raise IsADirectoryError(
+          f'Cannot copy to {dst}. Path {path} is a directory'
+      )
+    if overwrite and is_dir_dst:
+      raise IsADirectoryError(
+          f'Cannot overwrite {path}. Destination {dst} is a directory'
+      )
     shutil.copyfile(path, dst)
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:
