@@ -76,10 +76,10 @@ class ContextManager(abc.ABC, Generic[_T]):
   def __enter__(self) -> _T:
     # object.__setattr__ to support frozen dataclasses
     object.__setattr__(self, '_epy_cm', self.__contextmanager__())
-    return self._epy_cm.__enter__()  # pytype: disable=attribute-error
+    return self._epy_cm.__enter__()
 
   def __exit__(self, exc_type, exc_value, traceback) -> None:
-    return self._epy_cm.__exit__(exc_type, exc_value, traceback)  # pytype: disable=attribute-error
+    return self._epy_cm.__exit__(exc_type, exc_value, traceback)
 
 
 # Should use `contextlib.nested` instead if outputs are required?

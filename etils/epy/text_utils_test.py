@@ -93,7 +93,7 @@ def test_lines_std():
     t: tuple[str, ...] = ()
     l: list[int] = dataclasses.field(default_factory=list)
     d: dict[str, int] = dataclasses.field(default_factory=dict)
-    dc: B = dataclasses.field(default_factory=B)  # pytype: disable=invalid-annotation,name-error
+    dc: B = dataclasses.field(default_factory=B)
     s: str = 'aaa'
 
   a = A(
@@ -102,7 +102,7 @@ def test_lines_std():
       d={'aaaaaaaaaaaaaaaaaaaa': 1, 'bbbbbbbbbbbbbbbbbbbb': 1},
   )
 
-  repr_ = epy.pretty_repr(a)  # pytype: disable=wrong-arg-types
+  repr_ = epy.pretty_repr(a)
   assert repr_ == epy.dedent("""
   A(
       t=(
