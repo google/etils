@@ -88,7 +88,7 @@ class Node:
     else:
       raise TypeError(f'Unexpected object {obj!r}.')
 
-    return sub_cls(obj=obj, name=name)  # pytype: disable=wrong-arg-types
+    return sub_cls(obj=obj, name=name)
 
   @property
   def header_html(self) -> str:
@@ -252,7 +252,7 @@ class ObjectNode(Node, Generic[_T]):
 
 
 @dataclasses.dataclass
-class BuiltinNode(ObjectNode[Union[int, float, bool, str, bytes, None]]):  # pytype: disable=bad-concrete-type
+class BuiltinNode(ObjectNode[Union[int, float, bool, str, bytes, None]]):
   """`int`, `float`, `bytes`, `str`,..."""
 
   MATCH_TYPES = (type(None), int, float, bool, str, bytes, type(...))
@@ -267,7 +267,7 @@ class BuiltinNode(ObjectNode[Union[int, float, bool, str, bytes, None]]):  # pyt
 
 
 @dataclasses.dataclass
-class MappingNode(ObjectNode[collections.abc.Mapping]):  # pytype: disable=bad-concrete-type
+class MappingNode(ObjectNode[collections.abc.Mapping]):
   """`dict` like."""
 
   MATCH_TYPES = (
@@ -286,7 +286,7 @@ class MappingNode(ObjectNode[collections.abc.Mapping]):  # pytype: disable=bad-c
 
 
 @dataclasses.dataclass
-class SetNode(ObjectNode[collections.abc.Set]):  # pytype: disable=bad-concrete-type
+class SetNode(ObjectNode[collections.abc.Set]):
   """`set` like."""
 
   MATCH_TYPES = (set, frozenset, collections.abc.Set)
