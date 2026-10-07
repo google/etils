@@ -165,7 +165,9 @@ class _GPath(abstract_path.Path):
     return self._new(self._PATH.expanduser(self._path_str))
 
   def resolve(self, strict: bool = False) -> Self:
-    """Returns the abolute path."""
+    """Returns the absolute path."""
+    if self._uri_scheme:
+      return self
     # TODO(epot): In pathlib, `resolve` also resolve the symlinks
     return self._new(self._PATH.abspath(self._path_str))
 
