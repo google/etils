@@ -230,6 +230,20 @@ def test_diff():
   )"""
 
 
+def test_diff_strings():
+  assert epy.diff_str('same\nold', 'same\nnew') == '  same\n- old\n+ new'
+  assert epy.diff_str('same\n', 'same\n') == '  same\n  '
+  assert epy.diff_str('', '') == '  '
+
+
+def test_diff_mixed_string_and_object():
+  obj = {'a': 1}
+  text = epy.pretty_repr(obj)
+  expected = '  ' + text
+  assert epy.diff_str(text, obj) == expected
+  assert epy.diff_str(obj, text) == expected
+
+
 def test_pprint_namedtuple():
   A = collections.namedtuple('A', ['x', 'y'])
   a = A(

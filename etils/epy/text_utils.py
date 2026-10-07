@@ -528,9 +528,9 @@ def diff_str(a: str | object, b: str | object) -> str:
     The diff string
   """
   if not isinstance(a, str):
-    a = pretty_repr(a).split('\n')
+    a = pretty_repr(a)
   if not isinstance(b, str):
-    b = pretty_repr(b).split('\n')
+    b = pretty_repr(b)
 
-  diff = difflib.ndiff(a, b)
+  diff = difflib.ndiff(a.split('\n'), b.split('\n'))
   return '\n'.join(diff)
