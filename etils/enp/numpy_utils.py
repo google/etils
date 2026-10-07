@@ -77,31 +77,31 @@ class _LazyImporter:
 
   @property
   def jax(self):
-    import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import jax  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     return jax
 
   @property
   def jnp(self):
-    import jax.numpy as jnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import jax.numpy as jnp  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     return jnp
 
   @property
   def tf(self):
-    import tensorflow  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import tensorflow  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-source-for-stubs]
 
     return tensorflow
 
   @property
   def tnp(self):
-    import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import tensorflow.experimental.numpy as tnp  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     return tnp
 
   @property
   def torch(self):
-    import torch  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import torch  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     return torch
 

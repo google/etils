@@ -165,7 +165,7 @@ def is_fake_array(array: Array) -> bool:  # pyrefly: ignore[not-a-type]
 def _is_flax_summary(value: Array) -> bool:  # pyrefly: ignore[not-a-type]
   if 'flax.linen' not in sys.modules:
     return False
-  from flax import linen as nn  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from flax import linen as nn  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   return isinstance(value, nn.summary._ArrayRepresentation)  # pylint: disable=protected-access
 
@@ -173,15 +173,15 @@ def _is_flax_summary(value: Array) -> bool:  # pyrefly: ignore[not-a-type]
 def _is_grain(array: Array) -> bool:  # pyrefly: ignore[not-a-type]
   if 'grain.tensorflow' not in sys.modules:
     return False
-  from grain import tensorflow as grain  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from grain import tensorflow as grain  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   return isinstance(array, grain.ArraySpec)
 
 
 def _get_grain_shm_array_metadata_cls():
   """Imports the shm metadata from `grain` in a cross-version compatible way."""
-  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-  import grain
+  # pylint: disable=g-import-not-at-top
+  import grain  # pyrefly: ignore[missing-import]
 
   cls = getattr(
       grain.multiprocessing,
@@ -189,10 +189,10 @@ def _get_grain_shm_array_metadata_cls():
       None,
   )
   if cls is None:
-    from grain._src.python import shared_memory_array
+    from grain._src.python import shared_memory_array  # pyrefly: ignore[missing-import]
 
     cls = shared_memory_array.SharedMemoryArrayMetadata
-  # pylint: enable=g-import-not-at-top  # pytype: enable=import-error
+  # pylint: enable=g-import-not-at-top
   return cls
 
 
@@ -209,7 +209,7 @@ def _is_pygrain(array: Array) -> bool:  # pyrefly: ignore[not-a-type]
 def _is_orbax(array: Array) -> bool:  # pyrefly: ignore[not-a-type]
   if 'orbax.checkpoint' not in sys.modules:
     return False
-  from orbax.checkpoint.metadata import value  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  from orbax.checkpoint.metadata import value  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   return isinstance(
       array,
