@@ -216,6 +216,14 @@ class _OsPathBackend(Backend):
   def replace(self, path: PathLike, dst: PathLike) -> None:
     if self.isdir(dst):
       raise IsADirectoryError(f'Cannot overwrite: {dst} is a directory')
+    if os.name == 'nt' and os.path.lexists(dst):
+      # Windows can replace a file with a directory, deleting its contents.
+      # Inspect the entry itself: directory symlinks carry this attribute even
+      # when dangling, whereas POSIX permits replacing a file with a symlink.
+      if os.lstat(path).st_file_attributes & stat_lib.FILE_ATTRIBUTE_DIRECTORY:
+        raise NotADirectoryError(
+            f'Cannot replace file {dst} with directory {path}'
+        )
     os.replace(path, dst)
 
   def copy(self, path: PathLike, dst: PathLike, overwrite: bool) -> None:
