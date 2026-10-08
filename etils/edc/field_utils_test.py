@@ -27,7 +27,7 @@ import pytest
 def test_field_no_op(frozen: bool):
   @dataclasses.dataclass(frozen=frozen)
   class A:
-    x: Any = edc.field()  # pytype: disable=annotation-type-mismatch
+    x: Any = edc.field()
 
   # No argument
   with pytest.raises(TypeError, match=r'__init__\(\) missing 1 required'):
@@ -51,7 +51,7 @@ def test_field_multi_instance(frozen: bool):
 
   @dataclasses.dataclass(frozen=frozen)
   class A:
-    x: Any = edc.field(validate=str)  # pytype: disable=annotation-type-mismatch
+    x: Any = edc.field(validate=str)
 
   a0 = A(123)
   assert a0.x == '123'
@@ -95,10 +95,10 @@ def test_field_validate(
       eq=eq,
       order=order,
       unsafe_hash=unsafe_hash,
-      frozen=frozen,  # pytype: disable=not-supported-yet
+      frozen=frozen,
   )
   class A:
-    x: Any = edc.field(validate=str, **default_kwargs)  # pytype: disable=annotation-type-mismatch
+    x: Any = edc.field(validate=str, **default_kwargs)
 
   # No argument
   if default_kwargs:
