@@ -99,7 +99,7 @@ class _MutableProxy(Generic[_T]):
 
   def tree_flatten(self) -> tuple[list[Any], Any]:
     """`jax.tree_utils` support."""
-    import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import jax  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     obj = self._edc_impl.resolve()
     # Not if the wrapped object do not support tree_map, then it will be
@@ -113,7 +113,7 @@ class _MutableProxy(Generic[_T]):
       flattened: list[Any],
   ) -> Any:
     """`jax.tree_utils` support."""
-    import jax  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import jax  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     return jax.tree_util.tree_unflatten(metadata, flattened)
 
