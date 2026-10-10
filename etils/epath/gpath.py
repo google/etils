@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import functools
 import importlib.util
+import logging
 import ntpath
 import os
 import pathlib
@@ -55,6 +56,15 @@ def _epath_use_tf() -> bool:
       '0',
   ]
 
+
+def _epath_prefer_fsspec() -> bool:
+  return os.environ.get('EPATH_PREFER_FSSPEC', '').lower() in [
+      'true',
+      'yes',
+      'y',
+      '1',
+  ]
+
 _PREFIX_TO_BACKEND = {
     'gs': backend_lib.fsspec_backend,
     's3': backend_lib.fsspec_backend,
@@ -66,6 +76,18 @@ _GCS_BACKENDS = frozenset({
     backend_lib.fsspec_backend,
     backend_lib.tf_backend,
 })
+
+
+_SCHEME_TO_LOGGED_BACKEND = {}
+
+def _log_backend_selection(scheme: str, backend: backend_lib.Backend):
+  backend_type = type(backend)
+  if _SCHEME_TO_LOGGED_BACKEND.get(scheme) != backend_type:
+    logging.info(
+        'epath: Using %s backend for %s://', backend_type.__name__, scheme
+    )
+    _SCHEME_TO_LOGGED_BACKEND[scheme] = backend_type
+
 
 # Available modes (from tensorflow/python/lib/io/file_io.py;l=55)
 # Also exclude `+` as broken in gfile
@@ -112,11 +134,12 @@ class _GPath(abstract_path.Path):
   def _backend(self) -> backend_lib.Backend:
     try:
       backend = _PREFIX_TO_BACKEND[self._uri_scheme]
-      # Choose tf_backend if tf is installed. We don't use FSSpec by default
-      # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
-      # may not be installed. fsspec_backend was indeed introduced later.
-      if _is_tf_installed() and self._uri_scheme is not None:
-        return backend_lib.tf_backend
+      if self._uri_scheme is not None:
+        if _is_fsspec_gcsfs_installed():
+          backend = backend_lib.fsspec_backend
+        elif _is_tf_installed():
+          backend = backend_lib.tf_backend
+        _log_backend_selection(self._uri_scheme, backend)
       return backend
     except KeyError:
       supported = ', '.join(f'`{k}://`' for k in _PREFIX_TO_BACKEND)
@@ -306,6 +329,17 @@ class WindowsGPath(pathlib.PureWindowsPath, _GPath):
   """Pathlib like api with gs://, s3:// support."""
 
   _PATH = ntpath
+
+
+@functools.cache
+def _is_fsspec_gcsfs_installed() -> bool:
+  """Checks whether fsspec and gcsfs are installed and environment variable is set"""
+  if not _epath_prefer_fsspec():
+    return False
+  return (
+      importlib.util.find_spec('fsspec') is not None
+      and importlib.util.find_spec('gcsfs') is not None
+  )
 
 
 @functools.cache

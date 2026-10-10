@@ -456,8 +456,17 @@ class _FileSystemSpecBackend(Backend):
     return self.fs(path).isdir(path)
 
   def listdir(self, path: PathLike) -> list[str]:
-    paths = self.fs(path).listdir(path, detail=False)
-    return [os.path.basename(p) for p in paths if not p.endswith('~')]
+    fs = self.fs(path)
+    stripped_path = fs._strip_protocol(os.fspath(path)).rstrip('/')
+    paths = fs.listdir(path, detail=False)
+    # Filter out the directory itself (if returned by fsspec) to align with
+    # TensorFlow backend behavior.
+    return [
+        os.fspath(os.path.basename(p))
+        for p in paths
+        if fs._strip_protocol(p).rstrip('/') != stripped_path
+        and not p.endswith('~')
+    ]
 
   def glob(self, path: PathLike) -> list[str]:
     protocol = _get_protocol(path)

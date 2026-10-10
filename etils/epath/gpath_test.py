@@ -434,20 +434,73 @@ def test_use_backend():
   gs_path = epath.Path('gs://tfds-data/datasets')
   loc_path = epath.Path('/local/tfds-data/datasets')
 
-  gs_backend = epath.backend.tf_backend  # pylint: disable=unused-variable
-  loc_backend = epath.backend.os_backend  # pylint: disable=unused-variable
-  with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
-    assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend
-  with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
-    assert (
-        epath.gpath._get_backend(gs_path, gs_path)
-        == epath.backend.fsspec_backend
-    )
+  tf_backend = epath.backend.tf_backend
+  fsspec_backend = epath.backend.fsspec_backend
+  loc_backend = epath.backend.os_backend
 
-  assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(loc_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pytype: disable=wrong-arg-types
+  # Case 1: fsspec+gcsfs is available and TF is installed -> prefer fsspec
+  with mock.patch.object(
+      epath.gpath, '_is_fsspec_gcsfs_installed', return_value=True
+  ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
+    assert epath.gpath._get_backend(gs_path, gs_path) == fsspec_backend
+    assert epath.gpath._get_backend(gs_path, loc_path) == fsspec_backend
+    assert epath.gpath._get_backend(loc_path, gs_path) == fsspec_backend
+    assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend
+
+  # Case 2: Only fsspec+gcsfs is available -> use fsspec
+  with mock.patch.object(
+      epath.gpath, '_is_fsspec_gcsfs_installed', return_value=True
+  ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
+    assert epath.gpath._get_backend(gs_path, gs_path) == fsspec_backend
+    assert epath.gpath._get_backend(gs_path, loc_path) == fsspec_backend
+    assert epath.gpath._get_backend(loc_path, gs_path) == fsspec_backend
+    assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend
+
+  # Case 3: Only TF is installed -> use TF
+  with mock.patch.object(
+      epath.gpath, '_is_fsspec_gcsfs_installed', return_value=False
+  ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
+    assert epath.gpath._get_backend(gs_path, gs_path) == tf_backend
+    assert epath.gpath._get_backend(gs_path, loc_path) == tf_backend
+    assert epath.gpath._get_backend(loc_path, gs_path) == tf_backend
+    assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend
+
+  # Case 4: Neither is available -> use fsspec (default fallback)
+  with mock.patch.object(
+      epath.gpath, '_is_fsspec_gcsfs_installed', return_value=False
+  ), mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
+    assert epath.gpath._get_backend(gs_path, gs_path) == fsspec_backend
+    assert epath.gpath._get_backend(gs_path, loc_path) == fsspec_backend
+    assert epath.gpath._get_backend(loc_path, gs_path) == fsspec_backend
+    assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend
+
+
+def test_is_fsspec_gcsfs_installed():
+  # We need to clear the cache because the function is cached
+  epath.gpath._is_fsspec_gcsfs_installed.cache_clear()
+
+  # Case 1: Toggle is False -> should be False regardless of installation
+  with mock.patch.object(
+      epath.gpath, '_epath_prefer_fsspec', return_value=False
+  ):
+    assert not epath.gpath._is_fsspec_gcsfs_installed()
+
+  # Case 2: Toggle is True, but packages missing -> False
+  epath.gpath._is_fsspec_gcsfs_installed.cache_clear()
+  with mock.patch.object(
+      epath.gpath, '_epath_prefer_fsspec', return_value=True
+  ), mock.patch('importlib.util.find_spec', return_value=None):
+    assert not epath.gpath._is_fsspec_gcsfs_installed()
+
+  # Case 3: Toggle is True, and packages present -> True
+  epath.gpath._is_fsspec_gcsfs_installed.cache_clear()
+  with mock.patch.object(
+      epath.gpath, '_epath_prefer_fsspec', return_value=True
+  ), mock.patch('importlib.util.find_spec', return_value=mock.MagicMock()):
+    assert epath.gpath._is_fsspec_gcsfs_installed()
+
+  # Clean up cache after test
+  epath.gpath._is_fsspec_gcsfs_installed.cache_clear()
 
 
 @epy.testing.non_hermetic
@@ -463,3 +516,19 @@ def test_relative_to():
   assert path.relative_to('gs://bucket/dir') == epath.Path('subdir')
   with pytest.raises(ValueError, match='not in the subpath'):
     path.relative_to('gs://bucket/other-dir')
+
+
+def test_epath_prefer_fsspec_env():
+  # Without env var, it should be False by default (opt-in)
+  with mock.patch.dict(os.environ, {}, clear=True):
+    assert not epath.gpath._epath_prefer_fsspec()
+
+  # With env var set to true/yes/y/1, it should be True
+  for val in ['true', 'True', 'YES', 'y', '1']:
+    with mock.patch.dict(os.environ, {'EPATH_PREFER_FSSPEC': val}):
+      assert epath.gpath._epath_prefer_fsspec()
+
+  # With env var set to other values, it should be False
+  for val in ['false', 'False', 'NO', 'n', '0', 'random']:
+    with mock.patch.dict(os.environ, {'EPATH_PREFER_FSSPEC': val}):
+      assert not epath.gpath._epath_prefer_fsspec()
