@@ -87,9 +87,12 @@ def _better_logging() -> None:
   # behaviour but any call to logging.use_cpp_logging(), including in any
   # imported dependency, could reset the configuration to C++ logging. By adding
   # an handler we are not subjected to that.
-  python_handler = absl_logging.get_absl_handler().python_handler
+  absl_handler = absl_logging.get_absl_handler()
+  python_handler = absl_handler.python_handler
   python_handler.setFormatter(formatter)
-  py_logging.getLogger().addHandler(python_handler)
+  root_logger = py_logging.getLogger()
+  root_logger.removeHandler(absl_handler)
+  root_logger.addHandler(python_handler)
 
   if 'tqdm' in sys.modules:
     # Replace `sys.stderr` by the TQDM file
