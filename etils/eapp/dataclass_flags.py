@@ -34,7 +34,7 @@ FLAGS = flags.FLAGS
 
 
 def make_flags_parser(
-    cls: _DataclassT,
+    cls: type[_DataclassT],
     *,
     prog: Optional[str] = None,
     description: Optional[str] = None,

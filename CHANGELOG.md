@@ -12,6 +12,10 @@ Changelog follow https://keepachangelog.com/ format.
     *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
         per-context, so each thread / coroutine gets its own independent
         default value.
+*   `eapp`:
+    *   [Fix] `eapp.make_flags_parser`: annotate `cls` as `type[T]` so the
+        returned parser is typed as returning `T`, and
+        `app.run(main, flags_parser=...)` type-checks without suppressions.
 
 ## [1.14.0] - 2026-03-04
 
