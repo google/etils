@@ -257,6 +257,23 @@ def test_touch():
     file_path.touch(exist_ok=False)
 
 
+def test_touch_updates_mtime_on_existing_file(tmp_path: pathlib.Path):
+  # https://docs.python.org/3/library/pathlib.html#pathlib.Path.touch
+  # "If the file already exists, ... its modification time is updated."
+  file_path = epath.Path(tmp_path) / 'test.txt'
+  file_path.write_text('content')
+  # Backdate the file so any real "touch" (which sets mtime to now) is
+  # observably different, regardless of filesystem mtime resolution.
+  old_mtime = file_path.stat().mtime - 1000
+  os.utime(os.fspath(file_path), (old_mtime, old_mtime))
+  assert file_path.stat().mtime == old_mtime
+
+  file_path.touch()
+
+  assert file_path.stat().mtime > old_mtime
+  assert file_path.read_text() == 'content'  # content is preserved
+
+
 @pytest.mark.usefixtures('gcs_mocked_path')
 def test_read_write():
   gpath = epath.Path('gs://file.txt')

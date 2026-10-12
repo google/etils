@@ -229,10 +229,19 @@ class Path(pathlib.PurePosixPath):
     if mode != 0o666:
       raise NotImplementedError(f'Only mode=0o666 supported for {self}')
     if self.exists():
-      if exist_ok:
-        return
-      else:
+      if not exist_ok:
         raise FileExistsError(f'{self} already exists.')
+      # `pathlib.Path.touch()` updates mtime on an existing file. There is no
+      # backend-agnostic "bump mtime" primitive (gs/s3/tf backends included),
+      # so rewrite the same bytes to force one.
+      # ponytail: reads the whole file into memory; switch to a native
+      # per-backend mtime update if `touch()` on large existing files
+      # measurably matters.
+      with self.open('rb') as f:
+        data = f.read()
+      with self.open('wb') as f:
+        f.write(data)
+      return
     self.write_text('')
 
   # pytype: disable=bad-return-type
