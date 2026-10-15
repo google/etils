@@ -9,6 +9,9 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `edc`:
+    *   [Fix] `edc.dataclass`: Recognize inherited and previously added
+        `unfrozen` methods, and detect collisions with existing `unfrozen`
+        attributes.
     *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
         per-context, so each thread / coroutine gets its own independent
         default value.

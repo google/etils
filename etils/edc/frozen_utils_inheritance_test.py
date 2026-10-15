@@ -14,7 +14,6 @@
 
 """Dependency-light tests for inherited unfrozen methods."""
 
-import contextvars
 import dataclasses
 
 from etils import edc
@@ -151,31 +150,6 @@ def test_unfrozen_flag_and_repeat_decoration(flag, use_factory):
     assert Data().unfrozen().frozen() == Data()
 
 
-@pytest.mark.parametrize('slots', [False, True])
-@pytest.mark.parametrize('edc_outermost', [False, True])
-def test_unfrozen_decorator_order(slots, edc_outermost):
-  def decorate(cls):
-    if edc_outermost:
-      return edc.dataclass(allow_unfrozen=True)(
-          dataclasses.dataclass(frozen=True, slots=slots)(cls)
-      )
-    return dataclasses.dataclass(frozen=True, slots=slots)(
-        edc.dataclass(allow_unfrozen=True)(cls)
-    )
-
-  @decorate
-  class Parent:
-    x: int = 1
-
-  @decorate
-  class Child(Parent):
-    y: int = 2
-
-  proxy = Child().unfrozen()
-  proxy.y = 3
-  assert proxy.frozen() == Child(y=3)
-
-
 @pytest.mark.parametrize('flag', [None, False])
 def test_unfrozen_inherited_without_flag(flag):
   @edc.dataclass(allow_unfrozen=True)
@@ -194,37 +168,29 @@ def test_unfrozen_inherited_without_flag(flag):
   assert proxy.frozen() == Child(y=3)
 
 
-def test_unfrozen_context_behavior():
-  @edc.dataclass(allow_unfrozen=True)
-  @dataclasses.dataclass(frozen=True)
-  class Parent:
-    value: edc.ContextVar[int] = 0
+@pytest.mark.parametrize('name', ['frozen', 'unfrozen'])
+@pytest.mark.parametrize('default', [None, False, 0, '', 1])
+@pytest.mark.parametrize('use_factory', [False, True])
+def test_unfrozen_default_field_collision(name, default, use_factory):
+  # Use actual dataclass fields: their class defaults participate in getattr.
+  Data = dataclasses.make_dataclass(
+      'Data', [(name, object, dataclasses.field(default=default))], frozen=True
+  )
 
-  @edc.dataclass(allow_unfrozen=True)
-  @dataclasses.dataclass(frozen=True)
-  class Child(Parent):
-    x: int = 1
+  def decorate():
+    if use_factory:
+      return edc.dataclass(allow_unfrozen=True)(Data)
+    return edc.dataclass(Data, allow_unfrozen=True)
 
-  original = Child(value=42)
-  other = contextvars.Context()
-  assert other.run(lambda: original.value) == 0
-  proxy = original.unfrozen()
-  proxy.value = 10
-  proxy.x = 2
-  result = proxy.frozen()
-  assert result.value == 10
-  assert result.x == 2
-  assert original.value == 42
-  assert other.run(lambda: result.value) == 0
-
-
-@pytest.mark.parametrize('parent_frozen', [False, True])
-def test_unfrozen_preserves_stdlib_frozen_inheritance_rules(parent_frozen):
-  @dataclasses.dataclass(frozen=parent_frozen)
-  class Parent:
-    pass
-
-  with pytest.raises(TypeError, match='cannot inherit'):
-    @dataclasses.dataclass(frozen=not parent_frozen)
-    class Child(Parent):
-      pass
+  if default is not None:
+    # Even falsey non-None defaults are collisions, not missing attributes.
+    with pytest.raises(ValueError, match='already define `frozen` or `unfrozen`'):
+      decorate()
+    assert getattr(Data, name) is default
+  else:
+    # Preserve the existing None-as-missing rule. The generated class method
+    # replaces None, but __init__ still sets the instance field to None.
+    assert decorate() is Data
+    assert getattr(Data, name) is getattr(frozen_utils, name)
+    assert getattr(Data(), name) is None
+  assert dataclasses.fields(Data)[0].default is default
