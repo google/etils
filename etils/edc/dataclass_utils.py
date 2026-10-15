@@ -202,6 +202,7 @@ def dataclass(
         replace=replace,
         repr=repr,
         auto_cast=auto_cast,
+        contextvars=contextvars,
         allow_unfrozen=allow_unfrozen,
     )
 
