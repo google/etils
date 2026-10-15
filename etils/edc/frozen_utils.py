@@ -30,7 +30,7 @@ _is_tree_registered = False
 def add_unfrozen(cls: _Cls) -> _Cls:
   """Add the `frozen`, `unfrozen` methods."""
   cls_frozen = getattr(cls, 'frozen', None)
-  cls_unfrozen = getattr(cls, 'has_unfrozen', None)
+  cls_unfrozen = getattr(cls, 'unfrozen', None)
 
   # Already inherit a unfrozeen class
   if cls_frozen is frozen and cls_unfrozen is unfrozen:
