@@ -9,6 +9,8 @@ Changelog follow https://keepachangelog.com/ format.
 ## [Unreleased]
 
 *   `edc`:
+    *   [Fix] `edc.dataclass`: Preserve `contextvars=False` when using the
+        decorator factory.
     *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
         per-context, so each thread / coroutine gets its own independent
         default value.
