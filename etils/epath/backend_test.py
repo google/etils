@@ -22,6 +22,7 @@ import os
 import pathlib
 import pwd
 from typing import Dict, Union
+from unittest import mock
 
 from etils import epath
 from etils import epy
@@ -97,6 +98,56 @@ def _test_open(
 
   # TODO(epot): Add test with non-utf-8 character to make
   # sure errors are consistents.
+
+
+@pytest.mark.parametrize('mode', ['r', 'rt', 'w', 'wt', 'a', 'at', 'x', 'xt'])
+def test_fsspec_open_utf8(tmp_path: pathlib.Path, mode: str):
+  path = tmp_path / 'text.txt'
+  text = 'abc统一码é'
+  prefix = 'prefix' if mode.startswith('a') else ''
+  if mode.startswith('r'):
+    path.write_bytes(text.encode('utf-8'))
+  elif mode.startswith('a'):
+    path.write_bytes(prefix.encode('utf-8'))
+
+  backend = epath.backend.fsspec_backend
+  filesystem = backend.fs(path)
+  original_open = filesystem.open
+
+  def open_with_non_utf8_default(*args, **kwargs):
+    # Emulate a non-UTF-8 default even on UTF-8 development machines.
+    kwargs.setdefault('encoding', 'cp1252')
+    return original_open(*args, **kwargs)
+
+  with mock.patch.object(
+      filesystem, 'open', side_effect=open_with_non_utf8_default
+  ):
+    with backend.open(path, mode) as f:
+      if mode.startswith('r'):
+        assert f.read() == text
+      else:
+        f.write(text)
+
+  assert path.read_bytes() == (prefix + text).encode('utf-8')
+
+
+@pytest.mark.parametrize('mode', ['rb', 'wb', 'ab', 'xb'])
+def test_fsspec_open_binary(tmp_path: pathlib.Path, mode: str):
+  path = tmp_path / 'binary.bin'
+  data = b'\x00\xff\x80'
+  prefix = b'prefix' if mode == 'ab' else b''
+  if mode == 'rb':
+    path.write_bytes(data)
+  elif mode == 'ab':
+    path.write_bytes(prefix)
+
+  with epath.backend.fsspec_backend.open(path, mode) as f:
+    if mode == 'rb':
+      assert f.read() == data
+    else:
+      f.write(data)
+
+  assert path.read_bytes() == prefix + data
 
 
 def _test_exists(
