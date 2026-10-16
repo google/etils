@@ -14,12 +14,36 @@
 
 """Tests for dataclass_utils."""
 
+import contextvars
 import dataclasses
 from typing import Any
 
 from etils import edc
 from etils import epy
 import pytest
+
+
+@pytest.mark.parametrize('use_factory', [False, True])
+@pytest.mark.parametrize('contextvars_enabled', [False, True])
+def test_contextvars_option(use_factory, contextvars_enabled):
+  @dataclasses.dataclass
+  class Context:
+    value: edc.ContextVar[int] = 0
+    cast_value: edc.AutoCast[int] = 0
+
+  if use_factory:
+    Context = edc.dataclass(contextvars=contextvars_enabled)(Context)
+  else:
+    Context = edc.dataclass(Context, contextvars=contextvars_enabled)
+
+  context = Context(value=42, cast_value='3')
+  assert context.cast_value == 3  # AutoCast remains enabled independently.
+  other_context = contextvars.Context()
+  assert other_context.run(lambda: context.value) == (
+      0 if contextvars_enabled else 42
+  )
+  other_context.run(setattr, context, 'value', 10)
+  assert context.value == (42 if contextvars_enabled else 10)
 
 
 def test_kw_only():

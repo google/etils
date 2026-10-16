@@ -186,7 +186,7 @@ def dataclass(
       (one attribute per line)
     auto_cast: If `True`, fields annotated as `x: edc.AutoCast[Cls]` will be
       converted to `x: Cls = edc.field(validator=Cls)`.
-    contextvars: It `True`, fields annotated as `x: edc.AutoCast[T]` are
+    contextvars: If `True`, fields annotated as `x: edc.ContextVar[T]` are
       converted to `contextvars`. This allow to have a `threading.local`-like
       API for contextvars.
     allow_unfrozen: If `True`, add `.frozen`, `.unfrozen` methods.
@@ -202,6 +202,7 @@ def dataclass(
         replace=replace,
         repr=repr,
         auto_cast=auto_cast,
+        contextvars=contextvars,
         allow_unfrozen=allow_unfrozen,
     )
 
