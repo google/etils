@@ -10,8 +10,9 @@ Changelog follow https://keepachangelog.com/ format.
 
 *   `edc`:
     *   [Fix] `edc.dataclass`: Recognize inherited and previously added
-        `unfrozen` methods, and detect collisions with existing `unfrozen`
-        attributes.
+        `unfrozen` methods, including repeated decoration. Custom non-`None`
+        attributes or default fields named `unfrozen` or `frozen` raise
+        `ValueError`; the existing `None`-as-missing exception is unchanged.
     *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
         per-context, so each thread / coroutine gets its own independent
         default value.
