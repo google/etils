@@ -35,3 +35,16 @@ def test_match():
       '/home/{user}/projects/{project}',
       '/home/user-projects/'
   ) is None
+
+
+def test_literal_punctuation():
+  assert epy.reverse_fstring('file.{ext}', 'file.txt') == {'ext': 'txt'}
+  assert epy.reverse_fstring('file.{ext}', 'fileXtxt') is None
+
+  assert epy.reverse_fstring('report[final]-{id}', 'report[final]-7') == {
+      'id': '7'
+  }
+  assert epy.reverse_fstring('report[final]-{id}', 'reportf-7') is None
+
+  assert epy.reverse_fstring('price${val}', 'price$10') == {'val': '10'}
+  assert epy.reverse_fstring('price${val}', 'price10') is None
