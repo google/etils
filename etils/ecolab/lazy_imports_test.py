@@ -56,9 +56,9 @@ def test_lazy_imports():
   # lazy_imports can be imported but do not appear in `print_current_imports`
   from etils.ecolab.lazy_imports import lazy_imports  # pylint: disable=g-import-not-at-top
 
-  assert not lazy_imports._etils_state.module_loaded  # pytype: disable=module-attr
+  assert not lazy_imports._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
   _ = lazy_imports.print_current_imports  # Trigger import
-  assert lazy_imports._etils_state.module_loaded  # pytype: disable=module-attr
+  assert lazy_imports._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
   del lazy_imports
 
   assert ecolab.lazy_utils.current_import_statements(
@@ -75,16 +75,16 @@ def test_lazy_imports():
 def test_lazy_imports_mutate():
   from etils.lazy_imports import enp  # pylint: disable=g-import-not-at-top
 
-  assert not enp._etils_state.module_loaded  # pytype: disable=module-attr
+  assert not enp._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
   _ = enp.NpModule
-  assert enp._etils_state.module_loaded  # pytype: disable=module-attr
+  assert enp._etils_state.module_loaded  # pyrefly: ignore[missing-attribute]
 
   enp.some_value = 123  # pyrefly: ignore[missing-attribute]
 
   # Mutating lazy import is propagated to the shared instance.
   from etils import enp as enp2  # pylint: disable=g-import-not-at-top
 
-  assert enp2.some_value == 123  # pytype: disable=module-attr
+  assert enp2.some_value == 123  # pyrefly: ignore[missing-attribute]
 
 
 def test_lazy_imports_built_in():

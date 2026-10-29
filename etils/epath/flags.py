@@ -113,4 +113,4 @@ def DEFINE_path(  # pylint: disable=invalid-name
       _PathSerializer(),
       required=required,
       **kwargs,
-  )  # pytype: disable=bad-return-type
+  )
