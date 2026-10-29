@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import types
 from unittest import mock
 
 from etils import epath
@@ -437,17 +438,27 @@ def test_use_backend():
   gs_backend = epath.backend.tf_backend  # pylint: disable=unused-variable
   loc_backend = epath.backend.os_backend  # pylint: disable=unused-variable
   with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=True):
-    assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend
+    with mock.patch.object(
+        epath.gpath, '_is_zonal_gcs_bucket', return_value=False
+    ):
+      assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend
+    with mock.patch.object(
+        epath.gpath, '_is_zonal_gcs_bucket', return_value=True
+    ):
+      assert (
+          epath.gpath._get_backend(gs_path, gs_path)
+          == epath.backend.fsspec_backend
+      )
   with mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False):
     assert (
         epath.gpath._get_backend(gs_path, gs_path)
         == epath.backend.fsspec_backend
     )
 
-  assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(loc_path, gs_path) == gs_backend  # pytype: disable=wrong-arg-types
-  assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pytype: disable=wrong-arg-types
+  assert epath.gpath._get_backend(gs_path, gs_path) == gs_backend  # pyrefly: ignore[bad-argument-type]
+  assert epath.gpath._get_backend(gs_path, loc_path) == gs_backend  # pyrefly: ignore[bad-argument-type]
+  assert epath.gpath._get_backend(loc_path, gs_path) == gs_backend  # pyrefly: ignore[bad-argument-type]
+  assert epath.gpath._get_backend(loc_path, loc_path) == loc_backend  # pyrefly: ignore[bad-argument-type]
 
 
 @epy.testing.non_hermetic
@@ -463,3 +474,40 @@ def test_relative_to():
   assert path.relative_to('gs://bucket/dir') == epath.Path('subdir')
   with pytest.raises(ValueError, match='not in the subpath'):
     path.relative_to('gs://bucket/other-dir')
+
+
+@pytest.mark.parametrize(
+    'bucket,layout,expected',
+    [
+        ('zonal-bucket', types.SimpleNamespace(location_type='zone'), True),
+        (
+            'regional-bucket',
+            types.SimpleNamespace(location_type='region'),
+            False,
+        ),
+        ('error-bucket', RuntimeError('offline'), False),
+        ('', None, False),
+    ],
+)
+def test_is_zonal_gcs_bucket(
+    bucket: str,
+    layout: object,
+    expected: bool,
+    monkeypatch: pytest.MonkeyPatch,
+):
+  epath.gpath._is_zonal_gcs_bucket.cache_clear()
+
+  def _get_layout(name: str):
+    assert bucket and name == f'projects/_/buckets/{bucket}/storageLayout'
+    if isinstance(layout, Exception):
+      raise layout
+    return layout
+
+  client = types.SimpleNamespace(get_storage_layout=_get_layout)
+  monkeypatch.setattr(
+      epath.gpath, '_get_storage_control_client', lambda: client
+  )
+  try:
+    assert epath.gpath._is_zonal_gcs_bucket(bucket) is expected
+  finally:
+    epath.gpath._is_zonal_gcs_bucket.cache_clear()

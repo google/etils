@@ -151,7 +151,7 @@ class _ObjectUpdater:
       case types.FunctionType(), types.FunctionType():
         return self._update_function(old, new)
       case types.MethodType(), types.MethodType():
-        return self._update_function(old.__func__, new.__func__)  # pytype: disable=wrong-arg-types
+        return self._update_function(old.__func__, new.__func__)
       case property(), property():
         return self._update_property(old, new)
 
