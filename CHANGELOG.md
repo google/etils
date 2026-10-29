@@ -8,6 +8,11 @@ Changelog follow https://keepachangelog.com/ format.
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-10-29
+
+*   `epath`:
+    *   Support GCS Zonal Rapid (`gs://`) buckets via `fsspec`
+        (`gcsfs>=2026.4.0`).
 *   `edc`:
     *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
         per-context, so each thread / coroutine gets its own independent
@@ -537,7 +542,8 @@ Changelog follow https://keepachangelog.com/ format.
 
 <!-- mdlint off(LINK_UNUSED_ID) -->
 
-[Unreleased]: https://github.com/google/etils/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/google/etils/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/google/etils/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/google/etils/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/google/etils/compare/v1.12.2...v1.13.0
 [1.12.2]: https://github.com/google/etils/compare/v1.12.1...v1.12.2

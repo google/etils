@@ -59,15 +59,15 @@ def test_unfrozen_call_twice():
 
   # Can't call frozen on frozen object
   with pytest.raises(ValueError, match='can only be called after'):
-    x_origin.frozen()  # pytype: disable=attribute-error
+    x_origin.frozen()  # pyrefly: ignore[missing-attribute]
 
   # Can call unfrozen twice on the original object
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
 
   # Can't call unfrozen on unfrozen objects
   with pytest.raises(ValueError, match='Object is already unfrozen'):
-    x.unfrozen()  # pytype: disable=attribute-error
+    x.unfrozen()
 
   y = x.y
   x.x = 123
@@ -105,7 +105,7 @@ def test_unfrozen_call_twice():
     y.x = 123
 
   # Cannot call unfrozen twice on the original object
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
 
   assert x_freezed == A(x=123, y=A(x=456))
   assert x_origin == A(y=A(x=456))
@@ -114,7 +114,7 @@ def test_unfrozen_call_twice():
 def test_unfrozen_original_obj_non_mutated():
   x_origin = A(x='abc', y=A(y='def'))
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   assert x.y.y == 'def'
   x.x = 123
   x.y = 456
@@ -131,7 +131,7 @@ def test_unfrozen_original_obj_non_mutated():
 def test_unfrozen_assigned_twice():
   x_origin = A(x='abc', y=B(y='def'))
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
 
   x.x = x.y  # Assign the `B()` to 2 different attributes
   x.y.x = 123  # Updating one update the other
@@ -143,7 +143,7 @@ def test_unfrozen_assigned_twice():
 
 def test_unfrozen_nested():
   x_origin = A(x=B(x=A(x=123)))
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   val = A()
   x.x.x.x = A(x=val, y=A(y=123))
   x.x.x.x.y.y = 456
@@ -156,7 +156,7 @@ def test_unfrozen_nested():
 
 def test_unfrozen_inheritance():
   x_origin = C(x=B(x=A(x=123)))
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   val = A()
   x.x.x.x = A(x=val, y=A(y=123))
   x.x.x.x.y.y = 456
@@ -171,7 +171,7 @@ def test_unfrozen_inheritance():
 def test_unfrozen_assigned_object():
   x_origin = A(x=A(x=123))
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
 
   x.x = A(x=456)
   x.x.y = 567  # pyrefly: ignore[read-only]
@@ -184,7 +184,7 @@ def test_unfrozen_same_object():
   a = A(x=1, y=2)
   x_origin = A(x=a, y=a)
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   x.x.x = 10
   x = x.frozen()
 
@@ -194,7 +194,7 @@ def test_unfrozen_same_object():
   assert x == A(x=A(x=10, y=2), y=A(x=1, y=2))
   assert x_origin == A(x=A(x=1, y=2), y=A(x=1, y=2))
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   x.x.x = 10
   x.y.y = 20
   x = x.frozen()
@@ -206,7 +206,7 @@ def test_unfrozen_same_object():
 
 def test_unfrozen_chex():
   x_origin = E(x=E(x=A(y=E(x=123))))
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   x.x.x.y.x = 456
   x = x.frozen()
   assert isinstance(x, E)
@@ -221,7 +221,7 @@ def test_unfrozen_chex():
 def test_unfrozen_no_updates():
   x_origin = A(x=A(x=A(x=123)), y=A(y=A(y=456)))
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   assert x.x.x.x == 123  # Access read-only does not trigger `.replace`
   assert x.y.y.y == 456
   x = x.frozen()
@@ -234,7 +234,7 @@ def test_unfrozen_no_updates():
   assert x_origin.y.y is x.y.y
   assert x_origin.y is x.y
 
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()
   x.x.x.x = 678
   assert x.y.y.y == 456
   x = x.frozen()
@@ -250,7 +250,7 @@ def test_unfrozen_no_updates():
 
 def test_unfrozen_tree_map():
   x_origin = E(x=E(x=456))
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
 
   y = jax.tree_util.tree_map(lambda v: v * 10, x.x)
   assert isinstance(y, E)
@@ -268,7 +268,7 @@ def test_unfrozen_tree_map():
 @pytest.mark.xfail
 def test_unfrozen_cicle():
   x_origin = A(y=B(y=123))
-  x = x_origin.unfrozen()  # pytype: disable=attribute-error
+  x = x_origin.unfrozen()  # pyrefly: ignore[missing-attribute]
   x.y.y = x
   x = x.frozen()
   assert x.y.y is x

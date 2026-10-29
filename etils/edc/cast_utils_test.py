@@ -41,9 +41,9 @@ def test_edc(frozen: bool):
   class D(C):
     d: edc.AutoCast[
         int
-    ] = '888'  # Default arg  # pytype: disable=annotation-type-mismatch
+    ] = '888'  # Default arg
 
-  d = D(c='123', c_non_autocast='456')  # pytype: disable=wrong-arg-types
+  d = D(c='123', c_non_autocast='456')  # pyrefly: ignore[bad-argument-type]
 
   assert d.d == 888
   assert d.c == 123

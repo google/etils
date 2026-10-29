@@ -22,10 +22,8 @@ import warnings
 def set_verbose() -> None:
   """Log stderr & `absl.logging` in Colab (filtered by default)."""
   # pylint: disable=g-import-not-at-top
-  # pytype: disable=import-error
   from absl import logging
-  from colabtools import googlelog
-  # pytype: enable=import-error
+  from colabtools import googlelog  # pyrefly: ignore[missing-import]
   # pylint: enable=g-import-not-at-top
 
   logging.set_verbosity(logging.INFO)
@@ -51,13 +49,11 @@ def patch_graphviz() -> None:
   Calling this function fix the behavior.
   """
   # pylint: disable=g-import-not-at-top
-  # pytype: disable=import-error
-  from colabtools import proto
-  from colabtools import publish
-  from colabtools import stubby
+  from colabtools import proto  # pyrefly: ignore[missing-import]
+  from colabtools import publish  # pyrefly: ignore[missing-import]
+  from colabtools import stubby  # pyrefly: ignore[missing-import]
 
-  import graphviz
-  # pytype: enable=import-error
+  import graphviz  # pyrefly: ignore[missing-import]
   # pylint: enable=g-import-not-at-top
 
   request_proto_cls = proto.GetProtoClass('graphviz_server.RenderRequest')

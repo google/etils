@@ -71,9 +71,9 @@ def register_path_cls(path_cls_or_uri_prefix):
       elif isinstance(path_cls_or_uri_prefix, (list, tuple)):
         for uri_prefix in path_cls_or_uri_prefix:
           _URI_PREFIXES_TO_CLS[uri_prefix] = cls
-      return register_path_cls(cls)  # pytype: disable=bad-return-type
+      return register_path_cls(cls)
 
-    return register_path_cls_decorator  # pytype: disable=bad-return-type
+    return register_path_cls_decorator
   else:
     _PATHLIKE_CLS = _PATHLIKE_CLS + (path_cls_or_uri_prefix,)
     return path_cls_or_uri_prefix
@@ -97,13 +97,13 @@ def make_path(path: PathLike) -> abstract_path.Path:
     uri_splits = path.split('://', maxsplit=1)
     if len(uri_splits) > 1:  # str is URI (e.g. `gs://`, `github://`,...)
       # On windows, `PosixGPath` is created for `gs://` paths
-      return _URI_PREFIXES_TO_CLS[uri_splits[0] + '://'](path)  # pytype: disable=bad-return-type
+      return _URI_PREFIXES_TO_CLS[uri_splits[0] + '://'](path)
     elif is_windows:
       return gpath.WindowsGPath(path)
     else:
       return gpath.PosixGPath(path)
   elif isinstance(path, _PATHLIKE_CLS):
-    return path  # Forward resource path, gpath,... as-is  # pytype: disable=bad-return-type
+    return path  # Forward resource path, gpath,... as-is
   elif isinstance(path, os.PathLike):  # Other `os.fspath` compatible objects
     path_cls = gpath.WindowsGPath if is_windows else gpath.PosixGPath
     return path_cls(path)

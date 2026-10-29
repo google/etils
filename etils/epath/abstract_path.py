@@ -78,7 +78,7 @@ class Path(pathlib.PurePosixPath):
 
   def format(self, *args: Any, **kwargs: Any) -> Self:
     """Apply `str.format()` to the path."""
-    return type(self)(os.fspath(self).format(*args, **kwargs))  # pytype: disable=not-instantiable
+    return type(self)(os.fspath(self).format(*args, **kwargs))
 
   # ====== Read-only methods ======
 
@@ -139,7 +139,7 @@ class Path(pathlib.PurePosixPath):
 
   def expanduser(self) -> Self:
     """Returns a new path with expanded `~` and `~user` constructs."""
-    if '~' not in self.parts:  # pytype: disable=attribute-error
+    if '~' not in self.parts:
       return self
     raise NotImplementedError
 
@@ -235,20 +235,17 @@ class Path(pathlib.PurePosixPath):
         raise FileExistsError(f'{self} already exists.')
     self.write_text('')
 
-  # pytype: disable=bad-return-type
   @abstractmethod
-  def rename(self, target: PathLike) -> Self:
+  def rename(self, target: PathLike) -> Self:  # pyrefly: ignore[bad-return]
     """Renames the path."""
 
   @abstractmethod
-  def replace(self, target: PathLike) -> Self:
+  def replace(self, target: PathLike) -> Self:  # pyrefly: ignore[bad-return]
     """Overwrites the destination path."""
 
   @abstractmethod
-  def copy(self, dst: PathLike, overwrite: bool = False) -> Self:
+  def copy(self, dst: PathLike, overwrite: bool = False) -> Self:  # pyrefly: ignore[bad-return]
     """Copy the current file to the given destination."""
-
-  # pytype: enable=bad-return-type
 
   # ====== Other ======
 
@@ -265,7 +262,7 @@ class Path(pathlib.PurePosixPath):
     Returns:
       pydantic_core.CoreSchema
     """
-    from pydantic_core import core_schema  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    from pydantic_core import core_schema  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     del source_type  # Unused in this implementation.
     del handler  # Unused in this implementation.

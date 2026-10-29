@@ -22,6 +22,7 @@ import os
 import pathlib
 import pwd
 from typing import Dict, Union
+from unittest import mock
 
 from etils import epath
 from etils import epy
@@ -321,6 +322,14 @@ def _test_mkdir_exists_not_ok(
 
   with pytest.raises(FileNotFoundError, match='No such file or directory'):
     backend.mkdir(tmp_path / 'nested/non-existing', exist_ok=False)
+
+  if backend == epath.backend.fsspec_backend:
+    # Cloud fsspec backends (e.g. gcsfs, s3fs) implement `mkdir` as a no-op.
+    fs = epath.backend.fsspec_backend.fs(tmp_path)
+    with mock.patch.object(fs, 'mkdir', return_value=None):
+      backend.mkdir(tmp_path / 'folder', exist_ok=True)
+      with pytest.raises(FileExistsError):
+        backend.mkdir(tmp_path / 'folder', exist_ok=False)
 
 
 def _test_rmtree(

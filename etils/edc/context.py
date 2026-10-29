@@ -44,7 +44,7 @@ if typing.TYPE_CHECKING:
     pass
 
 else:
-  ContextVar = Annotated[_T, _IS_CONTEXTVAR]  # pytype: disable=invalid-typevar
+  ContextVar = Annotated[_T, _IS_CONTEXTVAR]
 
 
 def make_contextvar_descriptor(
