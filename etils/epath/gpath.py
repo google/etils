@@ -55,6 +55,31 @@ def _epath_use_tf() -> bool:
       '0',
   ]
 
+
+@functools.lru_cache(maxsize=1)
+def _get_storage_control_client() -> Any:
+  """Returns a cached `StorageControlClient` instance."""
+  # pylint: disable=g-import-not-at-top
+  # pyrefly: ignore[missing-import]
+  from google.cloud import storage_control_v2
+
+  return storage_control_v2.StorageControlClient()
+
+
+@functools.lru_cache(maxsize=128)
+def _is_zonal_gcs_bucket(bucket: str) -> bool:
+  """Returns True if `bucket` is a GCS Zonal Rapid bucket."""
+  if not bucket:
+    return False
+  try:
+    layout = _get_storage_control_client().get_storage_layout(
+        name=f'projects/_/buckets/{bucket}/storageLayout'
+    )
+    return layout.location_type == 'zone'
+  except Exception:  # pylint: disable=broad-except
+    # Missing SDK, credentials, or permissions fall back to default backend.
+    return False
+
 _PREFIX_TO_BACKEND = {
     'gs': backend_lib.fsspec_backend,
     's3': backend_lib.fsspec_backend,
@@ -116,6 +141,9 @@ class _GPath(abstract_path.Path):
       # for retro-compatibility, because needed dependencies (gcsfs or s3fs)
       # may not be installed. fsspec_backend was indeed introduced later.
       if _is_tf_installed() and self._uri_scheme is not None:
+        bucket = self.parts[2] if len(self.parts) > 2 else ''
+        if self._uri_scheme == 'gs' and _is_zonal_gcs_bucket(bucket):
+          return backend_lib.fsspec_backend
         return backend_lib.tf_backend
       return backend
     except KeyError:
@@ -232,7 +260,7 @@ class _GPath(abstract_path.Path):
       if not missing_ok:
         raise
 
-  def open(  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def open(  # pyrefly: ignore[bad-override]
       self,
       mode: str = 'r',
       *,
