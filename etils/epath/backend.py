@@ -470,13 +470,15 @@ class _FileSystemSpecBackend(Backend):
       top_down: bool = True,
       on_error: Callable[[OSError], object] | None = None,
   ) -> Iterator[tuple[PathLike, list[str], list[str]]]:
-    yield from self.fs(top).walk(  # pytype: disable=bad-return-type
+    protocol = _get_protocol(top)
+    for root, dirs, files in self.fs(top).walk(
         top,
         topdown=top_down,
         # default behavior for pathlib.Path.walk
         on_error='omit' if on_error is None else on_error,
         max_depth=None,
-    )
+    ):
+      yield protocol + root, dirs, files
 
   def makedirs(
       self,

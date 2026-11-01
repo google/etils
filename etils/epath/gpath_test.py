@@ -418,6 +418,68 @@ def test_walk(gcs_mocked_path: pathlib.Path):
   ]
 
 
+@pytest.mark.parametrize('scheme', ['gs', 's3', 'az', 'hf'])
+@pytest.mark.parametrize('top_down', [True, False])
+def test_walk_cloud_paths(scheme: str, top_down: bool):
+  path = epath.Path(f'{scheme}://bucket/root')
+  dirs = ['nested']
+  files = ['file.txt']
+  filesystem = mock.Mock()
+  filesystem.walk.return_value = iter([
+      ('bucket/root', dirs, files),
+      ('bucket/root/nested', [], ['child.txt']),
+  ])
+  on_error = mock.Mock()
+
+  with (
+      mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False),
+      mock.patch.object(
+          epath.backend.fsspec_backend, 'fs', return_value=filesystem
+      ),
+  ):
+    rows = list(path.walk(top_down=top_down, on_error=on_error))
+
+  assert rows == [
+      (path, dirs, files),
+      (path / 'nested', [], ['child.txt']),
+  ]
+  assert rows[0][1] is dirs
+  assert rows[0][2] is files
+  assert str(rows[0][0] / files[0]) == f'{scheme}://bucket/root/file.txt'
+  filesystem.walk.assert_called_once_with(
+      str(path), topdown=top_down, on_error=on_error, max_depth=None
+  )
+
+
+def test_walk_cloud_prunes_directories():
+  path = epath.Path('gs://bucket/root')
+  dirs = ['keep', 'skip']
+
+  def walk(*args, **kwargs):
+    yield 'bucket/root', dirs, []
+    for dirname in dirs:
+      yield f'bucket/root/{dirname}', [], []
+
+  filesystem = mock.Mock()
+  filesystem.walk.side_effect = walk
+  with (
+      mock.patch.object(epath.gpath, '_is_tf_installed', return_value=False),
+      mock.patch.object(
+          epath.backend.fsspec_backend, 'fs', return_value=filesystem
+      ),
+  ):
+    rows = path.walk()
+    root, dirnames, filenames = next(rows)
+    assert root == path
+    assert filenames == []
+    dirnames.remove('skip')
+    assert list(rows) == [(path / 'keep', [], [])]
+
+  filesystem.walk.assert_called_once_with(
+      str(path), topdown=True, on_error='omit', max_depth=None
+  )
+
+
 def test_default():
   path = epath.Path()
   assert isinstance(path, epath.Path)
