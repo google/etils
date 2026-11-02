@@ -382,6 +382,9 @@ def normalize_bytes2str(x):
   if isinstance(x, bytes):
     return x.decode('utf8')
   elif is_array_str(x):
+    # `np.vectorize` cannot infer the output dtype without any elements.
+    if not x.size:
+      return x.astype(str)
     # Note: `np.char.decode` is likely faster but don't work on `object` nor
     # bytes arrays.
     return _to_str_array(x)
