@@ -49,8 +49,9 @@ def get_module_names(
 
   # List all the currently loaded modules matching `modules`
   if recursive:
-    modules = tuple(modules)
-    return [m for m in sys.modules if m.startswith(modules)]
+    prefixes = tuple(module + '.' for module in modules)
+    modules = set(modules)
+    return [m for m in sys.modules if m in modules or m.startswith(prefixes)]
   else:
     modules = set(modules)
     return [m for m in sys.modules if m in modules]
