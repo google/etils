@@ -29,8 +29,6 @@ class MyEnum(epy.StrEnum):
 
 
 def test_str_enum():
-  if sys.version_info[:2] <= (3, 11):
-    return  # Skip for 3.11
 
   assert MyEnum.MY_ATTR is MyEnum.MY_ATTR
   assert MyEnum('my_attr') is MyEnum.MY_ATTR
@@ -55,6 +53,18 @@ def test_str_enum():
   assert MyEnum.OTHER != 'unknonw_my_attr'
 
   assert hash(MyEnum.MY_ATTR) == hash('my_attr')
+  assert hash(MyEnum.MY_UPPER_ATTR) == hash('my_upper_attr')
+  assert hash(MyEnum.OTHER) == hash('not_other')
+
+  assert len({MyEnum.MY_ATTR, MyEnum('MY_ATTR')}) == 1
+  assert len({MyEnum.OTHER, MyEnum('NOT_OTHER')}) == 1
+  assert len({MyEnum.MY_UPPER_ATTR, MyEnum('my_upper_attr')}) == 1
+
+  d = {MyEnum.MY_ATTR: 'a', MyEnum.OTHER: 'b'}
+  assert d[MyEnum('MY_ATTR')] == 'a'
+  assert d[MyEnum('NOT_OTHER')] == 'b'
+  assert d['my_attr'] == 'a'
+  assert d['not_other'] == 'b'
 
   with pytest.raises(ValueError, match='Expected one of'):
     MyEnum('non-existing')

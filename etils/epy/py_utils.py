@@ -61,7 +61,11 @@ class StrEnum(*_StrEnum):  # pyrefly: ignore[invalid-inheritance]
   @classmethod
   def _missing_(cls, value: str) -> StrEnum:
     if isinstance(value, str):
-      enum_value = cls._LOWER_TO_VAL.get(value.lower())
+      lower_to_val = getattr(cls, '_LOWER_TO_VAL', None)
+      if not lower_to_val:
+        cls._LOWER_TO_VAL = {e.value.lower(): e for e in cls}
+        lower_to_val = cls._LOWER_TO_VAL
+      enum_value = lower_to_val.get(value.lower())
       if enum_value is not None:
         return enum_value
     # Could also add `did you meant yy ?`
@@ -81,10 +85,8 @@ class StrEnum(*_StrEnum):  # pyrefly: ignore[invalid-inheritance]
   def __ne__(self, other: object) -> bool:
     return not self.__eq__(other)
 
-  def __hash__(self) -> int:  # pylint: disable=useless-super-delegation
-    # Somehow `hash` is not defined automatically (maybe because of
-    # the `__eq__`, so define it explicitly.
-    return super().__hash__()
+  def __hash__(self) -> int:
+    return hash(self.value.lower())
 
   # Pytype is confused by EnumMeta.__iter__ vs str.__iter__
   if typing.TYPE_CHECKING:
