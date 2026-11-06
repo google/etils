@@ -49,5 +49,11 @@ def reverse_fstring(pattern: str, string: str) -> dict[str, str] | None:
 
 @functools.cache
 def _pattern_cache(pattern: str) -> re.Pattern[str]:
-  pattern = re.sub(r'\{(?P<name>\w+)\}', r'(?P<\g<name>>.+)', pattern)
-  return re.compile(pattern)
+  parts: list[str] = []
+  last_end = 0
+  for m in re.finditer(r'\{(?P<name>\w+)\}', pattern):
+    parts.append(re.escape(pattern[last_end : m.start()]))
+    parts.append(f'(?P<{m.group("name")}>.+)')
+    last_end = m.end()
+  parts.append(re.escape(pattern[last_end:]))
+  return re.compile(''.join(parts))
