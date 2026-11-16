@@ -15,7 +15,8 @@
 """Utils to handle resources."""
 
 from __future__ import annotations
-import importlib.resources as importlib_resources  # pylint: disable=unused-import
+
+import importlib.resources as importlib_resources
 import itertools
 import pathlib
 import posixpath
