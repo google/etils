@@ -117,7 +117,7 @@ with _builder.replace_imports(is_std=True):
   import threading
   import time
   import timeit
-  import tomllib  # pytype: disable=import-error
+  import tomllib
   import traceback
   import typing  # Note we do not import `Any`, `TypeVar`,...
   import types
@@ -132,72 +132,71 @@ with _builder.replace_imports(is_std=True):
 
 with _builder.replace_imports(is_std=False):
   # pylint: disable=g-import-not-at-top,unused-import,reimported
-  # pytype: disable=import-error
   # ====== Etils ======
   from etils import array_types
   from etils import ecolab
-  from etils import edc
+  from etils import edc  # pyrefly: ignore[missing-module-attribute]
   from etils import enp
   from etils import epath
   from etils import epy
   from etils import etqdm
   from etils import etree
-  from etils import exm
+  from etils import exm  # pyrefly: ignore[missing-module-attribute]
   from etils import g3_utils
   from etils.ecolab import lazy_imports
   # ====== Common third party ======
   from absl import app
   from absl import flags
-  import apache_beam as beam
-  import bagz
-  import chex
-  import dataclass_array as dca
+  import apache_beam as beam  # pyrefly: ignore[missing-import]
+  import bagz  # pyrefly: ignore[missing-import]
+  import chex  # pyrefly: ignore[missing-import]
+  import dataclass_array as dca  # pyrefly: ignore[missing-import]
   import einops
-  import fiddle as fdl
-  import flask
-  import flax
-  from flax import linen as nn
-  from flax import nnx
-  import functorch
-  import gin
-  import grain.python as grain
-  import graphviz
-  import imageio
+  import fiddle as fdl  # pyrefly: ignore[missing-import]
+  import flask  # pyrefly: ignore[missing-import]
+  import flax  # pyrefly: ignore[missing-import]
+  from flax import linen as nn  # pyrefly: ignore[missing-import]
+  from flax import nnx  # pyrefly: ignore[missing-import]
+  import functorch  # pyrefly: ignore[missing-import]
+  import gin  # pyrefly: ignore[missing-import]
+  import grain.python as grain  # pyrefly: ignore[missing-import]
+  import graphviz  # pyrefly: ignore[missing-import]
+  import imageio  # pyrefly: ignore[missing-import]
   import immutabledict
   # Even though `import ipywidgets as widgets` is the common alias, widgets
   # is likely too ambiguous.
   import ipywidgets
-  import jax
-  from jax import numpy as jnp
-  import jaxtyping
-  import lark
+  import jax  # pyrefly: ignore[missing-import]
+  from jax import numpy as jnp  # pyrefly: ignore[missing-import]
+  import jaxtyping  # pyrefly: ignore[missing-import]
+  import lark  # pyrefly: ignore[missing-import]
   import matplotlib
   import matplotlib as mpl  # Standard alias
   from matplotlib import pyplot as plt
-  import mcp
+  import mcp  # pyrefly: ignore[missing-import]
   import mediapy as media
-  import ml_collections
-  import networkx as nx
+  import ml_collections  # pyrefly: ignore[missing-import]
+  import networkx as nx  # pyrefly: ignore[missing-source-for-stubs]
   import numpy as np
-  import optax
-  import orbax
-  from orbax import checkpoint as ocp
-  from orbax.checkpoint.experimental import v1 as ocp_v1
-  from orbax import export as oex
-  import pandas as pd
+  import optax  # pyrefly: ignore[missing-import]
+  import orbax  # pyrefly: ignore[missing-import]
+  from orbax import checkpoint as ocp  # pyrefly: ignore[missing-import]
+  from orbax.checkpoint.experimental import v1 as ocp_v1  # pyrefly: ignore[missing-import]
+  from orbax import export as oex  # pyrefly: ignore[missing-import]
+  import pandas as pd  # pyrefly: ignore[missing-import]
   import PIL
   from PIL import Image  # Common alias
-  import pycolmap
-  import scipy
-  import seaborn as sns
-  import sklearn
-  import tensorflow as tf
-  import tensorflow.experimental.numpy as tnp
-  import tensorflow_datasets as tfds
-  import torch
+  import pycolmap  # pyrefly: ignore[missing-import]
+  import scipy  # pyrefly: ignore[missing-import]
+  import seaborn as sns  # pyrefly: ignore[missing-source-for-stubs]
+  import sklearn  # pyrefly: ignore[missing-import]
+  import tensorflow as tf  # pyrefly: ignore[missing-source-for-stubs]
+  import tensorflow.experimental.numpy as tnp  # pyrefly: ignore[missing-import]
+  import tensorflow_datasets as tfds  # pyrefly: ignore[missing-import]
+  import torch  # pyrefly: ignore[missing-import]
   # from torch import nn  # Collision with flax.linen
-  import torchtext
-  import torchvision
+  import torchtext  # pyrefly: ignore[missing-import]
+  import torchvision  # pyrefly: ignore[missing-import]
   import tqdm
   # tqdm import also trigger additional imports.
   # TODO(epot): Currently pylance might not infer `tqdm.auto` match
@@ -206,18 +205,17 @@ with _builder.replace_imports(is_std=False):
   tqdm.auto  # pylint: disable=pointless-statement
   tqdm.notebook  # pylint: disable=pointless-statement
   import tree
-  import typeguard
+  import typeguard  # pyrefly: ignore[missing-import]
   import typing_extensions
-  import plotly
-  from plotly import express as px
-  from plotly import graph_objects as go
+  import plotly  # pyrefly: ignore[missing-import]
+  from plotly import express as px  # pyrefly: ignore[missing-import]
+  from plotly import graph_objects as go  # pyrefly: ignore[missing-import]
   from pydantic import v1 as pydantic
   import requests
-  import sunds
-  import visu3d as v3d
-  from xmanager.contrib import flow as xmflow
+  import sunds  # pyrefly: ignore[missing-import]
+  import visu3d as v3d  # pyrefly: ignore[missing-import]
+  from xmanager.contrib import flow as xmflow  # pyrefly: ignore[missing-import]
   from xmanager import xm
-  # pytype: enable=import-error
   # pylint: enable=g-import-not-at-top,unused-import,reimported
 
 

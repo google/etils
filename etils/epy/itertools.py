@@ -21,7 +21,7 @@ import itertools
 
 from typing import Any, Callable, Iterable, Iterator, TypeVar
 
-# from typing_extensions import Unpack, TypeVarTuple  # pytype: disable=not-supported-yet  # pylint: disable=g-multiple-import
+# from typing_extensions import Unpack, TypeVarTuple  # pylint: disable=g-multiple-import
 
 # TODO(pytype): Once supported, should replace
 Unpack = Any
@@ -116,9 +116,9 @@ def splitby(
   return false_list, true_list
 
 
-def zip_dict(  # pytype: disable=invalid-annotation
-    *dicts: Unpack[dict[_KeyT, _ValuesT]],
-) -> Iterator[_KeyT, tuple[Unpack[_ValuesT]]]:
+def zip_dict(
+    *dicts: Unpack[dict[_KeyT, _ValuesT]],  # pyrefly: ignore[bad-specialization]
+) -> Iterator[_KeyT, tuple[Unpack[_ValuesT]]]:  # pyrefly: ignore[bad-specialization]
   """Iterate over items of dictionaries grouped by their keys.
 
   Example:
@@ -144,12 +144,12 @@ def zip_dict(  # pytype: disable=invalid-annotation
     KeyError: If dicts does not contain the same keys.
   """
   # Set does not keep order like dict, so only use set to compare keys
-  all_keys = set(itertools.chain(*dicts))
+  all_keys = set(itertools.chain(*dicts))  # pyrefly: ignore[bad-argument-type]
   d0 = dicts[0]
 
-  if len(all_keys) != len(d0):
-    raise KeyError(f'Missing keys: {all_keys ^ set(d0)}')
+  if len(all_keys) != len(d0):  # pyrefly: ignore[bad-argument-type]
+    raise KeyError(f'Missing keys: {all_keys ^ set(d0)}')  # pyrefly: ignore[bad-argument-type]
 
-  for key in d0:  # set merge all keys
+  for key in d0:  # set merge all keys  # pyrefly: ignore[not-iterable]
     # Will raise KeyError if the dict don't have the same keys
-    yield key, tuple(d[key] for d in dicts)
+    yield key, tuple(d[key] for d in dicts)  # pyrefly: ignore[bad-index, invalid-yield]

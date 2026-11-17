@@ -57,7 +57,7 @@ class B:
 def test_replace():
   obj = object()
   x = A(y=obj)
-  y = x.replace(x=123)  # pytype: disable=attribute-error
+  y = x.replace(x=123)  # pyrefly: ignore[missing-attribute]
   assert x == A(y=obj)
   assert y == A(x=123, y=obj)
   assert x.y is y.y

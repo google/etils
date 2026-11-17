@@ -114,7 +114,7 @@ def clear_cached_modules(
 
   # The typing module has side effect by caching `A[B]` from the old modules
   # but thankfully they expose the cleanup method.
-  for cleanup in typing._cleanups:  # pytype: disable=module-attr  # pylint: disable=protected-access
+  for cleanup in typing._cleanups:  # pylint: disable=protected-access  # pyrefly: ignore[missing-attribute]
     cleanup()
 
 

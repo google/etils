@@ -101,7 +101,7 @@ def test_error_callback():
   with epy.lazy_imports(
       error_callback=error_callback, success_callback=success_callback
   ):
-    import doesnotexist  # pylint: disable=g-import-not-at-top,unused-import # pytype: disable=import-error
+    import doesnotexist  # pylint: disable=g-import-not-at-top,unused-import  # pyrefly: ignore[missing-import]
   error_callback.assert_not_called()
   success_callback.assert_not_called()
   try:

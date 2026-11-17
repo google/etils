@@ -75,7 +75,7 @@ class ArrayAliasMeta(type):
 
   def __init__(cls, shape: Optional[ShapeSpec], dtype: Optional[_DType]):
     del shape, dtype
-    super().__init__(cls, cls.__name__, (cls,), {})  # pytype: disable=wrong-arg-count
+    super().__init__(cls, cls.__name__, (cls,), {})  # pyrefly: ignore[no-matching-overload]
 
   def __getitem__(cls, shape: _ShapeSpecInput) -> 'ArrayAliasMeta':
     if shape is None:  # Normalize 'Array[None]'

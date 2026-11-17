@@ -248,7 +248,7 @@ def _maybe_set_tnp_casting(xnp: numpy_utils.NpModule) -> None:
     # When TF numpy mode is not enabled, `tnp.asarray(1.)` returns tf.float64,
     # creating conflict because TF do fail for operations like:
     # `tf.float64 + tf.float32`
-    from tensorflow.python.ops.numpy_ops import np_dtypes  # pylint: disable=g-import-not-at-top,g-direct-tensorflow-import  # pytype: disable=import-error
+    from tensorflow.python.ops.numpy_ops import np_dtypes  # pylint: disable=g-import-not-at-top,g-direct-tensorflow-import  # pyrefly: ignore[missing-import]
 
     if not np_dtypes.is_prefer_float32():
       np_dtypes.set_prefer_float32(True)

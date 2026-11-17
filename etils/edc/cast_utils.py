@@ -41,7 +41,7 @@ if typing.TYPE_CHECKING:
     pass
 
 else:
-  AutoCast = Annotated[_T, _IS_NORMALIZED]  # pytype: disable=invalid-typevar
+  AutoCast = Annotated[_T, _IS_NORMALIZED]
 
 
 def make_auto_cast_descriptor(

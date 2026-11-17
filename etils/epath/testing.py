@@ -108,7 +108,7 @@ class _MockBackend(_backend_cls):
   def replace(self, path: PathLike, dst: PathLike) -> None:
     return self._get_fn('replace')(path, dst)
 
-  def copy(self, path: PathLike, dst: PathLike, *, overwrite: bool) -> None:  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def copy(self, path: PathLike, dst: PathLike, *, overwrite: bool) -> None:  # pyrefly: ignore[bad-override]
     return self._get_fn('copy')(path, dst, overwrite=overwrite)
 
   def stat(self, path: PathLike) -> stat_utils.StatResult:

@@ -79,11 +79,11 @@ def test_type(xnp: enp.NpModule, fn):
     fn(x, xnp.asarray(2.0, dtype=xnp.float32))
 
   # Independently of the original xnp, we can explicitly pass the target xnp
-  _assert_out(fn(x, y, xnp=enp.lazy.np), enp.lazy.np)  # pytype: disable=wrong-keyword-args
-  _assert_out(fn(x, y, xnp=enp.lazy.jnp), enp.lazy.jnp)  # pytype: disable=wrong-keyword-args
-  _assert_out(fn(x, y, xnp=enp.lazy.tnp), enp.lazy.tnp)  # pytype: disable=wrong-keyword-args
+  _assert_out(fn(x, y, xnp=enp.lazy.np), enp.lazy.np)
+  _assert_out(fn(x, y, xnp=enp.lazy.jnp), enp.lazy.jnp)
+  _assert_out(fn(x, y, xnp=enp.lazy.tnp), enp.lazy.tnp)
   # TODO(epot): `torch.asarray` do not work with `tf` / `jax`
-  # _assert_out(fn(x, y, xnp=enp.lazy.torch), enp.lazy.torch)  # pytype: disable=wrong-keyword-args
+  # _assert_out(fn(x, y, xnp=enp.lazy.torch), enp.lazy.torch)
 
   # Pass a xnp and np yield xnp
   _assert_out(fn(x, np.asarray(y)), xnp)
@@ -95,21 +95,21 @@ def test_type(xnp: enp.NpModule, fn):
 
 def test_non_array_annotations():
   @enp.check_and_normalize_arrays(strict=False)
-  def fn_non_array_args(x: int, y: FloatArray, z):
+  def fn_non_array_args(x: int, y: FloatArray, z):  # pyrefly: ignore[not-a-type]
     # Non-array typing annotations are preserved
     assert isinstance(x, int)
     assert isinstance(z, str)
     assert enp.lazy.get_xnp(y) is enp.lazy.jnp
     return y + x
 
-  _assert_out(fn_non_array_args(1, [2], 'abc', xnp=enp.lazy.jnp), enp.lazy.jnp)  # pytype: disable=wrong-keyword-args
+  _assert_out(fn_non_array_args(1, [2], 'abc', xnp=enp.lazy.jnp), enp.lazy.jnp)  # pyrefly: ignore[unexpected-keyword]
 
 
 def test_missing_xnp_default():
   @enp.check_and_normalize_arrays(strict=False)
-  def fn_missing_default(x: FloatArray, *, xnp: enp.NpModule):
+  def fn_missing_default(x: FloatArray, *, xnp: enp.NpModule):  # pyrefly: ignore[not-a-type]
     del xnp
     return x
 
-  fn_missing_default(1.0)  # pytype: disable=missing-parameter  # pylint: disable=missing-kwoa
+  fn_missing_default(1.0)  # pylint: disable=missing-kwoa  # pyrefly: ignore[missing-argument]
   fn_missing_default(1.0, xnp=np)

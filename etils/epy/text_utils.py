@@ -314,7 +314,7 @@ def pretty_repr_top_level(obj: Any, *, force: bool = True) -> str:
         },
     )
   elif _is_attr(obj, force=force):
-    import attr  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import attr  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     all_fields = attr.fields_dict(type(obj))
 
@@ -343,7 +343,7 @@ def pretty_repr_top_level(obj: Any, *, force: bool = True) -> str:
   # TODO(epot): When the new fiddle version is release on PyPI, this
   # code could be activated (with the matching test).
   elif _is_fiddle(obj):
-    import fiddle  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import fiddle  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
     cls_name = type(obj).__name__
     formatted_fn_or_cls = obj._fn_or_cls_name_repr()  # pylint: disable=protected-access
@@ -404,7 +404,7 @@ def _is_attr(obj: Any, *, force: bool = False) -> bool:
   """Returns `True` if the object is a `attr` dataclass."""
   if 'attr' not in sys.modules:
     return False
-  import attr  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  import attr  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   if not attr.has(type(obj)):
     return False
@@ -422,7 +422,7 @@ def _is_pydantic(obj: Any, *, force: bool = False) -> bool:
   if 'pydantic' not in sys.modules:
     return False
 
-  import pydantic  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  import pydantic  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   if not isinstance(obj, pydantic.BaseModel):
     return False
@@ -437,7 +437,7 @@ def _is_immutabledict(obj: Any, *, force: bool = False) -> bool:
   """Returns `True` if the object is an `immutabledict`."""
   if 'immutabledict' not in sys.modules:
     return False
-  import immutabledict  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  import immutabledict  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   if not isinstance(obj, immutabledict.immutabledict):
     return False
@@ -477,7 +477,7 @@ def _is_fiddle(obj: Any) -> bool:
   """Returns `True` if the object is a `fiddle` config object."""
   if 'fiddle' not in sys.modules:
     return False
-  import fiddle  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+  import fiddle  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-import]
 
   return isinstance(obj, fiddle.Config)
 

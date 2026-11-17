@@ -106,7 +106,7 @@ def interp(
   to = tuple(xnp.asarray(v) for v in to)
 
   # `a` can be scalar or array of shape=(x.shape[-1],), same for `b`
-  a, b = _linear_interp_factors(*from_, *to)  # pytype: disable=wrong-arg-types
+  a, b = _linear_interp_factors(*from_, *to)
   return a * x + b
 
 

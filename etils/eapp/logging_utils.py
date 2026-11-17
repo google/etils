@@ -49,7 +49,7 @@ class TqdmStream:
   """
 
   def write(self, x: str) -> None:
-    import tqdm  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
+    import tqdm  # pylint: disable=g-import-not-at-top  # pyrefly: ignore[missing-source-for-stubs]
 
     tqdm.tqdm.write(x, end='')
 

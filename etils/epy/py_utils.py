@@ -181,8 +181,7 @@ def frozen(cls: _Cls) -> _Cls:
   if not isinstance(cls, type):
     raise TypeError(f'{cls.__name__} is not')
 
-  cls.__init__ = _wrap_init(cls.__init__)  # pyrefly: ignore[bad-assignment]
-  # pyrefly: ignore[bad-assignment]
+  cls.__init__ = _wrap_init(cls.__init__)
   cls.__setattr__ = _wrap_setattr(cls.__setattr__)
   return cls
 
@@ -195,7 +194,7 @@ def normalize_str_to_list(x: Optional[StrOrStrList]) -> list[str]:
   elif not isinstance(x, (list, tuple)):
     raise TypeError(f'Expected list. Got: {x!r}')
   else:  # list/tuple
-    return list(x)  # pyrefly: ignore[no-matching-overload]  # pyrefly#2607
+    return list(x)  # pyrefly#2607
 
 
 def wraps_cls(wrapped: type[Any]) -> Callable[[_Cls], _Cls]:

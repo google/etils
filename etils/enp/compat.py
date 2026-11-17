@@ -32,7 +32,7 @@ from etils.enp.typing import Array, FloatArray  # pylint: disable=g-multiple-imp
 import numpy as np
 
 if typing.TYPE_CHECKING:
-  import torch as torch_  # pytype: disable=import-error
+  import torch as torch_  # pyrefly: ignore[missing-import]
 
 _NpDType = Any
 

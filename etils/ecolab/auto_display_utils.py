@@ -225,7 +225,7 @@ def _reraise_error(fn: _T) -> _T:
   @functools.wraps(fn)  # pyrefly: ignore[bad-argument-type]
   def decorated(self, node: ast.AST):
     try:
-      return fn(self, node)  # pytype: disable=wrong-arg-types
+      return fn(self, node)  # pyrefly: ignore[not-callable]
     except Exception as e:  # pylint: disable=broad-exception-caught
       code = '\n'.join(self.lines_recorder.last_lines)
       print(f'Error for code:\n-----\n{code}\n-----')
@@ -260,7 +260,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
         if line_info.print_line:
           fn_kwargs.append(ast.keyword('line_code', _unparse_line(node)))
 
-        node.value = ast.Call(  # pytype: disable=wrong-arg-types
+        node.value = ast.Call(
             func=_parse_expr('ecolab.auto_display_utils._display_and_return'),  # pyrefly: ignore[bad-argument-type]
             args=[node.value],
             keywords=fn_kwargs,
@@ -289,7 +289,7 @@ class _AddDisplayStatement(ast.NodeTransformer):
   def visit_Assert(self, node: ast.Assert) -> None:  # pylint: disable=invalid-name
     # Wrap assert so the `node.value` match the expected API
     node = _WrapAssertNode(node)
-    node = self._maybe_display(node)  # pytype: disable=wrong-arg-types
+    node = self._maybe_display(node)  # pyrefly: ignore[bad-argument-type, bad-assignment]
     assert isinstance(node, _WrapAssertNode)
     node = node._node  # Unwrap  # pylint: disable=protected-access
     return node  # pyrefly: ignore[bad-return]
@@ -351,12 +351,12 @@ def _has_trailing_semicolon(
     )
 
   # Extract the lines of the statement
-  line_num = node.end_lineno - 1  # pytype: disable=attribute-error
+  line_num = node.end_lineno - 1  # pyrefly: ignore[missing-attribute]
   last_line = code_lines[line_num]  # lineno starts at `1`
 
   # `node.end_col_offset` is in bytes, so UTF-8 characters count 3.
   last_part_of_line = last_line.encode('utf-8')
-  last_part_of_line = last_part_of_line[node.end_col_offset :]  # pytype: disable=attribute-error
+  last_part_of_line = last_part_of_line[node.end_col_offset :]
   last_part_of_line = last_part_of_line.decode('utf-8')
 
   # Check if the last character is a `;` token
@@ -386,7 +386,7 @@ def _detect_trailing_regex() -> re.Pattern[str]:
   # * `; a; b`
   # * `; a=1`
 
-  available_letters = ''.join(sorted(_Options.all_letters))  # pytype: disable=wrong-arg-types
+  available_letters = ''.join(sorted(_Options.all_letters))
   return re.compile(
       ' *; *'  # Trailing `;` (surrounded by spaces)
       f'(?P<options>[{available_letters}]*)?'  # Optionally a `option` letter
