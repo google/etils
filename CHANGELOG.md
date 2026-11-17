@@ -14,6 +14,8 @@ Changelog follow https://keepachangelog.com/ format.
     *   Support GCS Zonal Rapid (`gs://`) buckets via `fsspec`
         (`gcsfs>=2026.4.0`).
 *   `edc`:
+    *   [Fix] `edc.dataclass`: Preserve `contextvars=False` when using the
+        decorator factory.
     *   [Fix] `edc.ContextVar`: `default_factory` is now lazily resolved
         per-context, so each thread / coroutine gets its own independent
         default value.
