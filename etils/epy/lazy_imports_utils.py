@@ -38,7 +38,6 @@ from typing import Any, Callable, ContextManager, Iterator
 from etils.epy import reraise_utils
 from etils.epy.adhoc_utils import curr_args
 
-
 _ErrorCallback = Callable[[Exception], None]
 _SuccessCallback = Callable[[str], None]
 # Eagerly resolve this import since it's needed in setattr.
@@ -47,6 +46,70 @@ _getattr_static = inspect.getattr_static
 # Store a lock per module to avoid problems with multiple threads trying to
 # import the same module at the same time.
 _LOCK_PER_MODULE = collections.defaultdict(threading.Lock)
+
+
+@dataclasses.dataclass(eq=False)
+class _ImportScope:
+  frames: tuple[types.FrameType, ...]
+  decorated_code: types.CodeType | None
+  thread_id: int
+  import_fn: Callable[..., Any]
+
+
+_IMPORT_SCOPES: list[_ImportScope] = []
+_IMPORT_LOCK = threading.RLock()
+_original_import = builtins.__import__
+
+
+def _import_frames() -> (
+    tuple[tuple[types.FrameType, ...], types.CodeType | None]
+):
+  """Find the block's frame, including delegating context managers."""
+  frame = sys._getframe(2)  # pylint: disable=protected-access
+  frames = []
+  decorated_code = None
+  while frame is not None:
+    if frame.f_globals is contextlib.__dict__:
+      # ContextDecorator enters the context before calling the decorated body.
+      if frame.f_code.co_name == "inner":
+        func = frame.f_locals.get("func")
+        decorated_code = getattr(func, "__code__", None)
+        if decorated_code is None:
+          decorated_code = getattr(
+              getattr(func, "__call__", None), "__code__", None
+          )
+    else:
+      frames.append(frame)
+      parent = frame.f_back
+      # A generator context manager can delegate its scope to the caller, as
+      # lazy_api_imports does. A class's __enter__ can do the same.
+      delegated = (
+          frame.f_code.co_flags & inspect.CO_GENERATOR
+          and parent is not None
+          and parent.f_globals is contextlib.__dict__
+      )
+      if not delegated and frame.f_code.co_name != "__enter__":
+        break
+    frame = frame.f_back
+  return tuple(frames), decorated_code
+
+
+def _scoped_import(  # pylint: disable=redefined-builtin
+    name, globals=None, locals=None, fromlist=(), level=0
+):
+  """Dispatch only imports executed by an active lazy-import scope."""
+  frame = sys._getframe(1)  # pylint: disable=protected-access
+  thread_id = threading.get_ident()
+  with _IMPORT_LOCK:
+    import_fn = _original_import
+    for scope in reversed(_IMPORT_SCOPES):
+      if scope.thread_id == thread_id and (
+          frame in scope.frames or frame.f_code is scope.decorated_code
+      ):
+        import_fn = scope.import_fn
+        break
+  # Do not hold the registry lock while importing or running user callbacks.
+  return import_fn(name, globals, locals, fromlist, level)
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -160,6 +223,10 @@ def lazy_imports(
   Their import is not executed immediately, but is postponed to the first
   call of one of their attributes.
 
+  Only import statements executed directly in the block are lazy. Imports in
+  called functions, other threads and garbage-collection finalizers retain
+  their normal behavior. Delegating context managers are supported.
+
   Limitation:
 
   - You can only lazy load modules (`from x import y` will not work if `y` is a
@@ -203,16 +270,32 @@ def lazy_imports(
   """
   # Need to mock `__import__` (instead of `sys.meta_path`, as we do not want
   # to modify the `sys.modules` cache in any way)
-  original_import = builtins.__import__
+  global _original_import
+  frames, decorated_code = _import_frames()
+  scope = _ImportScope(
+      frames=frames,
+      decorated_code=decorated_code,
+      thread_id=threading.get_ident(),
+      import_fn=functools.partial(
+          _lazy_import,
+          error_callback=error_callback,
+          success_callback=success_callback,
+      ),
+  )
   try:
-    builtins.__import__ = functools.partial(
-        _lazy_import,
-        error_callback=error_callback,
-        success_callback=success_callback,
-    )
+    with _IMPORT_LOCK:
+      if not _IMPORT_SCOPES:
+        _original_import = builtins.__import__
+      _IMPORT_SCOPES.append(scope)
+      builtins.__import__ = _scoped_import
     yield
   finally:
-    builtins.__import__ = original_import
+    with _IMPORT_LOCK:
+      # Threads can exit overlapping blocks in a different order from entry.
+      if scope in _IMPORT_SCOPES:
+        _IMPORT_SCOPES.remove(scope)
+        if not _IMPORT_SCOPES:
+          builtins.__import__ = _original_import
 
 
 def _lazy_import(
